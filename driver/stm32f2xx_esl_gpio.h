@@ -9,21 +9,21 @@
 #define GPIOD_BASE				0x40020C00U
 #define GPIOE_BASE				0x40021000U
 
-#define GPIO_MODE_Pos           0U
+#define GPIO_MODE_Pos			0U
 #define MODE_INPUT				(0x0UL << GPIO_MODE_Pos)
 #define MODE_OUTPUT				(0x1UL << GPIO_MODE_Pos)
 #define MODE_AF					(0x2UL << GPIO_MODE_Pos)
 #define MODE_ANALOG				(0x3U << GPIO_MODE_Pos)
-#define OUTPUT_TYPE_Pos         4U
-#define OUTPUT_TYPE             (0x1UL << OUTPUT_TYPE_Pos)
-#define OUTPUT_PP               (0x0UL << OUTPUT_TYPE_Pos)
-#define OUTPUT_OD               (0x1UL << OUTPUT_TYPE_Pos)
+#define OUTPUT_TYPE_Pos			4U
+#define OUTPUT_TYPE				(0x1UL << OUTPUT_TYPE_Pos)
+#define OUTPUT_PP				(0x0UL << OUTPUT_TYPE_Pos)
+#define OUTPUT_OD				(0x1UL << OUTPUT_TYPE_Pos)
 
 #define GPIO_MODE_INPUT			MODE_INPUT
 #define GPIO_MODE_OUTPUT_PP		(MODE_OUTPUT | OUTPUT_PP) 
 #define GPIO_MODE_OUTPUT_OD		(MODE_OUTPUT | OUTPUT_OD) 
-#define GPIO_MODE_AF_PP         (MODE_AF | OUTPUT_PP)                                 
-#define GPIO_MODE_AF_OD         (MODE_AF | OUTPUT_OD) 
+#define GPIO_MODE_AF_PP			(MODE_AF | OUTPUT_PP)                                 
+#define GPIO_MODE_AF_OD			(MODE_AF | OUTPUT_OD) 
 
 #define GPIO_PIN_0              ((UInt16)0x0001)  /* Pin 0 selected    */
 #define GPIO_PIN_1              ((UInt16)0x0002)  /* Pin 1 selected    */
@@ -54,8 +54,8 @@ typedef struct
 
 typedef enum
 {
-  GPIO_PIN_RESET = 0U,
-  GPIO_PIN_SET
+	GPIO_PIN_RESET = 0U,
+	GPIO_PIN_SET
 }GPIO_PinState;
 
 void ESL_GPIO_Init(GPIO_Typedef* GPIOx, GPIO_InitTypeDef* GPIO_Init);

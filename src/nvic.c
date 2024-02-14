@@ -4,5 +4,5 @@
 void NVIC_Init(void)
 {
     // Enable global interrupt on timer 10
-    NVIC_Enable(NVIC_TIM10_IRQ_POS);
+    ESL_NVIC_Enable(NVIC_TIM10_IRQ_POS);
 }

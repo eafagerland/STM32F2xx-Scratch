@@ -55,8 +55,46 @@ typedef struct
     volatile UInt32 IABR[3]; // 0x30 to 0x3C - interrupt active bit registers
 } NVIC_Typedef;
 
+typedef struct
+{
+	UInt32 CR;
+	UInt32 PLLCFGR;
+	UInt32 CFGR;
+	UInt32 CIR;
+	UInt32 AHB1RSTR;
+	UInt32 AHB2RSTR;
+	UInt32 AHB3RSTR;
+	UInt32 RESERVED;
+	UInt32 APB1RSTR;
+	UInt32 APB2RSTR;
+	UInt32 RESERVED1;
+	UInt32 RESERVED2;
+	UInt32 AHB1ENR;
+	UInt32 AHB2ENR;
+	UInt32 AHB3ENR;
+	UInt32 RESERVED3;
+	UInt32 APB1ENR;
+	UInt32 APB2ENR;
+	UInt32 RESERVED4;
+	UInt32 RESERVED5;
+	UInt32 AHB1LPENR;
+	UInt32 AHB2LPENR;
+	UInt32 AHB3LPENR;
+	UInt32 RESERVED6;
+	UInt32 APB1LPENR;
+	UInt32 APB2LPENR;
+	UInt32 RESERVED7;
+	UInt32 RESERVED8;
+	UInt32 BDCR;
+	UInt32 CSR;
+	UInt32 RESERVED9;
+	UInt32 RESERVED10;
+	UInt32 SSCGR;
+	UInt32 PLLI2SCFGR;
+} RCC_Typedef;
+
 #define GPIOA 				((GPIO_Typedef *) GPIOA_BASE)
-#define GPIOB               ((GPIO_Typedef *) GPIOB_BASE)
+#define GPIOB				((GPIO_Typedef *) GPIOB_BASE)
 #define GPIOC 				((GPIO_Typedef *) GPIOC_BASE)
 #define GPIOD 				((GPIO_Typedef *) GPIOD_BASE)
 #define GPIOE 				((GPIO_Typedef *) GPIOE_BASE)
@@ -77,5 +115,7 @@ typedef struct
 #define TIM14				((TIMx_Typedef* ) TIM14_BASE)
 
 #define NVIC				((NVIC_Typedef* ) NVIC_BASE)
+
+#define RCC					((RCC_Typedef* ) RCC_BASE)
 
 #endif // __STM32F207xx__H

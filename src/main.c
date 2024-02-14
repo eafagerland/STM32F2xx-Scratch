@@ -1,8 +1,5 @@
 #include "stm32f2xx_esl.h"
 
-/* Base Addresses for Peripherals */
-#define RCC_BASE    0x40023800U
-
 /* Offset Addresses for Peripherals */
 #define RCC_CR_OFFSET       0x00U   // Control register for clock and reset control
 #define RCC_CFGR_OFFSET     0x08U   // Configuration register for clock and reset control
@@ -18,6 +15,8 @@
 #define RCC_APB1ENR     (RCC_BASE + RCC_APB1ENR_OFFSET)
 #define RCC_APB2ENR     (RCC_BASE + RCC_APB2ENR_OFFSET)
 
+#define FLASH_BASE 0x40023C00U
+
 #define REG(x) (*(UInt32 *)x)
 
 /* spin for some amount of ticks */
@@ -29,33 +28,17 @@ void delay(volatile Int32  t)
 int main(void)
 {
 	// Enable HSE
-	REG(RCC_CR) |= (1 << 16);
+	//REG(RCC_CR) |= (1 << 16);
 
 	// Check stable clock and set HSI as source (will set 16Mhz as default clock)
-	if (REG(RCC_CR) & (1 << 17))
-		REG(RCC_CFGR) |= (1 << 0);
+	//if (REG(RCC_CR) & (1 << 17))
+	//	REG(RCC_CFGR) |= (1 << 0);
 
-	// Enable clock on Port B
-	REG(RCC_AHB1ENR) |= (1 << 1);
-
-	// Enable clock on TIM10
-	REG(RCC_APB2ENR) |= (1 << 17);
-
-	// Enable clock on TIM11
-	REG(RCC_APB2ENR) |= (1 << 18);
-
-
-	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
+	REG(FLASH_BASE) |= (90 << 0); // Set flash latency 3WS
+	ESL_RCC_Init(0, 240, 8, RCC_APBx_CLOCK_DIV4, RCC_APBx_CLOCK_DIV2, RCC_AHB_CLOCK_DIV0);
 	GPIO_Init();
-	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
-
-	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
 	TIM_Init();
-	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
-
-	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_SET);
 	NVIC_Init();
-	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
 
 	UInt16 timer_val_tim11 = TIM11->CNT;
 
