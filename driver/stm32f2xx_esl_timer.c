@@ -12,6 +12,11 @@ void ESL_TIM_Enable_IRQ(TIMx_Typedef* TIMx)
     TIMx->DIER = 1U; // Enable update interrupt
 }
 
+void ESL_TIM_Reset_IRQ(TIMx_Typedef* TIMx)
+{
+    TIM10->SR = 0U;
+}
+
 __attribute__((weak)) void TIM10_IRQHandler(void)
 {
     /* NOTE: 

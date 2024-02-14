@@ -2,6 +2,7 @@
 
 #define BLUE_LED GPIO_PIN_7
 #define RED_LED GPIO_PIN_14
+#define USER_BUTTON GPIO_PIN_13
 
 #define FLASH_BASE 0x40023C00U
 
@@ -19,7 +20,7 @@ int main(void)
 	UInt16 timer_val_tim11 = TIM11->CNT;
 
 	// Delay test
-	for (int i = 0; i < 10; i++)
+	for (int i = 0; i < 50; i++)
 	{
 		ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
 		ESL_Delay(100);
@@ -32,6 +33,13 @@ int main(void)
 		if (ESL_Millis() >= 10000)
 		{
 			ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
+		}
+
+		// Button test
+		if (ESL_GPIO_Read_Pinstate(GPIOC, USER_BUTTON) == GPIO_PIN_SET)
+		{
+			ESL_GPIO_TogglePin(GPIOB, RED_LED);
+			ESL_Delay(500);
 		}
 		/*if (TIM11->CNT - timer_val_tim11 >= 10000) // Toggle led every 1sec
 		{
@@ -46,7 +54,7 @@ void TIM10_IRQHandler(void)
 	ESL_GPIO_TogglePin(GPIOB, BLUE_LED);
 
 	// Reset interrupt
-	TIM10->SR = 0U;
+	ESL_TIM_Reset_IRQ(TIM10);
 }
 
 void HardFault_Handler(void)

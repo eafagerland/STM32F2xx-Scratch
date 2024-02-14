@@ -76,9 +76,12 @@ void ESL_RCC_Init(UInt16 pllp, UInt16 plln, UInt16 pllm, UInt16 pllq, UInt16 apb
     // Enable clock on GPIO Port B
     RCC->AHB1ENR |= (1 << 1);
 
-	// Enable clock on TIM10
+    // Enable clock on GPIO Port C
+    RCC->AHB1ENR |= (1 << 2);
+
+    // Enable clock on TIM10
     RCC->APB2ENR |= (1 << 17);
 
-	// Enable clock on TIM11
-	RCC->APB2ENR |= (1 << 18);
+    // Enable clock on TIM11
+    RCC->APB2ENR |= (1 << 18);
 }

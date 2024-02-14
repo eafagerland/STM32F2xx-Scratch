@@ -20,6 +20,7 @@
 
 void ESL_TIM_Init(TIMx_Typedef* TIMx, UInt32 psc, UInt32 arr);
 void ESL_TIM_Enable_IRQ(TIMx_Typedef* TIMx);
+void ESL_TIM_Reset_IRQ(TIMx_Typedef* TIMx);
 
 void TIM10_IRQHandler(void);
 

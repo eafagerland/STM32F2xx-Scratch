@@ -29,6 +29,11 @@ void ESL_GPIO_WritePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinSt
 
 void ESL_GPIO_TogglePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin)
 {
-    GPIO_PinState pinState = (GPIOx->ODR & GPIO_Pin) ? 1 : 0;
+    GPIO_PinState pinState = (GPIOx->ODR & GPIO_Pin) ? GPIO_PIN_SET : GPIO_PIN_RESET;
     ESL_GPIO_WritePin(GPIOx, GPIO_Pin, !pinState);
+}
+
+GPIO_PinState ESL_GPIO_Read_Pinstate(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin)
+{
+    return (GPIOx->IDR & GPIO_Pin) ? GPIO_PIN_SET : GPIO_PIN_RESET;
 }
