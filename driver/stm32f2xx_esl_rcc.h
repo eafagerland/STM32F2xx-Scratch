@@ -29,6 +29,6 @@ typedef enum
     SOURCE_PLL
 } RCC_System_Clock_Source;
 
-void ESL_RCC_Init(UInt16 pllp, UInt16 plln, UInt16 pllm, UInt16 apb1, UInt16 apb2, UInt16 ahb1);
+void ESL_RCC_Init(UInt16 pllp, UInt16 plln, UInt16 pllm, UInt16 pllq, UInt16 apb1, UInt16 apb2, UInt16 ahb1);
 
 #endif // __STM32F2xx_ESL_RCC_H

@@ -93,6 +93,14 @@ typedef struct
 	UInt32 PLLI2SCFGR;
 } RCC_Typedef;
 
+typedef struct
+{
+	UInt32 STK_CTRL;
+	UInt32 STK_LOAD;
+	UInt32 STK_VAL;
+	UInt32 STK_CALIB;
+} SysTick_Typedef;
+
 #define GPIOA 				((GPIO_Typedef *) GPIOA_BASE)
 #define GPIOB				((GPIO_Typedef *) GPIOB_BASE)
 #define GPIOC 				((GPIO_Typedef *) GPIOC_BASE)
@@ -117,5 +125,7 @@ typedef struct
 #define NVIC				((NVIC_Typedef* ) NVIC_BASE)
 
 #define RCC					((RCC_Typedef* ) RCC_BASE)
+
+#define SYSTICK				((SysTick_Typedef* ) SYSTICK_BASE)
 
 #endif // __STM32F207xx__H

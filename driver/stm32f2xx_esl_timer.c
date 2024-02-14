@@ -2,8 +2,8 @@
 
 void ESL_TIM_Init(TIMx_Typedef* TIMx, UInt32 psc, UInt32 arr)
 {
-    TIMx->PSC = psc;	    // Set the prescaler
-    TIMx->ARR = arr;        // Set the auto reload register
+    TIMx->PSC = (psc - 1);  // Set the prescaler
+    TIMx->ARR = (arr - 1);  // Set the auto reload register
     TIMx->CR1 = 1U;         // enable counter
 }
 

@@ -18,7 +18,7 @@
 .word   none                //  - DebugMonitor
 .word   none                //  - Reserved
 .word   none                //  - PendSV
-.word   none                //  - SysTick
+.word   ESL_SysTick_Handler //  - SysTick
 .word   none                //  0 WWDG
 .word   none                //  1 PVD
 .word   none                //  2 TAMP_STAMP

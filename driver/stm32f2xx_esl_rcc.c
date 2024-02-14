@@ -5,13 +5,14 @@
 #define RCC_CR_PLL_ON               (1 << 24)                       
 
 // CPU Clock sources
-#define RCC_CFGR_SW_HSI             (0x0UL << RCC_CFGR_SW_POS)
-#define RCC_CFGR_SW_HSE             (0x1UL << RCC_CFGR_SW_POS)
-#define RCC_CFGR_SW_PLL             (0x2UL << RCC_CFGR_SW_POS)
+#define RCC_CFGR_SW_HSI             (SOURCE_HSI << RCC_CFGR_SW_POS)
+#define RCC_CFGR_SW_HSE             (SOURCE_HSE << RCC_CFGR_SW_POS)
+#define RCC_CFGR_SW_PLL             (SOURCE_PLL << RCC_CFGR_SW_POS)
 
 #define RCC_PLLCFGR_PLLP_POS        16
 #define RCC_PLLCFGR_PLLN_POS        6
 #define RCC_PLLCFGR_PLLM_POS        0
+#define RCC_PLLCFGR_PLLQ_POS        24
 #define RCC_PLLCFGR_PLL_SRC_POS     22
 #define RCC_PLLCFGR_PLL_SRC_HSE     (0x1UL << 22)
 
@@ -20,7 +21,7 @@
 #define RCC_CFGR_AHB1_POS           4
 #define RCC_CFGR_SW_POS             (0U)  
 
-void ESL_RCC_Init(UInt16 pllp, UInt16 plln, UInt16 pllm, UInt16 apb1, UInt16 apb2, UInt16 ahb1)
+void ESL_RCC_Init(UInt16 pllp, UInt16 plln, UInt16 pllm, UInt16 pllq, UInt16 apb1, UInt16 apb2, UInt16 ahb1)
 {
     RCC->CR |= RCC_CR_HSE_ON;               // Enable HSE
     RCC->CR &= ~(1 << 0);                   // Disable HSI
@@ -31,8 +32,8 @@ void ESL_RCC_Init(UInt16 pllp, UInt16 plln, UInt16 pllm, UInt16 apb1, UInt16 apb
     RCC->CR &= ~(1 << 24);                  // Disable PLL
 
     // CLear PLLQ and set new value
-    RCC->PLLCFGR &= ~(0b1111UL << 24);
-    RCC->PLLCFGR |= (4U << 24);          
+    RCC->PLLCFGR &= ~(0b1111UL << RCC_PLLCFGR_PLLQ_POS);
+    RCC->PLLCFGR |= (pllq << RCC_PLLCFGR_PLLQ_POS);          
 
     // Clear PLL source and set HSE as source
     RCC->PLLCFGR &= ~(1 << RCC_PLLCFGR_PLL_SRC_POS);
@@ -69,10 +70,10 @@ void ESL_RCC_Init(UInt16 pllp, UInt16 plln, UInt16 pllm, UInt16 apb1, UInt16 apb
     RCC->CFGR &= ~(0x3UL);        // Clear SW bits
     RCC->CFGR |= RCC_CFGR_SW_PLL; // Set PLL as main clock source
 
-    // Enable clock on Port A
+    // Enable clock on GPIO Port A
     RCC->AHB1ENR |= (1 << 0);
 
-    // Enable clock on Port B
+    // Enable clock on GPIO Port B
     RCC->AHB1ENR |= (1 << 1);
 
 	// Enable clock on TIM10
