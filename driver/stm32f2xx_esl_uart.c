@@ -1,4 +1,6 @@
-#include "stm32f2xx_esl_usart.h"
+#include "stm32f2xx_esl_uart.h"
+#include "stm32f2xx_esl_rcc.h"
+#include "stm32f2xx_esl_systick.h"
 
 void ESL_UARTx_Init(UARTx_Typedef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN len, UART_STOPBITS stopbits)
 {
@@ -16,9 +18,7 @@ void ESL_UARTx_Init(UARTx_Typedef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN len,
     UARTx->CR2 |= (stopbits << UART_CR2_STOP_BIT_POS);
 
     // Set the baudrate
-    UARTx->BRR = 30000000 / baud; // 30mhz on the APB1 clock
-
-    UInt32 baudset = UARTx->BRR;
+    UARTx->BRR = RCC_Clocks.APB1_CLOCK / baud;
 
     // Enable transmitter
     UARTx->CR1 &= ~UART_CR1_TE;
@@ -29,7 +29,7 @@ void ESL_UARTx_Init(UARTx_Typedef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN len,
     UARTx->CR1 |= UART_CR1_RE;
 }
 
-void ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout)
+ESL_StatusTypeDef ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout)
 {
     UInt32 bytes_sent = 0;
     UInt32 millis_started = ESL_Millis();
@@ -41,7 +41,7 @@ void ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 tim
 
         // Check for timeout
         if (time_waiting >= timeout)
-            return;
+            return ESL_TIMEOUT;
 
         // Wait for TXE to set, indicating TX buffer is empty
         if (UARTx->SR & UART_SR_TXE)
@@ -61,11 +61,13 @@ void ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 tim
 
         // Check for timeout
         if (time_waiting >= timeout)
-            return;
+            return ESL_TIMEOUT;
     }
+
+    return ESL_OK;
 }
 
-void ESL_UARTx_Read(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout)
+ESL_StatusTypeDef ESL_UARTx_Read(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout)
 {
     UInt32 bytes_read = 0;
     UInt32 millis_started = ESL_Millis();
@@ -77,7 +79,7 @@ void ESL_UARTx_Read(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 time
 
         // Check for timeout
         if (time_waiting >= timeout)
-            return;
+            return ESL_TIMEOUT;
 
         // Wait for RXNE to set, indicating data in buffer
         if (UARTx->SR & UART_SR_RXNE)
@@ -87,9 +89,11 @@ void ESL_UARTx_Read(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 time
             bytes_read++;
         }
     }
+
+    return ESL_OK;
 }
 
-void ESL_UARTx_Flush(UARTx_Typedef* UARTx)
+ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Typedef* UARTx)
 {
     volatile UInt8 dummy_byte = 0;
     UInt32 millis_started = ESL_Millis();
@@ -102,9 +106,11 @@ void ESL_UARTx_Flush(UARTx_Typedef* UARTx)
 
         // Check for timeout
         if (time_waiting >= 5000)
-            return;
+            return ESL_TIMEOUT;
 
         dummy_byte = UARTx->DR;
         (void)dummy_byte; // Supress compiler warning
     }
+
+    return ESL_OK;
 }

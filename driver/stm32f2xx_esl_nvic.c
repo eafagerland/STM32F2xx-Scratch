@@ -12,5 +12,7 @@ void ESL_NVIC_Enable(UInt8 irq_pos)
 
 __attribute__((weak)) void EXTI15_10_Handler(void)
 {
-
+    /* NOTE: 
+     * This function should not be modified, when the callback is needed it can be implemented in user file
+    */
 }

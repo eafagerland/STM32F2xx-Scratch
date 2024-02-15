@@ -2,7 +2,8 @@
 #include "gpio.h"
 #include "nvic.h"
 #include "tim.h"
-#include "usart.h"
+#include "uart.h"
+#include "eslstring.h"
 
 #define BLUE_LED GPIO_PIN_7
 #define RED_LED GPIO_PIN_14
@@ -12,15 +13,22 @@
 
 #define REG(x) (*(UInt32 *)x)
 
+void HardFault_Handler(void);
+
 int main(void)
 {
 	REG(FLASH_BASE) |= (90 << 0); // Set flash latency 3WS
 
-	ESL_RCC_Init(0, 240, 8, 4, RCC_APBx_CLOCK_DIV4, RCC_APBx_CLOCK_DIV2, RCC_AHB_CLOCK_DIV0);
+	// Init system clocks, go to hardfault handler if there was errors in settings
+	if (ESL_RCC_Init(RCC_PLLP_CLOCK_DIV2, 240, 8, 4, RCC_APBx_CLOCK_DIV4, RCC_APBx_CLOCK_DIV2, RCC_AHB_CLOCK_DIV1) != ESL_OK)
+		HardFault_Handler();
+
 	GPIO_Init();
 	TIM_Init();
 	NVIC_Init();
 	UART2_Init();
+
+	print("Init Complete!\n\r");
 
 	UInt16 timer_val_tim11 = TIM11->CNT;
 
@@ -33,25 +41,32 @@ int main(void)
 		ESL_Delay(100);
 	}
 
-	const char* buf = "Enter Something!\n\r";
-	ESL_UARTx_Write(UART2, (UInt8*)buf, 19, 5000);
+	// Print something fancy in terminal
+	char buf[100];
+	stringcopy(buf, "\nEnter Something!");
+	const char* cat_test  = ", NOW!\n\r";
+	stringcat(buf, cat_test);
+	print(buf);
 
 	//UART Read test
 	char rx_buf[100];
-	for (int i = 0; i < 100; i++)
-		rx_buf[i] = '\0';
+	stringset(rx_buf, '\0', 100);
 	ESL_UARTx_Read(UART2, (UInt8*)rx_buf, 100, 20000);
 
 	// UART Test, Respond with received data if available
-	buf = "Received Data: ";
-	ESL_UARTx_Write(UART2, (UInt8*)buf, 16, 5000);
+	stringcopy(buf, "Received Data: ");
+	print(buf);
 	if (rx_buf[0] == '\0')
 	{
-		buf = "NO DATA\n\r";
-		ESL_UARTx_Write(UART2, (UInt8*)buf, 10, 5000);
+		stringcopy(buf, "NO DATA\n\r");
+		print(buf);
 	}
 	else
-		ESL_UARTx_Write(UART2, (UInt8*)rx_buf, 100, 5000);
+	{
+		print(rx_buf);
+		stringcopy(buf, "\n\r");
+		print(buf);
+	}
 
 	ESL_Delay(1000);
 
@@ -95,4 +110,5 @@ void HardFault_Handler(void)
 {
 	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
 	ESL_GPIO_WritePin(GPIOB, BLUE_LED, GPIO_PIN_SET);
+	while (1){}
 }

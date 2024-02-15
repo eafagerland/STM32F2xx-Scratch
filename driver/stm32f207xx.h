@@ -11,6 +11,14 @@
 #define EXTI_BASE 0x40013C00U
 #define SYSCFG_BASE 0x40013800U
 
+typedef enum
+{
+	ESL_OK       = 0x00U,
+	ESL_ERROR    = 0x01U,
+	ESL_BUSY     = 0x02U,
+	ESL_TIMEOUT  = 0x03U
+} ESL_StatusTypeDef;
+
 typedef struct
 {
 	UInt32 MODER;

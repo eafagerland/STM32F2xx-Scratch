@@ -67,8 +67,8 @@ typedef enum
 } UART_BAUDRATE;
 
 void ESL_UARTx_Init(UARTx_Typedef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN wordlen, UART_STOPBITS stopbits);
-void ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
-void ESL_UARTx_Read(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
-void ESL_UARTx_Flush(UARTx_Typedef* UARTx);
+ESL_StatusTypeDef ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
+ESL_StatusTypeDef ESL_UARTx_Read(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
+ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Typedef* UARTx);
 
 #endif // __STM32F2xx_ESL_USART_H

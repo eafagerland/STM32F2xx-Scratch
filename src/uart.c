@@ -1,5 +1,5 @@
-#include "usart.h"
-#include "stm32f2xx_esl_usart.h"
+#include "uart.h"
+#include "stm32f2xx_esl_uart.h"
 
 void UART2_Init()
 {

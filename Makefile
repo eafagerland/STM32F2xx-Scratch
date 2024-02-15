@@ -8,12 +8,13 @@ C_SOURCES = \
 	./driver/stm32f2xx_esl_nvic.c \
 	./driver/stm32f2xx_esl_rcc.c \
 	./driver/stm32f2xx_esl_systick.c \
-	./driver/stm32f2xx_esl_usart.c \
+	./driver/stm32f2xx_esl_uart.c \
+	./driver/utilities/eslstring.c \
 	./src/main.c \
 	./src/gpio.c \
 	./src/tim.c \
 	./src/nvic.c \
-	./src/usart.c
+	./src/uart.c
 ASM_SOURCES = ./asm/boot.S
 
 PREFIX = arm-none-eabi
@@ -29,7 +30,7 @@ BIN = $(CP) -O binary
 CPU = -mcpu=cortex-m3
 MCU = $(CPU) -mthumb -g -std=c99
 
-C_INCLUDES = -Iinc -Idriver
+C_INCLUDES = -Iinc -Idriver -Idriver/utilities
 CFLAGS = $(MCU) $(C_INCLUDES)
 
 LDSCRIPT = flash.lds
