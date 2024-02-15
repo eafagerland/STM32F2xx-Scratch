@@ -3,44 +3,108 @@
 void ESL_UARTx_Init(UARTx_Typedef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN len, UART_STOPBITS stopbits)
 {
     // Enable USART
-    UARTx->CR1 &= ~(1 << 13);
-    UARTx->CR1 |= (1 << 13);
+    UARTx->CR1 &= ~UART_CR1_UE;
+    UARTx->CR1 |= UART_CR1_UE;
 
     // Set word length
-    UARTx->CR1 &= ~(1 << 12);
+    UARTx->CR1 &= ~UART_CR1_M;
     if (len == UART_WORD_LEN_9)
-        UARTx->CR1 |= (1 << 12);
+        UARTx->CR1 |= UART_CR1_M;
     
     // Set stop bits
-    UARTx->CR2 &= ~(0b11UL << 12);
-    UARTx->CR2 |= (stopbits << 12);
+    UARTx->CR2 &= ~(0b11UL << UART_CR2_STOP_BIT_POS);
+    UARTx->CR2 |= (stopbits << UART_CR2_STOP_BIT_POS);
 
     // Set the baudrate
-    UARTx->BRR = 30000000 / baud;
+    UARTx->BRR = 30000000 / baud; // 30mhz on the APB1 clock
 
     UInt32 baudset = UARTx->BRR;
 
     // Enable transmitter
-    UARTx->CR1 &= ~(1 << 3);
-    UARTx->CR1 |= (1 << 3);
+    UARTx->CR1 &= ~UART_CR1_TE;
+    UARTx->CR1 |= UART_CR1_TE;
+
+    // Enable receiver
+    UARTx->CR1 &= ~UART_CR1_RE;
+    UARTx->CR1 |= UART_CR1_RE;
 }
 
-void ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length)
+void ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout)
 {
     UInt32 bytes_sent = 0;
+    UInt32 millis_started = ESL_Millis();
 
     while (bytes_sent < length)
     {
-        // Wait for TXE to set, indicating tx buffer is empty
-        while (!(UARTx->SR & (1 << 7))){}
+        // Calculate time spent waiting for TXE to be set
+        UInt32 time_waiting = ESL_Millis() - millis_started;
 
-        // Set data in register
-        UInt8 data = buf[bytes_sent];
-        UARTx->DR = data;
+        // Check for timeout
+        if (time_waiting >= timeout)
+            return;
 
-        bytes_sent++;
+        // Wait for TXE to set, indicating TX buffer is empty
+        if (UARTx->SR & UART_SR_TXE)
+        {
+            // Set data in register
+            UInt8 data = buf[bytes_sent];
+            UARTx->DR = data;
+            bytes_sent++;
+        }
     }
 
-    // Wait for TC to set
-    while (!(UARTx->SR & (1 << 6))){}
+    // Wait for transmission complete
+    while (!(UARTx->SR & UART_SR_TC))
+    {
+        // Calculate time spent waiting for TC to be set
+        UInt32 time_waiting = ESL_Millis() - millis_started;
+
+        // Check for timeout
+        if (time_waiting >= timeout)
+            return;
+    }
+}
+
+void ESL_UARTx_Read(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout)
+{
+    UInt32 bytes_read = 0;
+    UInt32 millis_started = ESL_Millis();
+
+    while (bytes_read < length)
+    {
+        // Calculate time spent waiting for TXE to be set
+        UInt32 time_waiting = ESL_Millis() - millis_started;
+
+        // Check for timeout
+        if (time_waiting >= timeout)
+            return;
+
+        // Wait for RXNE to set, indicating data in buffer
+        if (UARTx->SR & UART_SR_RXNE)
+        {
+            // Read data register
+            buf[bytes_read] = UARTx->DR;
+            bytes_read++;
+        }
+    }
+}
+
+void ESL_UARTx_Flush(UARTx_Typedef* UARTx)
+{
+    volatile UInt8 dummy_byte = 0;
+    UInt32 millis_started = ESL_Millis();
+
+    // Read from register until empty
+    while (UARTx->SR & UART_SR_RXNE)
+    {
+        // Calculate time spent waiting for TXE to be set
+        UInt32 time_waiting = ESL_Millis() - millis_started;
+
+        // Check for timeout
+        if (time_waiting >= 5000)
+            return;
+
+        dummy_byte = UARTx->DR;
+        (void)dummy_byte; // Supress compiler warning
+    }
 }

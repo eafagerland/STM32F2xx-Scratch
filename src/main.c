@@ -33,14 +33,29 @@ int main(void)
 		ESL_Delay(100);
 	}
 
-	// UART Test
-	for (int i = 0; i < 5; i++)
-	{
-		const char* buf = "Hello world!\n\r";
-		ESL_UARTx_Write(UART2, (UInt8*)buf, 15);
-		ESL_Delay(1000);
-	}
+	const char* buf = "Enter Something!\n\r";
+	ESL_UARTx_Write(UART2, (UInt8*)buf, 19, 5000);
 
+	//UART Read test
+	char rx_buf[100];
+	for (int i = 0; i < 100; i++)
+		rx_buf[i] = '\0';
+	ESL_UARTx_Read(UART2, (UInt8*)rx_buf, 100, 20000);
+
+	// UART Test, Respond with received data if available
+	buf = "Received Data: ";
+	ESL_UARTx_Write(UART2, (UInt8*)buf, 16, 5000);
+	if (rx_buf[0] == '\0')
+	{
+		buf = "NO DATA\n\r";
+		ESL_UARTx_Write(UART2, (UInt8*)buf, 10, 5000);
+	}
+	else
+		ESL_UARTx_Write(UART2, (UInt8*)rx_buf, 100, 5000);
+
+	ESL_Delay(1000);
+
+	// Turn on Red led to indicate UART test complete
 	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
 
 	while (1)

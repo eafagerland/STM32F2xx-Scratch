@@ -15,6 +15,7 @@ void GPIO_Init(void)
 	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
 	ESL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
+	// Set the PD5 and PD6 as UART
 	GPIO_InitStruct.Pin = GPIO_PIN_5 | GPIO_PIN_6;
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
