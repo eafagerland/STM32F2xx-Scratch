@@ -9,6 +9,6 @@ void GPIO_Init(void)
 	ESL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
 	GPIO_InitStruct.Pin = GPIO_PIN_13;
-	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
 	ESL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 }

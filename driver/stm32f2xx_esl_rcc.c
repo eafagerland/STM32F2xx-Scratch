@@ -84,4 +84,7 @@ void ESL_RCC_Init(UInt16 pllp, UInt16 plln, UInt16 pllm, UInt16 pllq, UInt16 apb
 
     // Enable clock on TIM11
     RCC->APB2ENR |= (1 << 18);
+
+    // Enable SYSCFG
+    RCC->APB2ENR |= (1 << 14);
 }

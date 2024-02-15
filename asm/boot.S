@@ -59,7 +59,7 @@
 .word   none                //  37 USART1
 .word   none                //  38 USART2
 .word   none                //  39 USART3
-.word   none                //  40 EXTI15_10
+.word   EXTI15_10_Handler   //  40 EXTI15_10
 .word   none                //  41 RTC_Alarm
 .word   none                //  42 OTG_FS_WKUP
 .word   none                //  43 TIM8_BRK_TIM12

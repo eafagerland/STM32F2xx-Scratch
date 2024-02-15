@@ -9,3 +9,8 @@ void ESL_NVIC_Enable(UInt8 irq_pos)
     // Update NVIC register table to enable the interrupt
     NVIC->ISER[index] = (1 << bitPos);
 }
+
+__attribute__((weak)) void EXTI15_10_Handler(void)
+{
+
+}

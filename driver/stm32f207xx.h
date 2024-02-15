@@ -8,6 +8,9 @@
 #define UInt8 		unsigned char
 #define Int8 		signed char
 
+#define EXTI_BASE 0x40013C00U
+#define SYSCFG_BASE 0x40013800U
+
 typedef struct
 {
 	UInt32 MODER;
@@ -101,6 +104,27 @@ typedef struct
 	UInt32 STK_CALIB;
 } SysTick_Typedef;
 
+typedef struct
+{
+	UInt32 IMR;
+	UInt32 EMR;
+	UInt32 RTSR;
+	UInt32 FTSR;
+	UInt32 SWIER;
+	UInt32 PR;
+} EXTI_Typedef;
+
+typedef struct
+{
+	UInt32 MEMRM;
+	UInt32 PMC;
+	UInt32 EXTICR1;
+	UInt32 EXTICR2;
+	UInt32 EXTICR3;
+	UInt32 EXTICR4;
+	UInt32 CMPCR;
+} SYSCFG_Typedef;
+
 #define GPIOA 				((GPIO_Typedef *) GPIOA_BASE)
 #define GPIOB				((GPIO_Typedef *) GPIOB_BASE)
 #define GPIOC 				((GPIO_Typedef *) GPIOC_BASE)
@@ -127,5 +151,9 @@ typedef struct
 #define RCC					((RCC_Typedef* ) RCC_BASE)
 
 #define SYSTICK				((SysTick_Typedef* ) SYSTICK_BASE)
+
+#define EXTI				((EXTI_Typedef* ) EXTI_BASE)
+
+#define SYSCFG				((SYSCFG_Typedef* ) SYSCFG_BASE)
 
 #endif // __STM32F207xx__H

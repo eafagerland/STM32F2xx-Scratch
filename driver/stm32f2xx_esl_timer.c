@@ -17,7 +17,12 @@ void ESL_TIM_Reset_IRQ(TIMx_Typedef* TIMx)
     TIM10->SR = 0U;
 }
 
-__attribute__((weak)) void TIM10_IRQHandler(void)
+void TIM10_IRQHandler(void)
+{
+    ESL_TIM_IRQ_Handler(TIM10);
+}
+
+__attribute__((weak)) void ESL_TIM_IRQ_Handler(TIMx_Typedef* TIMx)
 {
     /* NOTE: 
      * This function should not be modified, when the callback is needed it can be implemented in user file

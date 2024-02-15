@@ -20,7 +20,7 @@ int main(void)
 	UInt16 timer_val_tim11 = TIM11->CNT;
 
 	// Delay test
-	for (int i = 0; i < 50; i++)
+	for (int i = 0; i < 10; i++)
 	{
 		ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
 		ESL_Delay(100);
@@ -30,17 +30,12 @@ int main(void)
 
 	while (1)
 	{
-		if (ESL_Millis() >= 10000)
-		{
-			ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
-		}
-
 		// Button test
-		if (ESL_GPIO_Read_Pinstate(GPIOC, USER_BUTTON) == GPIO_PIN_SET)
+		/*if (ESL_GPIO_Read_Pinstate(GPIOC, USER_BUTTON) == GPIO_PIN_SET)
 		{
 			ESL_GPIO_TogglePin(GPIOB, RED_LED);
 			ESL_Delay(500);
-		}
+		}*/
 		/*if (TIM11->CNT - timer_val_tim11 >= 10000) // Toggle led every 1sec
 		{
 			ESL_GPIO_TogglePin(GPIOB, RED_LED);
@@ -49,12 +44,21 @@ int main(void)
 	}
 }
 
-void TIM10_IRQHandler(void)
+void EXTI15_10_Handler(void)
 {
-	ESL_GPIO_TogglePin(GPIOB, BLUE_LED);
+	ESL_GPIO_TogglePin(GPIOB, RED_LED);
+	EXTI->PR |= (1 << 13);  // Reset interrupt
+}
 
-	// Reset interrupt
-	ESL_TIM_Reset_IRQ(TIM10);
+void ESL_TIM_IRQ_Handler(TIMx_Typedef* TIMx)
+{
+	if (TIMx == TIM10)
+	{
+		ESL_GPIO_TogglePin(GPIOB, BLUE_LED);
+
+		// Reset interrupt
+		ESL_TIM_Reset_IRQ(TIM10);
+	}
 }
 
 void HardFault_Handler(void)
