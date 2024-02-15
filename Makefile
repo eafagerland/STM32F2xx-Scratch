@@ -8,10 +8,12 @@ C_SOURCES = \
 	./driver/stm32f2xx_esl_nvic.c \
 	./driver/stm32f2xx_esl_rcc.c \
 	./driver/stm32f2xx_esl_systick.c \
+	./driver/stm32f2xx_esl_usart.c \
 	./src/main.c \
 	./src/gpio.c \
 	./src/tim.c \
-	./src/nvic.c
+	./src/nvic.c \
+	./src/usart.c
 ASM_SOURCES = ./asm/boot.S
 
 PREFIX = arm-none-eabi

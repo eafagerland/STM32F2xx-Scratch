@@ -24,4 +24,4 @@ void ESL_TIM_Reset_IRQ(TIMx_Typedef* TIMx);
 
 void ESL_TIM_IRQ_Handler(TIMx_Typedef* TIMx);
 
-#endif
+#endif // __STM32F2xx_ESL_TIMER_H

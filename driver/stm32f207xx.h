@@ -125,6 +125,17 @@ typedef struct
 	UInt32 CMPCR;
 } SYSCFG_Typedef;
 
+typedef struct
+{
+	UInt32 SR;
+	UInt32 DR;
+	UInt32 BRR;
+	UInt32 CR1;
+	UInt32 CR2;
+	UInt32 CR3;
+	UInt32 GTPR;
+} UARTx_Typedef;
+
 #define GPIOA 				((GPIO_Typedef *) GPIOA_BASE)
 #define GPIOB				((GPIO_Typedef *) GPIOB_BASE)
 #define GPIOC 				((GPIO_Typedef *) GPIOC_BASE)
@@ -155,5 +166,12 @@ typedef struct
 #define EXTI				((EXTI_Typedef* ) EXTI_BASE)
 
 #define SYSCFG				((SYSCFG_Typedef* ) SYSCFG_BASE)
+
+#define UART1				((UARTx_Typedef* ) UART1_BASE)
+#define UART2				((UARTx_Typedef* ) UART2_BASE)
+#define UART3				((UARTx_Typedef* ) UART3_BASE)
+#define UART4				((UARTx_Typedef* ) UART4_BASE)
+#define UART5				((UARTx_Typedef* ) UART5_BASE)
+#define UART6				((UARTx_Typedef* ) UART6_BASE)
 
 #endif // __STM32F207xx__H

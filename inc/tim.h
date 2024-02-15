@@ -3,4 +3,4 @@
 
 void TIM_Init(void);
 
-#endif
+#endif // __TIM__H

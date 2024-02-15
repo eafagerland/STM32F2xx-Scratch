@@ -46,6 +46,22 @@ void ESL_GPIO_Init(GPIO_Typedef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
                 SYSCFG->EXTICR4 |= (2U << 4);       // Set PC[x] as source input for EXTI // TODO: Needs to select register dynamically
                 ESL_NVIC_Enable(40);                // TODO: Needs to select position dynamically
             }
+
+            if ((GPIO_Init->Mode & GPIO_MODE) == MODE_AF)
+            {
+                if (position < 8)
+                {
+                    GPIOx->AFR[0] &= ~(0b1111UL << (position * 4));
+                    GPIOx->AFR[0] |= (GPIO_Init->Alternate << (position * 4));
+                }
+                else
+                {
+                    GPIOx->AFR[1] &= ~(0b1111UL << (position * 4));
+                    GPIOx->AFR[1] |= (GPIO_Init->Alternate << (position * 4));
+                }
+                GPIOx->MODER |= (GPIO_Init->Mode << (position * 2U));
+            }
+
             else
                 GPIOx->MODER |= (GPIO_Init->Mode << (position * 2U));
         }

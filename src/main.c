@@ -1,4 +1,8 @@
 #include "stm32f2xx_esl.h"
+#include "gpio.h"
+#include "nvic.h"
+#include "tim.h"
+#include "usart.h"
 
 #define BLUE_LED GPIO_PIN_7
 #define RED_LED GPIO_PIN_14
@@ -16,6 +20,7 @@ int main(void)
 	GPIO_Init();
 	TIM_Init();
 	NVIC_Init();
+	UART2_Init();
 
 	UInt16 timer_val_tim11 = TIM11->CNT;
 
@@ -27,6 +32,16 @@ int main(void)
 		ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_RESET);
 		ESL_Delay(100);
 	}
+
+	// UART Test
+	for (int i = 0; i < 5; i++)
+	{
+		const char* buf = "Hello world!\n\r";
+		ESL_UARTx_Write(UART2, (UInt8*)buf, 15);
+		ESL_Delay(1000);
+	}
+
+	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
 
 	while (1)
 	{

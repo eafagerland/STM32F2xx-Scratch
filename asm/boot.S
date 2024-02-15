@@ -27,7 +27,7 @@
 .word   none                //  5 RCC
 .word   none                //  6 EXTI0
 .word   none                //  7 EXTI1
-.word   none		        //  8 EXTI2
+.word   none                //  8 EXTI2
 .word   none                //  9 EXTI3
 .word   none                //  10 EXTI4
 .word   none                //  11 DMA1_Stream0

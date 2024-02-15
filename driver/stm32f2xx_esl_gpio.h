@@ -10,6 +10,7 @@
 #define GPIOE_BASE				0x40021000U
 
 #define GPIO_MODE_Pos			0U
+#define GPIO_MODE				(0x3UL << GPIO_MODE_Pos)
 #define MODE_INPUT				(0x0UL << GPIO_MODE_Pos)
 #define MODE_OUTPUT				(0x1UL << GPIO_MODE_Pos)
 #define MODE_AF					(0x2UL << GPIO_MODE_Pos)
@@ -37,6 +38,10 @@
 #define  GPIO_MODE_IT_RISING			(MODE_INPUT | EXTI_IT | TRIGGER_RISING)                    
 #define  GPIO_MODE_IT_FALLING			(MODE_INPUT | EXTI_IT | TRIGGER_FALLING)
 #define  GPIO_MODE_IT_RISING_FALLING	(MODE_INPUT | EXTI_IT | TRIGGER_RISING | TRIGGER_FALLING)
+
+#define GPIO_AF7_USART1			(0x07UL)
+#define GPIO_AF7_USART2			(0x07UL)
+#define GPIO_AF7_USART3			(0x07UL)
 
 #define GPIO_PIN_0				((UInt16)0x0001)  /* Pin 0 selected    */
 #define GPIO_PIN_1				((UInt16)0x0002)  /* Pin 1 selected    */

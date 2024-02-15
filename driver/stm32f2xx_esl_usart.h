@@ -1,0 +1,36 @@
+#ifndef __STM32F2xx_ESL_USART_H
+#define __STM32F2xx_ESL_USART_H
+
+#include "stm32f207xx.h"
+
+#define UART1_BASE 0x40011000U
+#define UART2_BASE 0x40004400U
+#define UART3_BASE 0x40004800U
+#define UART4_BASE 0x40004C00U
+#define UART5_BASE 0x40005000U
+#define UART6_BASE 0x40011400U
+
+typedef enum
+{
+    UART_WORD_LEN_8 = 0U,
+    UART_WORD_LEN_9
+} UART_WORD_LEN;
+
+typedef enum
+{
+    UART_ONE_STOPBIT = 0U,
+    UART_HALF_STOPBIT,
+    UART_TWO_STOPBIT,
+    UART_ONE_HALF_STOPBIT
+} UART_STOPBITS;
+
+typedef enum
+{
+    BAUD_9600 = 9600U,
+    BAUD_115200 = 115200U
+} UART_BAUDRATE;
+
+void ESL_UARTx_Init(UARTx_Typedef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN wordlen, UART_STOPBITS stopbits);
+void ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length);
+
+#endif // __STM32F2xx_ESL_USART_H
