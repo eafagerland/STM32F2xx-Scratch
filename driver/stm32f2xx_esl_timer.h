@@ -1,3 +1,12 @@
+/********************************************************************************************
+ *  Filename: stm32f2xx_esl_timer.h
+ *  Author: Erik Fagerland
+ *  Created On: 13/02/2024
+ * 
+ *  Brief:
+ *  Header file for timers
+ * 
+ *******************************************************************************************/
 #ifndef __STM32F2xx_ESL_TIMER_H
 #define __STM32F2xx_ESL_TIMER_H
 

@@ -1,3 +1,12 @@
+/***************************************************************************
+ *  Filename: stm32f2xx_esl_rcc.h
+ *  Author: Erik Fagerland
+ *  Created On: 14/02/2024
+ * 
+ *  Brief:
+ *  Header file of RCC
+ * 
+ **************************************************************************/
 #ifndef __STM32F2xx_ESL_RCC_H
 #define __STM32F2xx_ESL_RCC_H
 
@@ -9,10 +18,26 @@
  */
 #define RCC_SYSCLK_TARGET 120000000
 
-#define RCC_HSE_CRYSTAL_FREQ 8000000 // Frequency on the HSE crystal
+#define RCC_HSE_CRYSTAL_FREQ 8000000 // Frequency on the onboard HSE crystal
 
-#define RCC_BASE    0x40023800U
+#define RCC_BASE 0x40023800U
 
+#define FLASH_ACR_LATENCY_POS 0U
+
+// Flash interface latency write states
+typedef enum
+{
+    FLASH_LATENCY_0WS = 0U,
+    FLASH_LATENCY_1WS,
+    FLASH_LATENCY_2WS,
+    FLASH_LATENCY_3WS,
+    FLASH_LATENCY_4WS,
+    FLASH_LATENCY_5WS,
+    FLASH_LATENCY_6WS,
+    FLASH_LATENCY_7WS
+} FLASH_LATENCY_Typedef;
+
+// PLLP Dividers
 typedef enum
 {
     RCC_PLLP_CLOCK_DIV2 = 0U,
@@ -21,6 +46,7 @@ typedef enum
     RCC_PLLP_CLOCK_DIV8
 } RCC_PLLP_DIV;
 
+// APB Dividers
 typedef enum
 {
     RCC_APBx_CLOCK_DIV1 = 0U,
@@ -30,6 +56,7 @@ typedef enum
     RCC_APBx_CLOCK_DIV16 = 7U
 } RCC_APB_DIV;
 
+// AHB Dividers
 typedef enum
 {
     RCC_AHB_CLOCK_DIV1 = 0U,

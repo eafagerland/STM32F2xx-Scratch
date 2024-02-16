@@ -1,3 +1,12 @@
+/********************************************************************************************
+ *  Filename: stm32f2xx_esl_nvic.h
+ *  Author: Erik Fagerland
+ *  Created On: 13/02/2024
+ * 
+ *  Brief:
+ *  Header file of NVIC.
+ * 
+ *******************************************************************************************/
 #ifndef __STM32F2xx_ESL_NVIC_H
 #define __STM32F2xx_ESL_NVIC_H
 

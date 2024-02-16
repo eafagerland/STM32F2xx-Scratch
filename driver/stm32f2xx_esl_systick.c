@@ -1,3 +1,14 @@
+/********************************************************************************************
+ *  Filename: stm32f2xx_esl_systick.c
+ *  Author: Erik Fagerland
+ *  Created On: 14/02/2024
+ * 
+ *  Brief:
+ *  Implementation of systick function.
+ *  Handles the systick interrupt with counter, provides a blocking delay function
+ *  and a millis function for elapsed uptime.
+ * 
+ *******************************************************************************************/
 #include "stm32f2xx_esl_systick.h"
 
 #define SYSTICK_ENABLE              (1 << 0)
@@ -8,6 +19,10 @@
 static volatile UInt32 systick_count = 0;
 static volatile UInt32 delay_start_millis = 0;
 
+/********************************************************************************************
+ *  Initializes the systick, reload value can be set for a custom systick period.
+ *  Default at 1ms.
+ *******************************************************************************************/
 void ESL_SysTick_Init(UInt32 reload_value)
 {
     systick_count = 0;
@@ -22,16 +37,25 @@ void ESL_SysTick_Init(UInt32 reload_value)
     SYSTICK->STK_CTRL |= SYSTICK_ENABLE | SYSTICK_TICKINT_ENABLE | SYSTICK_CLK_SRC_AHB;
 }
 
+/********************************************************************************************
+ *  Systick interrupt handler. Increments the systick counter.
+ *******************************************************************************************/
 void ESL_SysTick_Handler(void)
 {
     systick_count++;
 }
 
+/********************************************************************************************
+ *  Returns the current systick counter value.
+ *******************************************************************************************/
 UInt32 ESL_Millis(void)
 {
     return systick_count;
 }
 
+/********************************************************************************************
+ *  Blocking delay function, stays in loop until provided timer value has elapsed.
+ *******************************************************************************************/
 void ESL_Delay(UInt32 millis)
 {
     delay_start_millis = systick_count;

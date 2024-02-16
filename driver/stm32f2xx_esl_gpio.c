@@ -1,11 +1,24 @@
+/********************************************************************************************
+ *  Filename: stm32f2xx_esl_gpio.c
+ *  Author: Erik Fagerland
+ *  Created On: 13/02/2024
+ * 
+ *  Brief:
+ *  Implementation of the GPIO functions on the MCU
+ * 
+ *******************************************************************************************/
 #include "stm32f2xx_esl_gpio.h"
 
+/********************************************************************************************
+ *  Updates the GPIO registers with correct modes. 
+ *******************************************************************************************/
 void ESL_GPIO_Init(GPIO_Typedef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
 {
     UInt32 position = 0x00U;
     UInt32 iocurrent;
     UInt32 temp;
 
+    // Iterate all the pins to see if struct patches current pin
     while (((GPIO_Init->Pin) >> position) != 0x00u)
     {
         /* Get current io position */
@@ -70,6 +83,9 @@ void ESL_GPIO_Init(GPIO_Typedef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
     }
 }
 
+/********************************************************************************************
+ *  Sets the output state of given pin/port with given state.
+ *******************************************************************************************/
 void ESL_GPIO_WritePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinState)
 {
     if (PinState == GPIO_PIN_SET) 
@@ -78,12 +94,18 @@ void ESL_GPIO_WritePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinSt
         GPIOx->ODR &= ~GPIO_Pin; // Clear the pin
 }
 
+/********************************************************************************************
+ *  Toggles the output state of the given pin/port.
+ *******************************************************************************************/
 void ESL_GPIO_TogglePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin)
 {
     GPIO_PinState pinState = (GPIOx->ODR & GPIO_Pin) ? GPIO_PIN_SET : GPIO_PIN_RESET;
     ESL_GPIO_WritePin(GPIOx, GPIO_Pin, !pinState);
 }
 
+/********************************************************************************************
+ *  Reads a input pin/port and returns its state.
+ *******************************************************************************************/
 GPIO_PinState ESL_GPIO_Read_Pinstate(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin)
 {
     return (GPIOx->IDR & GPIO_Pin) ? GPIO_PIN_SET : GPIO_PIN_RESET;

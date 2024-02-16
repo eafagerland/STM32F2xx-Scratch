@@ -9,26 +9,24 @@
 #define RED_LED GPIO_PIN_14
 #define USER_BUTTON GPIO_PIN_13
 
-#define FLASH_BASE 0x40023C00U
-
-#define REG(x) (*(UInt32 *)x)
-
+/***********************************************
+*	Function Prototypes 
+************************************************/
 void HardFault_Handler(void);
+static void init_clocks();
 
 int main(void)
 {
-	REG(FLASH_BASE) |= (90 << 0); // Set flash latency 3WS
-
-	// Init system clocks, go to hardfault handler if there was errors in settings
-	if (ESL_RCC_Init(RCC_PLLP_CLOCK_DIV2, 240, 8, 4, RCC_APBx_CLOCK_DIV4, RCC_APBx_CLOCK_DIV2, RCC_AHB_CLOCK_DIV1) != ESL_OK)
-		HardFault_Handler();
-
+	init_clocks();
 	GPIO_Init();
 	TIM_Init();
 	NVIC_Init();
 	UART2_Init();
 
-	print("Init Complete!\n\r");
+	// Init complete!
+	char buf[100];
+	stringcopy(buf, "\nInit Complete!");
+	println(buf);
 
 	UInt16 timer_val_tim11 = TIM11->CNT;
 
@@ -41,32 +39,38 @@ int main(void)
 		ESL_Delay(100);
 	}
 
+	// Print num dest
+	UInt32 num = 3200;
+	char num_str[20];
+	uint_to_string(num, num_str);
+	println(num_str);
+
+	// Neg num test
+	Int32 num_neg = -3200;
+	int_to_string(num_neg, num_str);
+	println(num_str);
+
 	// Print something fancy in terminal
-	char buf[100];
 	stringcopy(buf, "\nEnter Something!");
-	const char* cat_test  = ", NOW!\n\r";
+	const char* cat_test  = ", NOW!";
 	stringcat(buf, cat_test);
-	print(buf);
+	println(buf);
 
 	//UART Read test
 	char rx_buf[100];
 	stringset(rx_buf, '\0', 100);
-	ESL_UARTx_Read(UART2, (UInt8*)rx_buf, 100, 20000);
+	ESL_UARTx_Read(&uart2, (UInt8*)rx_buf, 100, 20000);
 
 	// UART Test, Respond with received data if available
 	stringcopy(buf, "Received Data: ");
 	print(buf);
 	if (rx_buf[0] == '\0')
 	{
-		stringcopy(buf, "NO DATA\n\r");
-		print(buf);
+		stringcopy(buf, "NO DATA");
+		println(buf);
 	}
 	else
-	{
-		print(rx_buf);
-		stringcopy(buf, "\n\r");
-		print(buf);
-	}
+		println(rx_buf);
 
 	ESL_Delay(1000);
 
@@ -89,10 +93,22 @@ int main(void)
 	}
 }
 
+static void init_clocks()
+{
+	// Init system clocks, go to hardfault handler if there was errors in settings (use STM32MXCube to get these values)
+	if (ESL_RCC_Init(RCC_PLLP_CLOCK_DIV2, 240, 8, 4, RCC_APBx_CLOCK_DIV4, RCC_APBx_CLOCK_DIV2, RCC_AHB_CLOCK_DIV1) != ESL_OK)
+		HardFault_Handler();
+}
+
 void EXTI15_10_Handler(void)
 {
-	ESL_GPIO_TogglePin(GPIOB, RED_LED);
-	EXTI->PR |= (1 << 13);  // Reset interrupt
+	// Check if PIN13 was the source of the interrupt
+	if (GPIO_EXTI_SOURCE(GPIO_PIN_13))
+	{
+		print("Interrupt on user button was triggerd!\n\r");
+		ESL_GPIO_TogglePin(GPIOB, RED_LED);
+		EXTI->PR |= (1 << 13);  // Reset interrupt
+	}	
 }
 
 void ESL_TIM_IRQ_Handler(TIMx_Typedef* TIMx)

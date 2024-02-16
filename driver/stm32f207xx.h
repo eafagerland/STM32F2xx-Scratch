@@ -1,3 +1,13 @@
+/********************************************************************************************
+ *  Filename: stm32f207xx.h
+ *  Author: Erik Fagerland
+ *  Created On: 13/02/2024
+ * 
+ *  Brief:
+ *  Contains all the typedefs for the registers on the STM32F207xx.
+ *  Handlers to the registers are also declared here.
+ * 
+ *******************************************************************************************/
 #ifndef __STM32F207xx__H
 #define __STM32F207xx__H
 
@@ -10,6 +20,7 @@
 
 #define EXTI_BASE 0x40013C00U
 #define SYSCFG_BASE 0x40013800U
+#define FLASH_BASE 0x40023C00U
 
 typedef enum
 {
@@ -144,6 +155,16 @@ typedef struct
 	UInt32 GTPR;
 } UARTx_Typedef;
 
+typedef struct
+{
+	UInt32 ACR;
+	UInt32 KEYR;
+	UInt32 OPTKEYR;
+	UInt32 SR;
+	UInt32 CR;
+	UInt32 OPTCR;
+} FLASH_Intf_Typedef;
+
 #define GPIOA 				((GPIO_Typedef *) GPIOA_BASE)
 #define GPIOB				((GPIO_Typedef *) GPIOB_BASE)
 #define GPIOC 				((GPIO_Typedef *) GPIOC_BASE)
@@ -181,5 +202,7 @@ typedef struct
 #define UART4				((UARTx_Typedef* ) UART4_BASE)
 #define UART5				((UARTx_Typedef* ) UART5_BASE)
 #define UART6				((UARTx_Typedef* ) UART6_BASE)
+
+#define FLASH_INTF			((FLASH_Intf_Typedef* ) FLASH_BASE)
 
 #endif // __STM32F207xx__H

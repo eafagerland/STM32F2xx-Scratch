@@ -1,3 +1,13 @@
+/********************************************************************************************
+ *  Filename: stm32f2xx_esl_rcc.c
+ *  Author: Erik Fagerland
+ *  Created On: 14/02/2024
+ * 
+ *  Brief:
+ *  Implementation of the RCC config for MCU. Initializes the MCU clocks
+ *  with some error checking.
+ * 
+ *******************************************************************************************/
 #include "stm32f2xx_esl_rcc.h"
 #include "stm32f2xx_esl_systick.h"
 
@@ -24,6 +34,9 @@
 
 RCC_System_Clocks RCC_Clocks = {0};
 
+/********************************************************************************************
+ *  Transform the AHB enum into an integer correspending to its DIV num.
+ *******************************************************************************************/
 static UInt16 Get_AHB_Div(RCC_AHB_DIV AHP)
 {
     switch (AHP)
@@ -40,6 +53,9 @@ static UInt16 Get_AHB_Div(RCC_AHB_DIV AHP)
     }
 }
 
+/********************************************************************************************
+ *  Transform the APB enum into an integer correspending to its DIV num.
+ *******************************************************************************************/
 static UInt16 Get_APB_Div(RCC_APB_DIV APB)
 {
     switch (APB)
@@ -52,6 +68,9 @@ static UInt16 Get_APB_Div(RCC_APB_DIV APB)
     }
 }
 
+/********************************************************************************************
+ *  Transform the PLLP enum into an integer correspending to its DIV num.
+ *******************************************************************************************/
 static UInt16 Get_PLLP_Div(RCC_PLLP_DIV PLLP)
 {
     switch (PLLP)
@@ -63,6 +82,10 @@ static UInt16 Get_PLLP_Div(RCC_PLLP_DIV PLLP)
     }
 }
 
+/********************************************************************************************
+ *  Calculates the different clock speeds into an exported variable so they can be accessed
+ *  elsewhere for other use.
+ *******************************************************************************************/
 static void Calculate_RCC_Clocks(RCC_APB_DIV APB1_prescaler, RCC_APB_DIV APB2_prescaler, RCC_AHB_DIV AHB_prescaler)
 {
     RCC_Clocks.SYSCLK           = RCC_SYSCLK_TARGET;
@@ -73,6 +96,10 @@ static void Calculate_RCC_Clocks(RCC_APB_DIV APB1_prescaler, RCC_APB_DIV APB2_pr
     RCC_Clocks.APB2_TIM_CLOCK   = ((RCC_SYSCLK_TARGET / Get_AHB_Div(AHB_prescaler)) / Get_APB_Div(APB2_prescaler) * 2);
 }
 
+/********************************************************************************************
+ *  Function for testing if the calculated sysclk based on prescaler and crystal matches the
+ *  target sysclk defined in header file.
+ *******************************************************************************************/
 static ESL_StatusTypeDef Is_SYSCLK_OK(UInt16 PLLM_prescaler, UInt16 PLLN_prescaler, RCC_PLLP_DIV PLLP_prescaler)
 {
     UInt32 calculated_sysclk = ((RCC_HSE_CRYSTAL_FREQ / PLLM_prescaler) * PLLN_prescaler) / Get_PLLP_Div(PLLP_prescaler);
@@ -81,6 +108,12 @@ static ESL_StatusTypeDef Is_SYSCLK_OK(UInt16 PLLM_prescaler, UInt16 PLLN_prescal
     return ESL_OK;
 }
 
+/********************************************************************************************
+ *  Initializes the MCU clocks based on given PLL, APB and AHB prescalers.
+ *  Also sets the flash latency to 3WS. Returns error if target clock dont match
+ *  with settings.
+ *  Should be the first thing called in main function!
+ *******************************************************************************************/
 ESL_StatusTypeDef ESL_RCC_Init
 (   
     RCC_PLLP_DIV PLLP_prescaler, 
@@ -92,6 +125,12 @@ ESL_StatusTypeDef ESL_RCC_Init
     RCC_AHB_DIV AHB_prescaler
 )
 {
+/***************************************************************************
+*  Set flash interface latency to 3 wait states 
+*  (Must be set on higher frequencies. ref table 3 flash programming manual)
+*/
+    FLASH_INTF->ACR |= (FLASH_LATENCY_3WS << FLASH_ACR_LATENCY_POS);
+
     RCC->CR |= RCC_CR_HSE_ON;               // Enable HSE
     RCC->CR &= ~(1 << 0);                   // Disable HSI
 

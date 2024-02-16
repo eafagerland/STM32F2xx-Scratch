@@ -1,3 +1,12 @@
+/********************************************************************************************
+ *  Filename: stm32f2xx_esl_systick.h
+ *  Author: Erik Fagerland
+ *  Created On: 14/02/2024
+ * 
+ *  Brief:
+ *  Header file for systick.
+ * 
+ *******************************************************************************************/
 #ifndef __STM32F2xx_ESL_SYSTICK_H
 #define __STM32F2xx_ESL_SYSTICK_H
 

@@ -1,7 +1,17 @@
+/********************************************************************************************
+ *  Filename: stm32f2xx_esl_uart.h
+ *  Author: Erik Fagerland
+ *  Created On: 15/02/2024
+ * 
+ *  Brief:
+ *  Header file for uart.
+ * 
+ *******************************************************************************************/
 #ifndef __STM32F2xx_ESL_USART_H
 #define __STM32F2xx_ESL_USART_H
 
 #include "stm32f207xx.h"
+#include "stm32f2xx_esl_gpio.h"
 
 // UARTx Base Adresses
 #define UART1_BASE 0x40011000U
@@ -43,6 +53,12 @@
 #define UART_SR_LBD         (1 << 8)    // LIN break detection flag
 #define UART_SR_CTS         (1 << 9)    // CTS Flag
 
+typedef struct
+{
+    UARTx_Typedef* instance;
+    GPIO_Port_Typedef port;
+} UARTx_Handle_Typedef;
+
 // Enum for UART Word Length
 typedef enum
 {
@@ -66,9 +82,9 @@ typedef enum
     BAUD_115200 = 115200U
 } UART_BAUDRATE;
 
-void ESL_UARTx_Init(UARTx_Typedef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN wordlen, UART_STOPBITS stopbits);
-ESL_StatusTypeDef ESL_UARTx_Write(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
-ESL_StatusTypeDef ESL_UARTx_Read(UARTx_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
-ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Typedef* UARTx);
+void ESL_UARTx_Init(UARTx_Handle_Typedef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN wordlen, UART_STOPBITS stopbits);
+ESL_StatusTypeDef ESL_UARTx_Write(UARTx_Handle_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
+ESL_StatusTypeDef ESL_UARTx_Read(UARTx_Handle_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
+ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_Typedef* UARTx);
 
 #endif // __STM32F2xx_ESL_USART_H
