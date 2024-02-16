@@ -8,5 +8,5 @@ void NVIC_Init(void)
     ESL_NVIC_Enable(NVIC_TIM10_IRQ_POS);
 
     // Enable SysTick
-    ESL_SysTick_Init(120000); // 120mhz clock / 120000 to get tick every ms
+    ESL_SysTick_Init(120000); // 120mhz clock / 120000 to get tick every 1ms
 }

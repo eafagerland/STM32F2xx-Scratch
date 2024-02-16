@@ -14,13 +14,6 @@
 #include "stm32f2xx_esl_timer.h"
 #include "stm32f207xx.h"
 
-#define SCS_BASE		(0xE000E000UL)
-#define SCB_BASE        (SCS_BASE +  0x0D00UL)
-#define PWR_BASE		0x40007000U
-
-#define SCB             ((SCB_Typedef* ) SCB_BASE)
-#define PWR				((PWR_Typedef* ) PWR_BASE)
-
 // SCB Register
 #define SCB_SCR_SLEEPDEEP (1 << 2)
 
@@ -28,38 +21,7 @@
 #define PWR_CR_LPDS (1 << 0) // Low-power deep sleep
 #define PWR_CR_PDDS (1 << 1) // Power down deepsleep
 
-// System Control Block Typedef
-typedef struct
-{
-	UInt32 CPUID;               
-	UInt32 ICSR;                
-	UInt32 VTOR;                
-	UInt32 AIRCR;                
-	UInt32 SCR; 
-	UInt32 CCR;                   
-	UInt32 SHP[12U];             
-	UInt32 SHCSR;                 
-	UInt32 CFSR;                  
-	UInt32 HFSR;                  
-	UInt32 DFSR;                  
-	UInt32 MMFAR;                 
-	UInt32 BFAR;                  
-	UInt32 AFSR;                  
-	UInt32 PFR[2U];               
-	UInt32 DFR;                   
-	UInt32 ADR;                   
-	UInt32 MMFR[4U];              
-	UInt32 ISAR[5U];              
-	UInt32 RESERVED0[5U];
-	UInt32 CPACR;                 
-} SCB_Typedef;
-
-// Power Register Typedef
-typedef struct
-{
-	UInt32 CR;
-	UInt32 CSR;
-} PWR_Typedef;
+UInt8 g_pwr_stop_mode_active = 0U;
 
 /********************************************************************************************
  *  Calls the wait for interrupt instruction
@@ -87,9 +49,9 @@ void ESL_Enter_PWR_Stop_Mode(void)
 	SCB->SCR &= ~SCB_SCR_SLEEPDEEP; // Reset SLEEPDEEP bit
 	SCB->SCR |= SCB_SCR_SLEEPDEEP;	// Set SLEEPDEEP bit
 
-	volatile UInt32 pwrReg = PWR->CR;
-	volatile UInt32 scrReg = SCB->SCR;
+	DBGMCU->CR = 0; // Deactivate debug during sleep
 
+	g_pwr_stop_mode_active = 1U;
 	__wfi();
 
 	SCB->SCR &= ~SCB_SCR_SLEEPDEEP; // Reset SLEEPDEEP bit
@@ -101,5 +63,5 @@ void ESL_Enter_PWR_Stop_Mode(void)
  *******************************************************************************************/
 void ESL_Enter_PWR_Standby_Mode(void)
 {
-
+	// TODO: Implement
 }

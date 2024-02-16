@@ -13,11 +13,11 @@
 *	Function Prototypes 
 ************************************************/
 void HardFault_Handler(void);
-static void init_clocks();
+static void init_system_clocks();
 
 int main(void)
 {
-	init_clocks();
+	init_system_clocks();
 	GPIO_Init();
 	TIM_Init();
 	NVIC_Init();
@@ -78,7 +78,7 @@ int main(void)
 	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
 
 	// Enter Stop mode deepsleep (wakeup with user button)
-	//ESL_Enter_PWR_Stop_Mode(); (Doesnt work fully yet)
+	ESL_Enter_PWR_Stop_Mode(); 
 
 	while (1)
 	{
@@ -97,7 +97,7 @@ int main(void)
 	}
 }
 
-static void init_clocks()
+static void init_system_clocks()
 {
 	// Init system clocks, go to hardfault handler if there was errors in settings (use STM32MXCube to get these values)
 	if (ESL_RCC_Init(RCC_PLLP_CLOCK_DIV2, 240, 8, 4, RCC_APBx_CLOCK_DIV4, RCC_APBx_CLOCK_DIV2, RCC_AHB_CLOCK_DIV1) != ESL_OK)
@@ -109,9 +109,19 @@ void EXTI15_10_Handler(void)
 	// Check if PIN13 was the source of the interrupt
 	if (GPIO_EXTI_SOURCE(GPIO_PIN_13))
 	{
-		print("Interrupt on user button was triggerd!\n\r");
-		ESL_GPIO_TogglePin(GPIOB, RED_LED);
-		EXTI->PR |= (1 << 13);  // Reset interrupt
+		if (g_pwr_stop_mode_active)
+		{
+			g_pwr_stop_mode_active = 0U;
+			init_system_clocks(); // Need to re-init clocks since they were disabled at sleep
+			ESL_SysTick_Resume(); // Resume the systick
+			print("Woke up from stop mode!\n\r");
+		}
+		else
+		{
+			print("Interrupt on user button was triggerd!\n\r");
+			ESL_GPIO_TogglePin(GPIOB, RED_LED);
+		}
+		EXTI->PR |= GPIO_PIN_13;  // Reset interrupt
 	}	
 }
 

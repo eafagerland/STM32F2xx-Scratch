@@ -20,9 +20,12 @@
 #define UInt8 		unsigned char
 #define Int8 		signed char
 
-#define EXTI_BASE 		0x40013C00U
-#define SYSCFG_BASE 	0x40013800U
-#define FLASH_BASE 		0x40023C00U
+#define EXTI_BASE		0x40013C00U
+#define SYSCFG_BASE 		0x40013800U
+#define FLASH_BASE		0x40023C00U
+#define DBGMCU_BASE			0xE0042000UL
+#define SCB_BASE		0xE000ED00U
+#define PWR_BASE		0x40007000U
 
 typedef enum
 {
@@ -167,6 +170,48 @@ typedef struct
 	UInt32 OPTCR;
 } FLASH_Intf_Typedef;
 
+// Debug MCU Typedef
+typedef struct
+{
+	UInt32 IDCODE;
+	UInt32 CR;
+	UInt32 APB1FZ;
+	UInt32 APB2FZ;
+} DBGMCU_Typedef;
+
+// System Control Block Typedef
+typedef struct
+{
+	UInt32 CPUID;               
+	UInt32 ICSR;                
+	UInt32 VTOR;                
+	UInt32 AIRCR;                
+	UInt32 SCR; 
+	UInt32 CCR;                   
+	UInt32 SHP[12U];             
+	UInt32 SHCSR;                 
+	UInt32 CFSR;                  
+	UInt32 HFSR;                  
+	UInt32 DFSR;                  
+	UInt32 MMFAR;                 
+	UInt32 BFAR;                  
+	UInt32 AFSR;                  
+	UInt32 PFR[2U];               
+	UInt32 DFR;                   
+	UInt32 ADR;                   
+	UInt32 MMFR[4U];              
+	UInt32 ISAR[5U];              
+	UInt32 RESERVED0[5U];
+	UInt32 CPACR;                 
+} SCB_Typedef;
+
+// Power Register Typedef
+typedef struct
+{
+	UInt32 CR;
+	UInt32 CSR;
+} PWR_Typedef;
+
 #define GPIOA 				((GPIO_Typedef *) GPIOA_BASE)
 #define GPIOB				((GPIO_Typedef *) GPIOB_BASE)
 #define GPIOC 				((GPIO_Typedef *) GPIOC_BASE)
@@ -190,7 +235,7 @@ typedef struct
 
 #define NVIC				((NVIC_Typedef* ) NVIC_BASE)
 
-#define RCC					((RCC_Typedef* ) RCC_BASE)
+#define RCC				((RCC_Typedef* ) RCC_BASE)
 
 #define SYSTICK				((SysTick_Typedef* ) SYSTICK_BASE)
 
@@ -206,5 +251,10 @@ typedef struct
 #define UART6				((UARTx_Typedef* ) UART6_BASE)
 
 #define FLASH_INTF			((FLASH_Intf_Typedef* ) FLASH_BASE)
+
+#define DBGMCU              ((DBGMCU_Typedef* ) DBGMCU_BASE)
+
+#define SCB				((SCB_Typedef* ) SCB_BASE)
+#define PWR				((PWR_Typedef* ) PWR_BASE)
 
 #endif // __STM32F207xx__H

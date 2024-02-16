@@ -11,28 +11,6 @@
 #include "stm32f2xx_esl_rcc.h"
 #include "stm32f2xx_esl_systick.h"
 
-#define RCC_CR_PLLRDY               (1 << 25)
-#define RCC_CR_HSE_ON               (1 << 16)
-#define RCC_CR_HSI_ON               (1 << 0)
-#define RCC_CR_PLL_ON               (1 << 24)                       
-
-// CPU Clock sources
-#define RCC_CFGR_SW_HSI             (SOURCE_HSI << RCC_CFGR_SW_POS)
-#define RCC_CFGR_SW_HSE             (SOURCE_HSE << RCC_CFGR_SW_POS)
-#define RCC_CFGR_SW_PLL             (SOURCE_PLL << RCC_CFGR_SW_POS)
-
-#define RCC_PLLCFGR_PLLP_POS        16
-#define RCC_PLLCFGR_PLLN_POS        6
-#define RCC_PLLCFGR_PLLM_POS        0
-#define RCC_PLLCFGR_PLLQ_POS        24
-#define RCC_PLLCFGR_PLL_SRC_POS     22
-#define RCC_PLLCFGR_PLL_SRC_HSE     (0x1UL << 22)
-
-#define RCC_CFGR_APB2_POS           13
-#define RCC_CFGR_APB1_POS           10
-#define RCC_CFGR_AHB_POS            4
-#define RCC_CFGR_SW_POS             (0U)  
-
 RCC_System_Clocks RCC_Clocks = {0};
 
 /********************************************************************************************
@@ -135,8 +113,8 @@ ESL_StatusTypeDef ESL_RCC_Init
     RCC->CR |= RCC_CR_HSE_ON;               // Enable HSE
     RCC->CR &= ~RCC_CR_HSI_ON;              // Disable HSI
 
-    while (!(RCC->CR & (1 << 17)));         // HSE Ready Flag
-    //while (!(RCC->CR & (1 << 1)));         // HSI Ready Flag
+    while (!(RCC->CR & RCC_CR_HSE_RDY));    // HSE Ready Flag
+    //while (!(RCC->CR & RCC_CR_HSi_RDY));  // HSI Ready Flag
     
     RCC->CR &= ~RCC_CR_PLL_ON;              // Disable PLL
 
@@ -145,7 +123,7 @@ ESL_StatusTypeDef ESL_RCC_Init
     RCC->PLLCFGR |= (PLLQ_prescaler << RCC_PLLCFGR_PLLQ_POS);          
 
     // Clear PLL source and set HSE as source
-    RCC->PLLCFGR &= ~(1 << RCC_PLLCFGR_PLL_SRC_POS);
+    RCC->PLLCFGR &= ~(1U << RCC_PLLCFGR_PLL_SRC_POS);
     RCC->PLLCFGR |= RCC_PLLCFGR_PLL_SRC_HSE; 
 
     // Clear PLLP and PLLN
@@ -179,32 +157,14 @@ ESL_StatusTypeDef ESL_RCC_Init
     RCC->CFGR &= ~(0x3UL);        // Clear SW bits
     RCC->CFGR |= RCC_CFGR_SW_PLL; // Set PLL as main clock source
 
-    // Enable clock on GPIO Port A
-    RCC->AHB1ENR |= (1 << 0);
+    // Enable used perfs on AHB1
+    RCC->AHB1ENR |= (RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN);
 
-    // Enable clock on GPIO Port B
-    RCC->AHB1ENR |= (1 << 1);
+    // Enable used perfs on APB2
+    RCC->APB2ENR |= (RCC_APB2ENR_TIM10EN | RCC_APB2ENR_TIM11EN | RCC_APB2ENR_SYSCFGEN);
 
-    // Enable clock on GPIO Port C
-    RCC->AHB1ENR |= (1 << 2);
-
-    // Enable clock on GPIO Port D
-    RCC->AHB1ENR |= (1 << 3);
-
-    // Enable clock on TIM10
-    RCC->APB2ENR |= (1 << 17);
-
-    // Enable clock on TIM11
-    RCC->APB2ENR |= (1 << 18);
-
-    // Enable SYSCFG
-    RCC->APB2ENR |= (1 << 14); // For EXTI on GPIO
-
-    // Enable clock on USART2
-    RCC->APB1ENR |= (1 << 17);
-
-    // Enable clock for PWR
-    RCC->APB1ENR |= (1 << 28);
+    // Enable used perfs on APB1
+    RCC->APB1ENR |= (RCC_APB1ENR_USART2EN | RCC_APB1ENR_PWREN);
 
     // Calculate the current clock values
     Calculate_RCC_Clocks(APB1_prescaler, APB2_prescaler, AHB_prescaler);

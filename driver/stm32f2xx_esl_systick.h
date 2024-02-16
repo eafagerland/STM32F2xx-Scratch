@@ -21,6 +21,8 @@
 
 void ESL_SysTick_Init(UInt32 reload_value);
 void ESL_SysTick_Handler(void);
+void ESL_SysTick_Suspend(void);
+void ESL_SysTick_Resume(void);
 
 UInt32 ESL_Millis(void);
 void ESL_Delay(UInt32 millis);

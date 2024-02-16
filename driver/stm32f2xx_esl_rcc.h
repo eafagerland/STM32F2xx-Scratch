@@ -1,4 +1,4 @@
-/***************************************************************************
+/********************************************************************************************
  *  Filename: stm32f2xx_esl_rcc.h
  *  Author: Erik Fagerland
  *  Created On: 14/02/2024
@@ -6,23 +6,111 @@
  *  Brief:
  *  Header file of RCC
  * 
- **************************************************************************/
+ *******************************************************************************************/
 #ifndef __STM32F2xx_ESL_RCC_H
 #define __STM32F2xx_ESL_RCC_H
 
 #include "stm32f207xx.h"
 
-/* 
- * Target sysclock of MCU. PLL, AHB and APB settings must be recalculated
- * in order to change clock! It's not enough to just change this definition! 
- */
-#define RCC_SYSCLK_TARGET 120000000
+/********************************************************************************************
+*  USER CONFIGS
+* 
+*  Target sysclock of MCU. PLL, AHB and APB settings must be recalculated
+*  in order to change clock! It's not enough to just change this definition! 
+*/
+#define RCC_SYSCLK_TARGET 120000000     // Target System Clock                  [MHz]
+#define RCC_HSE_CRYSTAL_FREQ 8000000    // Frequency on the onboard HSE crystal [MHz]
 
-#define RCC_HSE_CRYSTAL_FREQ 8000000 // Frequency on the onboard HSE crystal
+/********************************************************************************************/
 
 #define RCC_BASE 0x40023800U
 
 #define FLASH_ACR_LATENCY_POS 0U
+
+#define RCC_CR_PLLRDY               (1U << 25U)
+#define RCC_CR_HSE_ON               (1U << 16U)
+#define RCC_CR_HSI_ON               (1U << 0U)
+#define RCC_CR_PLL_ON               (1U << 24U)        
+#define RCC_CR_HSE_RDY              (1U << 17U)
+#define RCC_CR_HSI_RDY              (1U << 1U)
+
+// CPU Clock sources
+#define RCC_CFGR_SW_HSI             (SOURCE_HSI << RCC_CFGR_SW_POS)
+#define RCC_CFGR_SW_HSE             (SOURCE_HSE << RCC_CFGR_SW_POS)
+#define RCC_CFGR_SW_PLL             (SOURCE_PLL << RCC_CFGR_SW_POS)
+
+#define RCC_PLLCFGR_PLLP_POS        (16U)
+#define RCC_PLLCFGR_PLLN_POS        (6U)
+#define RCC_PLLCFGR_PLLM_POS        (0U)
+#define RCC_PLLCFGR_PLLQ_POS        (24U)
+#define RCC_PLLCFGR_PLL_SRC_POS     (22U)
+#define RCC_PLLCFGR_PLL_SRC_HSE     (0x1UL << 22U)
+
+#define RCC_CFGR_APB2_POS           (13U)
+#define RCC_CFGR_APB1_POS           (10U)
+#define RCC_CFGR_AHB_POS            (4U)
+#define RCC_CFGR_SW_POS             (0U)  
+
+// RCC AHB1ENR Register
+#define RCC_AHB1ENR_GPIOAEN         (1U << 0U)
+#define RCC_AHB1ENR_GPIOBEN         (1U << 1U)
+#define RCC_AHB1ENR_GPIOCEN         (1U << 2U)
+#define RCC_AHB1ENR_GPIODEN         (1U << 3U)
+#define RCC_AHB1ENR_GPIOEEN         (1U << 4U)
+#define RCC_AHB1ENR_GPIOFEN         (1U << 5U)
+#define RCC_AHB1ENR_GPIOGEN         (1U << 6U)
+#define RCC_AHB1ENR_GPIOHEN         (1U << 7U)
+#define RCC_AHB1ENR_GPIOIEN         (1U << 8U)
+#define RCC_AHB1ENR_CRCEN           (1U << 12U)
+#define RCC_AHB1ENR_BKPSRAMEN       (1U << 18U)
+#define RCC_AHB1ENR_DMA1EN          (1U << 21U)
+#define RCC_AHB1ENR_DMA2EN          (1U << 22U)
+#define RCC_AHB1ENR_ETHMAC          (1U << 25U)
+#define RCC_AHB1ENR_ETHMACTXEN      (1U << 26U)
+#define RCC_AHB1ENR_ETHMACRXEN      (1U << 27U)
+#define RCC_AHB1ENR_ETHMACPTPEN     (1U << 28U)
+#define RCC_AHB1ENR_OTGHSEN         (1U << 29U)
+#define RCC_AHB1ENR_OTGHSULPIEN     (1U << 30U)
+
+// RCC APB1ENR Register
+#define RCC_APB1ENR_TIM2EN          (1U << 0U)
+#define RCC_APB1ENR_TIM3EN          (1U << 1U)
+#define RCC_APB1ENR_TIM4EN          (1U << 2U)
+#define RCC_APB1ENR_TIM5EN          (1U << 3U)
+#define RCC_APB1ENR_TIM6EN          (1U << 4U)
+#define RCC_APB1ENR_TIM7EN          (1U << 5U)
+#define RCC_APB1ENR_TIM12EN         (1U << 6U)
+#define RCC_APB1ENR_TIM13EN         (1U << 7U)
+#define RCC_APB1ENR_TIM14EN         (1U << 8U)
+#define RCC_APB1ENR_WWDGEN          (1U << 11U)
+#define RCC_APB1ENR_SPI2EN          (1U << 14U)
+#define RCC_APB1ENR_SPI3EN          (1U << 15U)
+#define RCC_APB1ENR_USART2EN        (1U << 17U)
+#define RCC_APB1ENR_USART3EN        (1U << 18U)
+#define RCC_APB1ENR_UART4EN         (1U << 19U)
+#define RCC_APB1ENR_UART5EN         (1U << 20U)
+#define RCC_APB1ENR_I2C1EN          (1U << 21U)
+#define RCC_APB1ENR_I2C2EN          (1U << 22U)
+#define RCC_APB1ENR_I2C3EN          (1U << 23U)
+#define RCC_APB1ENR_CAN1EN          (1U << 25U)
+#define RCC_APB1ENR_CAN2EN          (1U << 26U)
+#define RCC_APB1ENR_PWREN           (1U << 28U)
+#define RCC_APB1ENR_DACEN           (1U << 29U)
+
+// RCC APB2ENR Register
+#define RCC_APB2ENR_TIM1EN          (1U << 0U)
+#define RCC_APB2ENR_TIM8EN          (1U << 1U)
+#define RCC_APB2ENR_USART1EN        (1U << 4U)
+#define RCC_APB2ENR_USART2EN        (1U << 5U)
+#define RCC_APB2ENR_ADC1EN          (1U << 8U)
+#define RCC_APB2ENR_ADC2EN          (1U << 9U)
+#define RCC_APB2ENR_ADC3EN          (1U << 10U)
+#define RCC_APB2ENR_SDIOEN          (1U << 11U)
+#define RCC_APB2ENR_SPI1EN          (1U << 12U)
+#define RCC_APB2ENR_SYSCFGEN        (1U << 14U)
+#define RCC_APB2ENR_TIM9EN          (1U << 16U)
+#define RCC_APB2ENR_TIM10EN         (1U << 17U)
+#define RCC_APB2ENR_TIM11EN         (1U << 18U)
 
 // Flash interface latency write states
 typedef enum
