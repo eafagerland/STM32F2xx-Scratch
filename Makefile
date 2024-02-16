@@ -9,6 +9,7 @@ C_SOURCES = \
 	./driver/stm32f2xx_esl_rcc.c \
 	./driver/stm32f2xx_esl_systick.c \
 	./driver/stm32f2xx_esl_uart.c \
+	./driver/stm32f2xx_esl_pwr.c \
 	./driver/utilities/eslstring.c \
 	./src/main.c \
 	./src/gpio.c \

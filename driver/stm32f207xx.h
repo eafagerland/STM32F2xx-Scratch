@@ -11,6 +11,8 @@
 #ifndef __STM32F207xx__H
 #define __STM32F207xx__H
 
+#define __weak   __attribute__((weak))
+
 #define UInt32 		unsigned int
 #define Int32 		signed int
 #define UInt16 		unsigned short
@@ -18,9 +20,9 @@
 #define UInt8 		unsigned char
 #define Int8 		signed char
 
-#define EXTI_BASE 0x40013C00U
-#define SYSCFG_BASE 0x40013800U
-#define FLASH_BASE 0x40023C00U
+#define EXTI_BASE 		0x40013C00U
+#define SYSCFG_BASE 	0x40013800U
+#define FLASH_BASE 		0x40023C00U
 
 typedef enum
 {

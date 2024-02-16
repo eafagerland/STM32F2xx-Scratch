@@ -10,14 +10,9 @@
  * 
  *******************************************************************************************/
 #include "stm32f2xx_esl_systick.h"
-
-#define SYSTICK_ENABLE              (1 << 0)
-#define SYSTICK_TICKINT_ENABLE      (1 << 1)
-#define SYSTICK_CLK_SRC_AHB         (1 << 2)
-#define SYSTICK_CLK_SRC_AHB8        (1 << 2)
+#include "stm32f2xx_esl_pwr.h"
 
 static volatile UInt32 systick_count = 0;
-static volatile UInt32 delay_start_millis = 0;
 
 /********************************************************************************************
  *  Initializes the systick, reload value can be set for a custom systick period.
@@ -46,6 +41,22 @@ void ESL_SysTick_Handler(void)
 }
 
 /********************************************************************************************
+ *  Suspends the systick interrupt
+ *******************************************************************************************/
+void ESL_SysTick_Suspend(void)
+{
+    SYSTICK->STK_CTRL &= ~SYSTICK_TICKINT_ENABLE;
+}
+
+/********************************************************************************************
+ *  Resumes the systick interrupt
+ *******************************************************************************************/
+void ESL_SysTick_Resume(void)
+{
+    SYSTICK->STK_CTRL |= SYSTICK_TICKINT_ENABLE;
+}
+
+/********************************************************************************************
  *  Returns the current systick counter value.
  *******************************************************************************************/
 UInt32 ESL_Millis(void)
@@ -58,8 +69,9 @@ UInt32 ESL_Millis(void)
  *******************************************************************************************/
 void ESL_Delay(UInt32 millis)
 {
-    delay_start_millis = systick_count;
-    while (systick_count - delay_start_millis <= millis)
+    UInt32 delay_start = systick_count;
+    while (systick_count - delay_start <= millis)
     {
+        __wfi();
     }
 }

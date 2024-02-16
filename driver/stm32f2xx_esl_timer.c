@@ -49,7 +49,7 @@ void TIM10_IRQHandler(void)
 /********************************************************************************************
  *  weak declared function of the timer interrupt handler to be implmeneted by user.
  *******************************************************************************************/
-__attribute__((weak)) void ESL_TIM_IRQ_Handler(TIMx_Typedef* TIMx)
+__weak void ESL_TIM_IRQ_Handler(TIMx_Typedef* TIMx)
 {
     /* NOTE: 
      * This function should not be modified, when the callback is needed it can be implemented in user file

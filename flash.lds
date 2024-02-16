@@ -1,5 +1,5 @@
-/* blink.lds
- * linker script for blink demo.
+/* flash.lds
+ * linker script for stm32f207
  *
  * Memory layout on STM32F207:
  *

@@ -77,8 +77,12 @@ int main(void)
 	// Turn on Red led to indicate UART test complete
 	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
 
+	// Enter Stop mode deepsleep (wakeup with user button)
+	//ESL_Enter_PWR_Stop_Mode(); (Doesnt work fully yet)
+
 	while (1)
 	{
+		__wfi();
 		// Button test
 		/*if (ESL_GPIO_Read_Pinstate(GPIOC, USER_BUTTON) == GPIO_PIN_SET)
 		{

@@ -14,6 +14,11 @@
 
 #define SYSTICK_BASE 0xE000E010U
 
+#define SYSTICK_ENABLE              (1 << 0)
+#define SYSTICK_TICKINT_ENABLE      (1 << 1)
+#define SYSTICK_CLK_SRC_AHB         (1 << 2)
+#define SYSTICK_CLK_SRC_AHB8        (1 << 2)
+
 void ESL_SysTick_Init(UInt32 reload_value);
 void ESL_SysTick_Handler(void);
 

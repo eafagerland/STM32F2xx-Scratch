@@ -7,5 +7,6 @@
 #include "stm32f2xx_esl_rcc.h"
 #include "stm32f2xx_esl_systick.h"
 #include "stm32f2xx_esl_uart.h"
+#include "stm32f2xx_esl_pwr.h"
 
 #endif // __STM32F2xx_ESL_H

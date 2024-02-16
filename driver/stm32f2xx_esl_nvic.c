@@ -24,9 +24,22 @@ void ESL_NVIC_Enable(UInt8 irq_pos)
 }
 
 /********************************************************************************************
+ *  Disables interrupt on the provided vector positon. See boot.S for entire vector table.
+ *******************************************************************************************/
+void ESL_NVIC_Disable(UInt8 irq_pos)
+{
+    // Get the index and position
+    UInt8 index = irq_pos / 32;
+    UInt8 bitPos = irq_pos % 32;
+
+    // Update NVIC register table to disable the interrupt
+    NVIC->ICER[index] = (1 << bitPos);
+}
+
+/********************************************************************************************
  *  Weak declared interrupt handler for EXTI line 15-10.
  *******************************************************************************************/
-__attribute__((weak)) void EXTI15_10_Handler(void)
+__weak void EXTI15_10_Handler(void)
 {
     /* NOTE: 
      * This function should not be modified, when the callback is needed it can be implemented in user file

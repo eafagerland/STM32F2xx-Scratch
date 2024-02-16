@@ -13,6 +13,7 @@
 
 #define RCC_CR_PLLRDY               (1 << 25)
 #define RCC_CR_HSE_ON               (1 << 16)
+#define RCC_CR_HSI_ON               (1 << 0)
 #define RCC_CR_PLL_ON               (1 << 24)                       
 
 // CPU Clock sources
@@ -132,12 +133,12 @@ ESL_StatusTypeDef ESL_RCC_Init
     FLASH_INTF->ACR |= (FLASH_LATENCY_3WS << FLASH_ACR_LATENCY_POS);
 
     RCC->CR |= RCC_CR_HSE_ON;               // Enable HSE
-    RCC->CR &= ~(1 << 0);                   // Disable HSI
+    RCC->CR &= ~RCC_CR_HSI_ON;              // Disable HSI
 
     while (!(RCC->CR & (1 << 17)));         // HSE Ready Flag
     //while (!(RCC->CR & (1 << 1)));         // HSI Ready Flag
     
-    RCC->CR &= ~(1 << 24);                  // Disable PLL
+    RCC->CR &= ~RCC_CR_PLL_ON;              // Disable PLL
 
     // CLear PLLQ and set new value
     RCC->PLLCFGR &= ~(0b1111UL << RCC_PLLCFGR_PLLQ_POS);
@@ -201,6 +202,9 @@ ESL_StatusTypeDef ESL_RCC_Init
 
     // Enable clock on USART2
     RCC->APB1ENR |= (1 << 17);
+
+    // Enable clock for PWR
+    RCC->APB1ENR |= (1 << 28);
 
     // Calculate the current clock values
     Calculate_RCC_Clocks(APB1_prescaler, APB2_prescaler, AHB_prescaler);
