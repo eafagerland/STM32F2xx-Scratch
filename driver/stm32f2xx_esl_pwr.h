@@ -36,5 +36,8 @@ extern Bool g_pwr_stop_mode_active;
 
 void __wfi(void);
 void ESL_PWR_Enter_Sleep(PWR_SLP_PDDS_Typedef sleep_mode, PWR_SLP_LPDS_Typedef regulator_state);
+void ESL_PWR_Enable_WKUP_Pin(void);
+Bool ESL_PWR_Standby_Flagged(void);
+Bool ESL_PWR_WKUP_Flagged(void);
 
 #endif // __STM32F2xx_ESL_PWR_H

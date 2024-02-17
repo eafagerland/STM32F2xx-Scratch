@@ -28,6 +28,12 @@ int main(void)
 	stringcopy(buf, "\nInit Complete!");
 	println(buf);
 
+	// Check if it started from a deepsleep standby
+	if (ESL_PWR_Standby_Flagged())
+	{
+		print("Awww.. I was just sleeping!\n\r");
+	}
+
 	UInt16 timer_val_tim11 = TIM11->CNT;
 
 	// Delay test
@@ -77,8 +83,10 @@ int main(void)
 	// Turn off red led before sleep
 	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_RESET);
 
+	// Enable wakeup pin
+	ESL_PWR_Enable_WKUP_Pin();
 	// Enter Stop mode deepsleep (wakeup with user button)
-	ESL_PWR_Enter_Sleep(PWR_SLP_PPDS_STOP, PWR_SLP_LPDS_OFF); 
+	ESL_PWR_Enter_Sleep(PWR_SLP_PPDS_STB, PWR_SLP_LPDS_OFF); 
 
 	while (1)
 	{
@@ -114,7 +122,7 @@ void EXTI15_10_Handler(void)
 			g_pwr_stop_mode_active = FALSE;
 			init_system_clocks(); // Need to re-init clocks since they were disabled at sleep
 			ESL_SysTick_Resume(); // Resume the systick
-			print("Woke up from stop mode!\n\r");
+			print("Woke up from sleep mode!\n\r");
 		}
 		else
 		{
