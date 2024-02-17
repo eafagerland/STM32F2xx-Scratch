@@ -78,7 +78,7 @@ int main(void)
 	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_RESET);
 
 	// Enter Stop mode deepsleep (wakeup with user button)
-	ESL_Enter_PWR_Stop_Mode(); 
+	ESL_PWR_Enter_Sleep(PWR_SLP_PPDS_STOP, PWR_SLP_LPDS_OFF); 
 
 	while (1)
 	{

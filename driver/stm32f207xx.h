@@ -33,7 +33,7 @@ typedef enum
 #define EXTI_BASE		(0x40013C00UL)
 #define SYSCFG_BASE 		(0x40013800UL)
 #define FLASH_BASE		(0x40023C00UL)
-#define DBGMCU_BASE			(0xE0042000UL)
+#define DBGMCU_BASE		(0xE0042000UL)
 #define SCB_BASE		(0xE000ED00UL)
 #define PWR_BASE		(0x40007000UL)
 
@@ -262,7 +262,7 @@ typedef struct
 
 #define FLASH_INTF			((FLASH_Intf_Typedef* ) FLASH_BASE)
 
-#define DBGMCU              ((DBGMCU_Typedef* ) DBGMCU_BASE)
+#define DBGMCU				((DBGMCU_Typedef* ) DBGMCU_BASE)
 
 #define SCB				((SCB_Typedef* ) SCB_BASE)
 #define PWR				((PWR_Typedef* ) PWR_BASE)

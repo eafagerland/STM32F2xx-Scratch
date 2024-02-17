@@ -12,10 +12,29 @@
 
 #include "stm32f207xx.h"
 
+/********************************************************************************************
+ *  When entering sleep, low voltage regulators can be set to low-power to save power.
+ *  Given as argument when entering sleep mode to keep enabled or not.
+ *******************************************************************************************/
+typedef enum
+{
+    PWR_SLP_LPDS_ON = 0U,
+    PWR_SLP_LPDS_OFF
+} PWR_SLP_LPDS_Typedef;
+
+/********************************************************************************************
+ *  When entering sleep mode user can select which sleep mode to enter.
+ *  Standby mode or stop mode. 
+ *******************************************************************************************/
+typedef enum
+{
+    PWR_SLP_PPDS_STOP = 0U,
+    PWR_SLP_PPDS_STB
+} PWR_SLP_PDDS_Typedef;
+
 extern Bool g_pwr_stop_mode_active;
 
 void __wfi(void);
-void ESL_Enter_PWR_Stop_Mode(void);
-void ESL_Enter_PWR_Standby_Mode(void);
+void ESL_PWR_Enter_Sleep(PWR_SLP_PDDS_Typedef sleep_mode, PWR_SLP_LPDS_Typedef regulator_state);
 
 #endif // __STM32F2xx_ESL_PWR_H

@@ -64,8 +64,9 @@ ESL_StatusTypeDef ESL_UARTx_Write(UARTx_Handle_Typedef* uart, UInt8* buf, UInt32
         if (time_waiting >= timeout)
             return ESL_TIMEOUT;
 
-        // Wait for TXE to set, indicating TX buffer is empty
-        if (uart->instance->SR & UART_SR_TXE)
+
+        // Wait for TXE to set, indicating TX buffer is empty       
+        if (IS_BIT_SET(uart->instance->SR, UART_SR_TXE))
         {
             // Set data in register
             UInt8 data = buf[bytes_sent];
@@ -75,7 +76,7 @@ ESL_StatusTypeDef ESL_UARTx_Write(UARTx_Handle_Typedef* uart, UInt8* buf, UInt32
     }
 
     // Wait for transmission complete
-    while (!(uart->instance->SR & UART_SR_TC))
+    while (!(IS_BIT_SET(uart->instance->SR, UART_SR_TC)))
     {
         // Calculate time spent waiting for TC to be set
         UInt32 time_waiting = ESL_Millis() - millis_started;
@@ -107,8 +108,8 @@ ESL_StatusTypeDef ESL_UARTx_Read(UARTx_Handle_Typedef* uart, UInt8* buf, UInt32 
         if (time_waiting >= timeout)
             return ESL_TIMEOUT;
 
-        // Wait for RXNE to set, indicating data in buffer
-        if (uart->instance->SR & UART_SR_RXNE)
+        // Wait for RXNE to set, indicating data in buffer     
+        if (IS_BIT_SET(uart->instance->SR, UART_SR_RXNE))
         {
             // Read data register
             buf[bytes_read] = uart->instance->DR;
@@ -127,8 +128,8 @@ ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_Typedef* uart)
     volatile UInt8 dummy_byte = 0;
     UInt32 millis_started = ESL_Millis();
 
-    // Read from register until empty
-    while (uart->instance->SR & UART_SR_RXNE)
+    // Read from register until empty  
+    while (IS_BIT_SET(uart->instance->SR, UART_SR_RXNE))
     {
         // Calculate time spent waiting for TXE to be set
         UInt32 time_waiting = ESL_Millis() - millis_started;

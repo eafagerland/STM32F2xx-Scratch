@@ -15,7 +15,7 @@
 #include "stm32f207xx.h"
 
 // SCB Register
-#define SCB_SCR_SLEEPDEEP	(1U << 2U)
+#define SCB_SCR_SLEEPDEEP		(1U << 2U)
 
 // Power Register
 #define PWR_CR_LPDS			(1U << 0U) // Low-power deep sleep
@@ -34,34 +34,33 @@ void __wfi(void)
 /********************************************************************************************
  *  Enters stop mode, 1.2V domain off, HSI and HSE oscillators off. Wake-up with EXTI lines
  *******************************************************************************************/
-void ESL_Enter_PWR_Stop_Mode(void)
+void ESL_PWR_Enter_Sleep(PWR_SLP_PDDS_Typedef sleep_mode, PWR_SLP_LPDS_Typedef regulator_state)
 {
 	// Disable systick
 	ESL_SysTick_Suspend();
 
-	// Reset PDDS for stop mode
+	// Reset PDDS to Stop Mode
 	RESET_REG(PWR->CR, PWR_CR_PDDS);
 
-	// Disable voltage regulators
-	RESET_REG(PWR->CR, PWR_CR_LPDS);
-	SET_REG(PWR->CR, PWR_CR_LPDS);
+	// Set to standby if enabled
+	if (sleep_mode == PWR_SLP_PPDS_STB)
+		SET_REG(PWR->CR, PWR_CR_PDDS);
 
-	RESET_REG(SCB->SCR, SCB_SCR_SLEEPDEEP);	// Reset SLEEPDEEP bit
-	SET_REG(SCB->SCR, SCB_SCR_SLEEPDEEP);	// Set SLEEPDEEP bit
+	// Reset voltage regulators to ON
+	RESET_REG(PWR->CR, PWR_CR_LPDS);
+
+	// Regulators to low-power if set
+	if (regulator_state == PWR_SLP_LPDS_OFF)
+		SET_REG(PWR->CR, PWR_CR_LPDS);
+
+	// Reset and set SLEEPDEEP bit for MCU to enter deep sleep on __wfi()
+	RESET_REG(SCB->SCR, SCB_SCR_SLEEPDEEP);
+	SET_REG(SCB->SCR, SCB_SCR_SLEEPDEEP);
 
 	DBGMCU->CR = 0; // Deactivate debug trace during sleep
 
-	g_pwr_stop_mode_active = TRUE;
-	__wfi();
+	g_pwr_stop_mode_active = TRUE; // This cant be used if standbymode is selected, as ram is cleared
+	__wfi(); // Enter Stop Mode
 
 	RESET_REG(SCB->SCR, SCB_SCR_SLEEPDEEP);	// Reset SLEEPDEEP bit
-}
-
-/********************************************************************************************
- *  Enters standby mode, 1.2V domain off, HSI and HSE oscillators off and voltage regulators
- *  off. Wake-up with dedicated wake-up pin or RTC
- *******************************************************************************************/
-void ESL_Enter_PWR_Standby_Mode(void)
-{
-	// TODO: Implement
 }

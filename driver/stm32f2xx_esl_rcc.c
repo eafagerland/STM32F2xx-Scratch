@@ -13,6 +13,58 @@
 
 RCC_System_Clocks RCC_Clocks = {0};
 
+static void set_abpx_ahb_prescalers(RCC_APB_DIV APB1_prescaler, 
+    RCC_APB_DIV APB2_prescaler, 
+    RCC_AHB_DIV AHB_prescaler)
+{
+    // Clear APB2 Clock divider and set new value
+    RESET_REG(RCC->CFGR, (0x7UL << RCC_CFGR_APB2_POS));
+    SET_REG(RCC->CFGR, (APB2_prescaler << RCC_CFGR_APB2_POS));
+
+    // Clear APB1 Clock divider and set new value
+    RESET_REG(RCC->CFGR, (0x7UL << RCC_CFGR_APB1_POS));
+    SET_REG(RCC->CFGR, (APB1_prescaler << RCC_CFGR_APB1_POS));
+
+    // Clear AHB Clock divider and set new value
+    RESET_REG(RCC->CFGR, (0xFUL << RCC_CFGR_AHB_POS));
+    SET_REG(RCC->CFGR, (AHB_prescaler << RCC_CFGR_AHB_POS));
+}
+
+/********************************************************************************************
+ *  Sets the PLL prescalers.
+ *******************************************************************************************/
+static void set_pll_prescalers(UInt16 PLLQ_prescaler, 
+    UInt16 PLLN_prescaler, 
+    UInt16 PLLM_prescaler, 
+    RCC_PLLP_DIV PLLP_prescaler)
+{
+    // Disable PLL
+    RESET_REG(RCC->CR, RCC_CR_PLL_ON);           
+
+    // CLear PLLQ and set new value
+    RESET_REG(RCC->PLLCFGR, (0xFUL << RCC_PLLCFGR_PLLQ_POS));
+    SET_REG(RCC->PLLCFGR, (PLLQ_prescaler << RCC_PLLCFGR_PLLQ_POS));        
+
+    // Clear PLL source and set HSE as source
+    RESET_REG(RCC->PLLCFGR, (0x1UL << RCC_PLLCFGR_PLL_SRC_POS));
+    SET_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLL_SRC_HSE);
+
+    // Clear PLLP and PLLN
+    RESET_REG(RCC->PLLCFGR, (0x3UL << RCC_PLLCFGR_PLLP_POS));
+    RESET_REG(RCC->PLLCFGR, (0x1FFUL << RCC_PLLCFGR_PLLN_POS));
+
+    // Set PLLP and PLLN
+    SET_REG(RCC->PLLCFGR, (PLLP_prescaler << RCC_PLLCFGR_PLLP_POS));
+    SET_REG(RCC->PLLCFGR, (PLLN_prescaler << RCC_PLLCFGR_PLLN_POS));     
+
+    // Clear PLLM and set new value
+    RESET_REG(RCC->PLLCFGR, (0x3FUL));    
+    SET_REG(RCC->PLLCFGR, (PLLM_prescaler << RCC_PLLCFGR_PLLM_POS));                            
+
+    // Switch PLL on
+    SET_REG(RCC->CR, RCC_CR_PLL_ON);  
+}
+
 /********************************************************************************************
  *  Transform the AHB enum into an integer correspending to its DIV num.
  *******************************************************************************************/
@@ -54,10 +106,10 @@ static UInt16 Get_PLLP_Div(RCC_PLLP_DIV PLLP)
 {
     switch (PLLP)
     {
-        case RCC_PLLP_CLOCK_DIV2: return 2;
-        case RCC_PLLP_CLOCK_DIV4: return 4;
-        case RCC_PLLP_CLOCK_DIV6: return 6;
-        case RCC_PLLP_CLOCK_DIV8: return 8;
+        case RCC_PLLP_CLOCK_DIV2: return 2U;
+        case RCC_PLLP_CLOCK_DIV4: return 4U;
+        case RCC_PLLP_CLOCK_DIV6: return 6U;
+        case RCC_PLLP_CLOCK_DIV8: return 8U;
     }
 }
 
@@ -118,46 +170,14 @@ ESL_StatusTypeDef ESL_RCC_Init
     // HSE Ready Flag
     while (!IS_BIT_SET(RCC->CR, RCC_CR_HSE_RDY));  
 
-    // Disable PLL
-    RESET_REG(RCC->CR, RCC_CR_PLL_ON);           
-
-    // CLear PLLQ and set new value
-    RESET_REG(RCC->PLLCFGR, (0xFUL << RCC_PLLCFGR_PLLQ_POS));
-    SET_REG(RCC->PLLCFGR, (PLLQ_prescaler << RCC_PLLCFGR_PLLQ_POS));        
-
-    // Clear PLL source and set HSE as source
-    RESET_REG(RCC->PLLCFGR, (0x1UL << RCC_PLLCFGR_PLL_SRC_POS));
-    SET_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLL_SRC_HSE);
-
-    // Clear PLLP and PLLN
-    RESET_REG(RCC->PLLCFGR, (0x3UL << RCC_PLLCFGR_PLLP_POS));
-    RESET_REG(RCC->PLLCFGR, (0x1FFUL << RCC_PLLCFGR_PLLN_POS));
-
-    // Set PLLP and PLLN
-    SET_REG(RCC->PLLCFGR, (PLLP_prescaler << RCC_PLLCFGR_PLLP_POS));
-    SET_REG(RCC->PLLCFGR, (PLLN_prescaler << RCC_PLLCFGR_PLLN_POS));     
-
-    // Clear PLLM and set new value
-    RESET_REG(RCC->PLLCFGR, (0x3FUL));    
-    SET_REG(RCC->PLLCFGR, (PLLM_prescaler << RCC_PLLCFGR_PLLM_POS));                            
-
-    // Switch PLL on
-    SET_REG(RCC->CR, RCC_CR_PLL_ON);  
+    // Set PLL
+    set_pll_prescalers(PLLQ_prescaler, PLLN_prescaler, PLLM_prescaler, PLLP_prescaler);
 
     // Wait until PLL is ready
     while (!IS_BIT_SET(RCC->CR, RCC_CR_PLLRDY));
 
-    // Clear APB2 Clock divider and set new value
-    RESET_REG(RCC->CFGR, (0x7UL << RCC_CFGR_APB2_POS));
-    SET_REG(RCC->CFGR, (APB2_prescaler << RCC_CFGR_APB2_POS));
-
-    // Clear APB1 Clock divider and set new value
-    RESET_REG(RCC->CFGR, (0x7UL << RCC_CFGR_APB1_POS));
-    SET_REG(RCC->CFGR, (APB1_prescaler << RCC_CFGR_APB1_POS));
-
-    // Clear AHB Clock divider and set new value
-    RESET_REG(RCC->CFGR, (0xFUL << RCC_CFGR_AHB_POS));
-    SET_REG(RCC->CFGR, (AHB_prescaler << RCC_CFGR_AHB_POS));
+    // Set APBx and AHB prescalers
+    set_abpx_ahb_prescalers(APB1_prescaler, APB2_prescaler, AHB_prescaler);
 
     RESET_REG(RCC->CFGR, (0x3UL));          // Clear SW bits
     SET_REG(RCC->CFGR, RCC_CFGR_SW_PLL);    // Set PLL as main clock source
