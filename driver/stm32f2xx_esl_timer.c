@@ -13,10 +13,10 @@
  *  Initializes and starts the timer with given prescaler and auto reload register 
  *  value.
  *******************************************************************************************/
-void ESL_TIM_Init(TIMx_Typedef* TIMx, UInt32 psc, UInt32 arr)
+void ESL_TIM_Init(TIMx_Typedef* TIMx, UInt32 PSC, UInt32 ARR)
 {
-    TIMx->PSC = (psc - 1);  // Set the prescaler
-    TIMx->ARR = (arr - 1);  // Set the auto reload register
+    TIMx->PSC = (PSC - 1U); // Set the prescaler
+    TIMx->ARR = (ARR - 1U); // Set the auto reload register
     TIMx->CR1 = 1U;         // enable counter
 }
 

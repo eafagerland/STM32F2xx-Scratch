@@ -29,7 +29,7 @@ void ESL_SysTick_Init(UInt32 reload_value)
     SYSTICK->STK_VAL = 0U;
 
     // Enable Systick, Tickint and set AHB clock
-    SYSTICK->STK_CTRL |= SYSTICK_ENABLE | SYSTICK_TICKINT_ENABLE | SYSTICK_CLK_SRC_AHB;
+    SET_REG(SYSTICK->STK_CTRL, (SYSTICK_ENABLE | SYSTICK_TICKINT_ENABLE | SYSTICK_CLK_SRC_AHB));
 }
 
 /********************************************************************************************
@@ -45,7 +45,7 @@ void ESL_SysTick_Handler(void)
  *******************************************************************************************/
 void ESL_SysTick_Suspend(void)
 {
-    SYSTICK->STK_CTRL &= ~SYSTICK_TICKINT_ENABLE;
+    RESET_REG(SYSTICK->STK_CTRL, SYSTICK_TICKINT_ENABLE);
 }
 
 /********************************************************************************************
@@ -53,7 +53,7 @@ void ESL_SysTick_Suspend(void)
  *******************************************************************************************/
 void ESL_SysTick_Resume(void)
 {
-    SYSTICK->STK_CTRL |= SYSTICK_TICKINT_ENABLE;
+    SET_REG(SYSTICK->STK_CTRL, SYSTICK_TICKINT_ENABLE);
 }
 
 /********************************************************************************************

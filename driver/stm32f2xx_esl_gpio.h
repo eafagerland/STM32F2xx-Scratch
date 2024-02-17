@@ -12,11 +12,11 @@
 
 #include "stm32f207xx.h"
 
-#define GPIOA_BASE				0x40020000U
-#define GPIOB_BASE				0x40020400U
-#define GPIOC_BASE				0x40020800U
-#define GPIOD_BASE				0x40020C00U
-#define GPIOE_BASE				0x40021000U
+#define GPIOA_BASE				(0x40020000UL)
+#define GPIOB_BASE				(0x40020400UL)
+#define GPIOC_BASE				(0x40020800UL)
+#define GPIOD_BASE				(0x40020C00UL)
+#define GPIOE_BASE				(0x40021000UL)
 
 #define GPIO_MODE_Pos				0U
 #define GPIO_MODE				(0x3UL << GPIO_MODE_Pos)
@@ -52,23 +52,23 @@
 #define GPIO_AF7_USART2				(0x07UL)
 #define GPIO_AF7_USART3				(0x07UL)
 
-#define GPIO_PIN_0				((UInt16)0x0001)  /* Pin 0 selected    */
-#define GPIO_PIN_1				((UInt16)0x0002)  /* Pin 1 selected    */
-#define GPIO_PIN_2				((UInt16)0x0004)  /* Pin 2 selected    */
-#define GPIO_PIN_3				((UInt16)0x0008)  /* Pin 3 selected    */
-#define GPIO_PIN_4				((UInt16)0x0010)  /* Pin 4 selected    */
-#define GPIO_PIN_5				((UInt16)0x0020)  /* Pin 5 selected    */
-#define GPIO_PIN_6				((UInt16)0x0040)  /* Pin 6 selected    */
-#define GPIO_PIN_7				((UInt16)0x0080)  /* Pin 7 selected    */
-#define GPIO_PIN_8				((UInt16)0x0100)  /* Pin 8 selected    */
-#define GPIO_PIN_9				((UInt16)0x0200)  /* Pin 9 selected    */
-#define GPIO_PIN_10				((UInt16)0x0400)  /* Pin 10 selected   */
-#define GPIO_PIN_11				((UInt16)0x0800)  /* Pin 11 selected   */
-#define GPIO_PIN_12				((UInt16)0x1000)  /* Pin 12 selected   */
-#define GPIO_PIN_13				((UInt16)0x2000)  /* Pin 13 selected   */
-#define GPIO_PIN_14				((UInt16)0x4000)  /* Pin 14 selected   */
-#define GPIO_PIN_15				((UInt16)0x8000)  /* Pin 15 selected   */
-#define GPIO_PIN_All				((UInt16)0xFFFF)  /* All pins selected */
+#define GPIO_PIN_0				((UInt16)0x0001) 
+#define GPIO_PIN_1				((UInt16)0x0002) 
+#define GPIO_PIN_2				((UInt16)0x0004) 
+#define GPIO_PIN_3				((UInt16)0x0008)
+#define GPIO_PIN_4				((UInt16)0x0010) 
+#define GPIO_PIN_5				((UInt16)0x0020) 
+#define GPIO_PIN_6				((UInt16)0x0040) 
+#define GPIO_PIN_7				((UInt16)0x0080) 
+#define GPIO_PIN_8				((UInt16)0x0100) 
+#define GPIO_PIN_9				((UInt16)0x0200) 
+#define GPIO_PIN_10				((UInt16)0x0400) 
+#define GPIO_PIN_11				((UInt16)0x0800) 
+#define GPIO_PIN_12				((UInt16)0x1000) 
+#define GPIO_PIN_13				((UInt16)0x2000) 
+#define GPIO_PIN_14				((UInt16)0x4000) 
+#define GPIO_PIN_15				((UInt16)0x8000) 
+#define GPIO_PIN_All				((UInt16)0xFFFF)
 
 // Macro for checking EXTI source on given pin, return 1 if set.
 #define GPIO_EXTI_SOURCE(x) EXTI->PR & x

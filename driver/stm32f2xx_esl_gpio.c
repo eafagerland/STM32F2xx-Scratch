@@ -8,6 +8,7 @@
  * 
  *******************************************************************************************/
 #include "stm32f2xx_esl_gpio.h"
+#include "stm32f2xx_esl_nvic.h"
 
 /********************************************************************************************
  *  Updates the GPIO registers with correct modes. 
@@ -15,70 +16,75 @@
 void ESL_GPIO_Init(GPIO_Typedef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
 {
     UInt32 position = 0x00U;
-    UInt32 iocurrent;
+    UInt32 current_pin;
     UInt32 temp;
 
     // Iterate all the pins to see if struct patches current pin
     while (((GPIO_Init->Pin) >> position) != 0x00u)
     {
-        /* Get current io position */
-        iocurrent = (GPIO_Init->Pin) & (1uL << position);
+        // Get current pin position
+        current_pin = IS_BIT_SET(GPIO_Init->Pin, (1U << position));
 
-        if (iocurrent != 0x00u)
+        if (current_pin != 0x00u)
         {
+            // Set Pin as Interrupt (EXTI)
             if((GPIO_Init->Mode & EXTI_MODE) != 0x00u)
             {
                 // Set mode to input
-                GPIOx->MODER |= (GPIO_Init->Mode << (position * 2U));
+                SET_REG(GPIOx->MODER, (GPIO_Init->Mode << (position * 2U)));
 
                 // Clear rising edge setting and set new one
                 temp = EXTI->RTSR;
-                temp &= ~(iocurrent);
-                if((GPIO_Init->Mode & TRIGGER_RISING) != 0x00u)
+                RESET_REG(temp, current_pin);
+                if((GPIO_Init->Mode & TRIGGER_RISING) != 0x00U)
                 {
-                    temp |= iocurrent;
+                    temp |= current_pin;
                 }
                 EXTI->RTSR = temp;
 
                 // Clear falling edge setting and set new one
                 temp = EXTI->FTSR;
-                temp &= ~(iocurrent);
-                if((GPIO_Init->Mode & TRIGGER_FALLING) != 0x00u)
+                RESET_REG(temp, current_pin);
+                if((GPIO_Init->Mode & TRIGGER_FALLING) != 0x00U)
                 {
-                    temp |= iocurrent;
+                    temp |= current_pin;
                 }
                 EXTI->FTSR = temp;
 
                 // Clear enable interrupt bit and set
-                EXTI->IMR &= ~(1 << position);
-                EXTI->IMR |= (1 << position);
+                RESET_REG(EXTI->IMR, (1U << position));
+                SET_REG(EXTI->IMR, (1U << position));
                 
-                EXTI->EMR &= ~(1 << position);      // Clear event interrupt
+                // Clear event interrupt
+                RESET_REG(EXTI->EMR, (1U << position));
 
-                EXTI->PR |= (1 << position);        // Reset interrupt
-                SYSCFG->EXTICR4 |= (2U << 4);       // Set PC[x] as source input for EXTI // TODO: Needs to select register dynamically
-                ESL_NVIC_Enable(40);                // TODO: Needs to select position dynamically
+                // Reset interrupt
+                SET_REG(EXTI->PR, (1U << position));
+
+                // Set PC[x] as source input for EXTI   // TODO: Needs to select register dynamically
+                SET_REG(SYSCFG->EXTICR4, (2U << 4U));
+                ESL_NVIC_Enable(40);                    // TODO: Needs to select position dynamically
             }
 
+            // Set Pin as UART
             if ((GPIO_Init->Mode & GPIO_MODE) == MODE_AF)
             {
-                if (position < 8)
+                if (position < 8U)
                 {
-                    GPIOx->AFR[0] &= ~(0b1111UL << (position * 4));
-                    GPIOx->AFR[0] |= (GPIO_Init->Alternate << (position * 4));
+                    RESET_REG(GPIOx->AFR[0], (0xFUL << (position * 4U)));
+                    SET_REG(GPIOx->AFR[0], (GPIO_Init->Alternate << (position * 4U)));
                 }
                 else
                 {
-                    GPIOx->AFR[1] &= ~(0b1111UL << (position * 4));
-                    GPIOx->AFR[1] |= (GPIO_Init->Alternate << (position * 4));
+                    RESET_REG(GPIOx->AFR[1], (0xFUL << (position * 4U)));
+                    SET_REG(GPIOx->AFR[1], (GPIO_Init->Alternate << (position * 4U)));
                 }
-                GPIOx->MODER |= (GPIO_Init->Mode << (position * 2U));
+                SET_REG(GPIOx->MODER, (GPIO_Init->Mode << (position * 2U)));
             }
-
+            // Set Pin as output
             else
-                GPIOx->MODER |= (GPIO_Init->Mode << (position * 2U));
+                SET_REG(GPIOx->MODER, (GPIO_Init->Mode << (position * 2U)));
         }
-
         position++;
     }
 }

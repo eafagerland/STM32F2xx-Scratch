@@ -15,13 +15,13 @@
 #include "stm32f207xx.h"
 
 // SCB Register
-#define SCB_SCR_SLEEPDEEP (1 << 2)
+#define SCB_SCR_SLEEPDEEP	(1U << 2U)
 
 // Power Register
-#define PWR_CR_LPDS (1 << 0) // Low-power deep sleep
-#define PWR_CR_PDDS (1 << 1) // Power down deepsleep
+#define PWR_CR_LPDS			(1U << 0U) // Low-power deep sleep
+#define PWR_CR_PDDS			(1U << 1U) // Power down deepsleep
 
-UInt8 g_pwr_stop_mode_active = 0U;
+Bool g_pwr_stop_mode_active = FALSE;
 
 /********************************************************************************************
  *  Calls the wait for interrupt instruction
@@ -40,21 +40,21 @@ void ESL_Enter_PWR_Stop_Mode(void)
 	ESL_SysTick_Suspend();
 
 	// Reset PDDS for stop mode
-	PWR->CR &= ~PWR_CR_PDDS;
+	RESET_REG(PWR->CR, PWR_CR_PDDS);
 
 	// Disable voltage regulators
-	PWR->CR &= ~PWR_CR_LPDS; 
-	PWR->CR |= PWR_CR_LPDS;
+	RESET_REG(PWR->CR, PWR_CR_LPDS);
+	SET_REG(PWR->CR, PWR_CR_LPDS);
 
-	SCB->SCR &= ~SCB_SCR_SLEEPDEEP; // Reset SLEEPDEEP bit
-	SCB->SCR |= SCB_SCR_SLEEPDEEP;	// Set SLEEPDEEP bit
+	RESET_REG(SCB->SCR, SCB_SCR_SLEEPDEEP);	// Reset SLEEPDEEP bit
+	SET_REG(SCB->SCR, SCB_SCR_SLEEPDEEP);	// Set SLEEPDEEP bit
 
-	DBGMCU->CR = 0; // Deactivate debug during sleep
+	DBGMCU->CR = 0; // Deactivate debug trace during sleep
 
-	g_pwr_stop_mode_active = 1U;
+	g_pwr_stop_mode_active = TRUE;
 	__wfi();
 
-	SCB->SCR &= ~SCB_SCR_SLEEPDEEP; // Reset SLEEPDEEP bit
+	RESET_REG(SCB->SCR, SCB_SCR_SLEEPDEEP);	// Reset SLEEPDEEP bit
 }
 
 /********************************************************************************************

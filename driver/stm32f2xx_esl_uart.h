@@ -14,44 +14,44 @@
 #include "stm32f2xx_esl_gpio.h"
 
 // UARTx Base Adresses
-#define UART1_BASE 0x40011000U
-#define UART2_BASE 0x40004400U
-#define UART3_BASE 0x40004800U
-#define UART4_BASE 0x40004C00U
-#define UART5_BASE 0x40005000U
-#define UART6_BASE 0x40011400U
+#define UART1_BASE          (0x40011000UL)
+#define UART2_BASE          (0x40004400UL)
+#define UART3_BASE          (0x40004800UL)
+#define UART4_BASE          (0x40004C00UL)
+#define UART5_BASE          (0x40005000UL)
+#define UART6_BASE          (0x40011400UL)
 
 // UART Control Register 1 Defs
-#define UART_CR1_SBK        (1 << 0)    // Send break characters
-#define UART_CR1_RWU        (1 << 1)    // Receiver wakeup
-#define UART_CR1_RE         (1 << 2)    // Receive Enable
-#define UART_CR1_TE         (1 << 3)    // Transmit Enable
-#define UART_CR1_IDLEIE     (1 << 4)    // IDLE Interrupt Enable
-#define UART_CR1_RXNEIE     (1 << 5)    // RXNE Interrupt Enable
-#define UART_CR1_TCIE       (1 << 6)    // TX Complete Interrupt Enable
-#define UART_CR1_EXEIE      (1 << 7)    // TXE Interrupt Enable
-#define UART_CR1_PEIE       (1 << 8)    // PE Interrupt Enable
-#define UART_CR1_PS         (1 << 9)    // Parity Selection
-#define UART_CR1_PCE        (1 << 10)   // Parity Control Enable
-#define UART_CR1_WAKE       (1 << 11)   // Wakeup Method
-#define UART_CR1_M          (1 << 12)   // Word length
-#define UART_CR1_UE         (1 << 13)   // UART Enable
-#define UART_CR1_OVER8      (1 << 15)   //Oversampling mode
+#define UART_CR1_SBK        (1U << 0U)    // Send break characters
+#define UART_CR1_RWU        (1U << 1U)    // Receiver wakeup
+#define UART_CR1_RE         (1U << 2U)    // Receive Enable
+#define UART_CR1_TE         (1U << 3U)    // Transmit Enable
+#define UART_CR1_IDLEIE     (1U << 4U)    // IDLE Interrupt Enable
+#define UART_CR1_RXNEIE     (1U << 5U)    // RXNE Interrupt Enable
+#define UART_CR1_TCIE       (1U << 6U)    // TX Complete Interrupt Enable
+#define UART_CR1_EXEIE      (1U << 7U)    // TXE Interrupt Enable
+#define UART_CR1_PEIE       (1U << 8U)    // PE Interrupt Enable
+#define UART_CR1_PS         (1U << 9U)    // Parity Selection
+#define UART_CR1_PCE        (1U << 10U)   // Parity Control Enable
+#define UART_CR1_WAKE       (1U << 11U)   // Wakeup Method
+#define UART_CR1_M          (1U << 12U)   // Word length
+#define UART_CR1_UE         (1U << 13U)   // UART Enable
+#define UART_CR1_OVER8      (1U << 15U)   //Oversampling mode
 
 // UART Control Register 2 Defs
-#define UART_CR2_STOP_BIT_POS 12
+#define UART_CR2_STOP_BIT_POS 12U
 
 // UART Status Register Defs
-#define UART_SR_PE          (1 << 0)    // Parity Error
-#define UART_SR_FE          (1 << 1)    // Framing Error
-#define UART_SR_NF          (1 << 2)    // Noise Detected Flag
-#define UART_SR_ORE         (1 << 3)    // Overrun Error
-#define UART_SR_IDLE        (1 << 4)    // IDLE line detected
-#define UART_SR_RXNE        (1 << 5)    // Read data register not empty
-#define UART_SR_TC          (1 << 6)    // Transmission Complete
-#define UART_SR_TXE         (1 << 7)    // Transmit data register empty
-#define UART_SR_LBD         (1 << 8)    // LIN break detection flag
-#define UART_SR_CTS         (1 << 9)    // CTS Flag
+#define UART_SR_PE          (1U << 0U)    // Parity Error
+#define UART_SR_FE          (1U << 1U)    // Framing Error
+#define UART_SR_NF          (1U << 2U)    // Noise Detected Flag
+#define UART_SR_ORE         (1U << 3U)    // Overrun Error
+#define UART_SR_IDLE        (1U << 4U)    // IDLE line detected
+#define UART_SR_RXNE        (1U << 5U)    // Read data register not empty
+#define UART_SR_TC          (1U << 6U)    // Transmission Complete
+#define UART_SR_TXE         (1U << 7U)    // Transmit data register empty
+#define UART_SR_LBD         (1U << 8U)    // LIN break detection flag
+#define UART_SR_CTS         (1U << 9U)    // CTS Flag
 
 typedef struct
 {

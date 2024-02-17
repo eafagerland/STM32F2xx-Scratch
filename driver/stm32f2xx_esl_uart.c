@@ -40,6 +40,9 @@ void ESL_UARTx_Init(UARTx_Handle_Typedef* uart, UART_BAUDRATE baud, UART_WORD_LE
     // Enable receiver
     uart->instance->CR1 &= ~UART_CR1_RE;
     uart->instance->CR1 |= UART_CR1_RE;
+
+    // Flush buffers
+    ESL_UARTx_Flush(uart);
 }
 
 /********************************************************************************************

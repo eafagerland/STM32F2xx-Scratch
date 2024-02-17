@@ -13,6 +13,10 @@
 
 #define __weak   __attribute__((weak))
 
+#define SET_REG(reg, x)    ((reg) |= (x))
+#define RESET_REG(reg, x)  ((reg) &= ~(x))
+#define IS_BIT_SET(reg, x) ((reg) & (x))
+
 #define UInt32 		unsigned int
 #define Int32 		signed int
 #define UInt16 		unsigned short
@@ -20,12 +24,18 @@
 #define UInt8 		unsigned char
 #define Int8 		signed char
 
-#define EXTI_BASE		0x40013C00U
-#define SYSCFG_BASE 		0x40013800U
-#define FLASH_BASE		0x40023C00U
-#define DBGMCU_BASE			0xE0042000UL
-#define SCB_BASE		0xE000ED00U
-#define PWR_BASE		0x40007000U
+typedef enum
+{
+	FALSE = 0U,
+	TRUE
+} Bool;
+
+#define EXTI_BASE		(0x40013C00UL)
+#define SYSCFG_BASE 		(0x40013800UL)
+#define FLASH_BASE		(0x40023C00UL)
+#define DBGMCU_BASE			(0xE0042000UL)
+#define SCB_BASE		(0xE000ED00UL)
+#define PWR_BASE		(0x40007000UL)
 
 typedef enum
 {
@@ -45,7 +55,7 @@ typedef struct
 	UInt32 ODR;
 	UInt32 BSRR;
 	UInt32 LCKR;
-	UInt32 AFR[2];
+	UInt32 AFR[2U];
 } GPIO_Typedef;
 
 typedef struct
@@ -75,11 +85,11 @@ typedef struct
 
 typedef struct 
 {
-    volatile UInt32 ISER[3]; // 0x0 to 0xB - interrupt set-enable registers
-    volatile UInt32 ICER[3]; // 0xC to 0x18 - interrupt clear-enable registers
-    volatile UInt32 ISPR[3]; // 0x18 to 0x24 - interrupt set-pending registers
-    volatile UInt32 ICPR[3]; // 0x24 to 0x30 - interrupt clear-pending registers
-    volatile UInt32 IABR[3]; // 0x30 to 0x3C - interrupt active bit registers
+    volatile UInt32 ISER[3U]; // 0x0 to 0xB - interrupt set-enable registers
+    volatile UInt32 ICER[3U]; // 0xC to 0x18 - interrupt clear-enable registers
+    volatile UInt32 ISPR[3U]; // 0x18 to 0x24 - interrupt set-pending registers
+    volatile UInt32 ICPR[3U]; // 0x24 to 0x30 - interrupt clear-pending registers
+    volatile UInt32 IABR[3U]; // 0x30 to 0x3C - interrupt active bit registers
 } NVIC_Typedef;
 
 typedef struct

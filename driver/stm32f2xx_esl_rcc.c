@@ -20,15 +20,15 @@ static UInt16 Get_AHB_Div(RCC_AHB_DIV AHP)
 {
     switch (AHP)
     {
-        case RCC_AHB_CLOCK_DIV1: return 1;
-        case RCC_AHB_CLOCK_DIV2: return 2;
-        case RCC_AHB_CLOCK_DIV4: return 4;
-        case RCC_AHB_CLOCK_DIV8: return 8;
-        case RCC_AHB_CLOCK_DIV16: return 16;
-        case RCC_AHB_CLOCK_DIV64: return 64;
-        case RCC_AHB_CLOCK_DIV128: return 128;
-        case RCC_AHB_CLOCK_DIV256: return 256;
-        case RCC_AHB_CLOCK_DIV512: return 512;
+        case RCC_AHB_CLOCK_DIV1:    return 1U;
+        case RCC_AHB_CLOCK_DIV2:    return 2U;
+        case RCC_AHB_CLOCK_DIV4:    return 4U;
+        case RCC_AHB_CLOCK_DIV8:    return 8U;
+        case RCC_AHB_CLOCK_DIV16:   return 16U;
+        case RCC_AHB_CLOCK_DIV64:   return 64U;
+        case RCC_AHB_CLOCK_DIV128:  return 128U;
+        case RCC_AHB_CLOCK_DIV256:  return 256U;
+        case RCC_AHB_CLOCK_DIV512:  return 512U;
     }
 }
 
@@ -39,11 +39,11 @@ static UInt16 Get_APB_Div(RCC_APB_DIV APB)
 {
     switch (APB)
     {
-        case RCC_APBx_CLOCK_DIV1: return 1;
-        case RCC_APBx_CLOCK_DIV2: return 2;
-        case RCC_APBx_CLOCK_DIV4: return 4;
-        case RCC_APBx_CLOCK_DIV8: return 8;
-        case RCC_APBx_CLOCK_DIV16: return 16;
+        case RCC_APBx_CLOCK_DIV1:   return 1U;
+        case RCC_APBx_CLOCK_DIV2:   return 2U;
+        case RCC_APBx_CLOCK_DIV4:   return 4U;
+        case RCC_APBx_CLOCK_DIV8:   return 8U;
+        case RCC_APBx_CLOCK_DIV16:  return 16U;
     }
 }
 
@@ -108,63 +108,68 @@ ESL_StatusTypeDef ESL_RCC_Init
 *  Set flash interface latency to 3 wait states 
 *  (Must be set on higher frequencies. ref table 3 flash programming manual)
 */
-    FLASH_INTF->ACR |= (FLASH_LATENCY_3WS << FLASH_ACR_LATENCY_POS);
+    SET_REG(FLASH_INTF->ACR, (FLASH_LATENCY_3WS << FLASH_ACR_LATENCY_POS));
 
-    RCC->CR |= RCC_CR_HSE_ON;               // Enable HSE
-    RCC->CR &= ~RCC_CR_HSI_ON;              // Disable HSI
+/**************************************************************************/
 
-    while (!(RCC->CR & RCC_CR_HSE_RDY));    // HSE Ready Flag
-    //while (!(RCC->CR & RCC_CR_HSi_RDY));  // HSI Ready Flag
-    
-    RCC->CR &= ~RCC_CR_PLL_ON;              // Disable PLL
+    SET_REG(RCC->CR, RCC_CR_HSE_ON);        // Enable HSE
+    RESET_REG(RCC->CR, RCC_CR_HSI_ON);      // Disable HSI            
+
+    // HSE Ready Flag
+    while (!IS_BIT_SET(RCC->CR, RCC_CR_HSE_RDY));  
+
+    // Disable PLL
+    RESET_REG(RCC->CR, RCC_CR_PLL_ON);           
 
     // CLear PLLQ and set new value
-    RCC->PLLCFGR &= ~(0b1111UL << RCC_PLLCFGR_PLLQ_POS);
-    RCC->PLLCFGR |= (PLLQ_prescaler << RCC_PLLCFGR_PLLQ_POS);          
+    RESET_REG(RCC->PLLCFGR, (0xFUL << RCC_PLLCFGR_PLLQ_POS));
+    SET_REG(RCC->PLLCFGR, (PLLQ_prescaler << RCC_PLLCFGR_PLLQ_POS));        
 
     // Clear PLL source and set HSE as source
-    RCC->PLLCFGR &= ~(1U << RCC_PLLCFGR_PLL_SRC_POS);
-    RCC->PLLCFGR |= RCC_PLLCFGR_PLL_SRC_HSE; 
+    RESET_REG(RCC->PLLCFGR, (0x1UL << RCC_PLLCFGR_PLL_SRC_POS));
+    SET_REG(RCC->PLLCFGR, RCC_PLLCFGR_PLL_SRC_HSE);
 
     // Clear PLLP and PLLN
-    RCC->PLLCFGR &= ~(0b11UL << RCC_PLLCFGR_PLLP_POS);          
-    RCC->PLLCFGR &= ~(0b111111111UL << RCC_PLLCFGR_PLLN_POS);
+    RESET_REG(RCC->PLLCFGR, (0x3UL << RCC_PLLCFGR_PLLP_POS));
+    RESET_REG(RCC->PLLCFGR, (0x1FFUL << RCC_PLLCFGR_PLLN_POS));
 
     // Set PLLP and PLLN
-    RCC->PLLCFGR |= (PLLP_prescaler << RCC_PLLCFGR_PLLP_POS);          
-    RCC->PLLCFGR |= (PLLN_prescaler << RCC_PLLCFGR_PLLN_POS); 
+    SET_REG(RCC->PLLCFGR, (PLLP_prescaler << RCC_PLLCFGR_PLLP_POS));
+    SET_REG(RCC->PLLCFGR, (PLLN_prescaler << RCC_PLLCFGR_PLLN_POS));     
 
     // Clear PLLM and set new value
-    RCC->PLLCFGR &= ~(0b111111UL);                              
-    RCC->PLLCFGR |= (PLLM_prescaler << RCC_PLLCFGR_PLLM_POS);           
+    RESET_REG(RCC->PLLCFGR, (0x3FUL));    
+    SET_REG(RCC->PLLCFGR, (PLLM_prescaler << RCC_PLLCFGR_PLLM_POS));                            
 
-    RCC->CR |= RCC_CR_PLL_ON;           // PLL ON
+    // Switch PLL on
+    SET_REG(RCC->CR, RCC_CR_PLL_ON);  
 
-    while (!(RCC->CR & RCC_CR_PLLRDY)); // Wait until PLL is ready
+    // Wait until PLL is ready
+    while (!IS_BIT_SET(RCC->CR, RCC_CR_PLLRDY));
 
     // Clear APB2 Clock divider and set new value
-    RCC->CFGR &= ~(0b111UL << RCC_CFGR_APB2_POS); 
-    RCC->CFGR |= (APB2_prescaler << RCC_CFGR_APB2_POS);
+    RESET_REG(RCC->CFGR, (0x7UL << RCC_CFGR_APB2_POS));
+    SET_REG(RCC->CFGR, (APB2_prescaler << RCC_CFGR_APB2_POS));
 
     // Clear APB1 Clock divider and set new value
-    RCC->CFGR &= ~(0b111UL << RCC_CFGR_APB1_POS);
-    RCC->CFGR |= (APB1_prescaler << RCC_CFGR_APB1_POS);
+    RESET_REG(RCC->CFGR, (0x7UL << RCC_CFGR_APB1_POS));
+    SET_REG(RCC->CFGR, (APB1_prescaler << RCC_CFGR_APB1_POS));
 
     // Clear AHB Clock divider and set new value
-    RCC->CFGR &= ~(0b1111UL << RCC_CFGR_AHB_POS);			
-    RCC->CFGR |= (AHB_prescaler << RCC_CFGR_AHB_POS);
+    RESET_REG(RCC->CFGR, (0xFUL << RCC_CFGR_AHB_POS));
+    SET_REG(RCC->CFGR, (AHB_prescaler << RCC_CFGR_AHB_POS));
 
-    RCC->CFGR &= ~(0x3UL);        // Clear SW bits
-    RCC->CFGR |= RCC_CFGR_SW_PLL; // Set PLL as main clock source
+    RESET_REG(RCC->CFGR, (0x3UL));          // Clear SW bits
+    SET_REG(RCC->CFGR, RCC_CFGR_SW_PLL);    // Set PLL as main clock source
 
     // Enable used perfs on AHB1
-    RCC->AHB1ENR |= (RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN);
+    SET_REG(RCC->AHB1ENR, (RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN));
 
     // Enable used perfs on APB2
-    RCC->APB2ENR |= (RCC_APB2ENR_TIM10EN | RCC_APB2ENR_TIM11EN | RCC_APB2ENR_SYSCFGEN);
+    SET_REG(RCC->APB2ENR, (RCC_APB2ENR_TIM10EN | RCC_APB2ENR_TIM11EN | RCC_APB2ENR_SYSCFGEN));
 
     // Enable used perfs on APB1
-    RCC->APB1ENR |= (RCC_APB1ENR_USART2EN | RCC_APB1ENR_PWREN);
+    SET_REG(RCC->APB1ENR, (RCC_APB1ENR_USART2EN | RCC_APB1ENR_PWREN));
 
     // Calculate the current clock values
     Calculate_RCC_Clocks(APB1_prescaler, APB2_prescaler, AHB_prescaler);

@@ -74,8 +74,8 @@ int main(void)
 
 	ESL_Delay(1000);
 
-	// Turn on Red led to indicate UART test complete
-	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
+	// Turn off red led before sleep
+	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_RESET);
 
 	// Enter Stop mode deepsleep (wakeup with user button)
 	ESL_Enter_PWR_Stop_Mode(); 
@@ -111,7 +111,7 @@ void EXTI15_10_Handler(void)
 	{
 		if (g_pwr_stop_mode_active)
 		{
-			g_pwr_stop_mode_active = 0U;
+			g_pwr_stop_mode_active = FALSE;
 			init_system_clocks(); // Need to re-init clocks since they were disabled at sleep
 			ESL_SysTick_Resume(); // Resume the systick
 			print("Woke up from stop mode!\n\r");

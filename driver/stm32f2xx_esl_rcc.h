@@ -18,14 +18,14 @@
 *  Target sysclock of MCU. PLL, AHB and APB settings must be recalculated
 *  in order to change clock! It's not enough to just change this definition! 
 */
-#define RCC_SYSCLK_TARGET 120000000     // Target System Clock                  [MHz]
-#define RCC_HSE_CRYSTAL_FREQ 8000000    // Frequency on the onboard HSE crystal [MHz]
+#define RCC_SYSCLK_TARGET           (120000000UL)   // Target System Clock                  [MHz]
+#define RCC_HSE_CRYSTAL_FREQ        (8000000UL)     // Frequency on the onboard HSE crystal [MHz]
 
 /********************************************************************************************/
 
-#define RCC_BASE 0x40023800U
+#define RCC_BASE                    (0x40023800UL)
 
-#define FLASH_ACR_LATENCY_POS 0U
+#define FLASH_ACR_LATENCY_POS       (0U)
 
 #define RCC_CR_PLLRDY               (1U << 25U)
 #define RCC_CR_HSE_ON               (1U << 16U)

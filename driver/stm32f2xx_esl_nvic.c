@@ -20,7 +20,7 @@ void ESL_NVIC_Enable(UInt8 irq_pos)
     UInt8 bitPos = irq_pos % 32;
 
     // Update NVIC register table to enable the interrupt
-    NVIC->ISER[index] = (1 << bitPos);
+    SET_REG(NVIC->ISER[index], (1U << bitPos));
 }
 
 /********************************************************************************************
@@ -33,7 +33,7 @@ void ESL_NVIC_Disable(UInt8 irq_pos)
     UInt8 bitPos = irq_pos % 32;
 
     // Update NVIC register table to disable the interrupt
-    NVIC->ICER[index] = (1 << bitPos);
+    SET_REG(NVIC->ICER[index], (1U << bitPos));
 }
 
 /********************************************************************************************

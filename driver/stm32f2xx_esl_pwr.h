@@ -12,7 +12,7 @@
 
 #include "stm32f207xx.h"
 
-extern UInt8 g_pwr_stop_mode_active;
+extern Bool g_pwr_stop_mode_active;
 
 void __wfi(void);
 void ESL_Enter_PWR_Stop_Mode(void);
