@@ -44,7 +44,7 @@
 .word   none                //  22 CAN1_SCE
 .word   none                //  23 EXTI9_5
 .word   none                //  24 TIM1_BRK_TIM9
-.word   TIM10_IRQHandler    //  25 TIM1_UP_TIM10
+.word   TIM10_IRQ_Handler   //  25 TIM1_UP_TIM10
 .word   none                //  26 TIM1_TRG_COM_TIM11
 .word   none                //  27 TIM1_CC
 .word   none                //  28 TIM2
@@ -57,7 +57,7 @@
 .word   none                //  35 SPI1
 .word   none                //  36 SPI2
 .word   none                //  37 USART1
-.word   none                //  38 USART2
+.word   UART2_IRQ_Handler   //  38 USART2
 .word   none                //  39 USART3
 .word   EXTI15_10_Handler   //  40 EXTI15_10
 .word   none                //  41 RTC_Alarm

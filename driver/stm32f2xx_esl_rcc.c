@@ -68,7 +68,7 @@ static void set_pll_prescalers(UInt16 PLLQ_prescaler,
 /********************************************************************************************
  *  Transform the AHB enum into an integer correspending to its DIV num.
  *******************************************************************************************/
-static UInt16 Get_AHB_Div(RCC_AHB_DIV AHP)
+static UInt16 get_ahb_div(RCC_AHB_DIV AHP)
 {
     switch (AHP)
     {
@@ -87,7 +87,7 @@ static UInt16 Get_AHB_Div(RCC_AHB_DIV AHP)
 /********************************************************************************************
  *  Transform the APB enum into an integer correspending to its DIV num.
  *******************************************************************************************/
-static UInt16 Get_APB_Div(RCC_APB_DIV APB)
+static UInt16 get_apb_div(RCC_APB_DIV APB)
 {
     switch (APB)
     {
@@ -102,7 +102,7 @@ static UInt16 Get_APB_Div(RCC_APB_DIV APB)
 /********************************************************************************************
  *  Transform the PLLP enum into an integer correspending to its DIV num.
  *******************************************************************************************/
-static UInt16 Get_PLLP_Div(RCC_PLLP_DIV PLLP)
+static UInt16 get_pllp_div(RCC_PLLP_DIV PLLP)
 {
     switch (PLLP)
     {
@@ -121,19 +121,19 @@ static void Calculate_RCC_Clocks(RCC_APB_DIV APB1_prescaler, RCC_APB_DIV APB2_pr
 {
     RCC_Clocks.SYSCLK           = RCC_SYSCLK_TARGET;
     RCC_Clocks.HCLK             = RCC_SYSCLK_TARGET;
-    RCC_Clocks.APB1_CLOCK       = (RCC_SYSCLK_TARGET / Get_AHB_Div(AHB_prescaler)) / Get_APB_Div(APB1_prescaler);
-    RCC_Clocks.APB1_TIM_CLOCK   = ((RCC_SYSCLK_TARGET / Get_AHB_Div(AHB_prescaler)) / Get_APB_Div(APB1_prescaler) * 2);
-    RCC_Clocks.APB2_CLOCK       = (RCC_SYSCLK_TARGET / Get_AHB_Div(AHB_prescaler)) / Get_APB_Div(APB2_prescaler);
-    RCC_Clocks.APB2_TIM_CLOCK   = ((RCC_SYSCLK_TARGET / Get_AHB_Div(AHB_prescaler)) / Get_APB_Div(APB2_prescaler) * 2);
+    RCC_Clocks.APB1_CLOCK       = (RCC_SYSCLK_TARGET / get_ahb_div(AHB_prescaler)) / get_apb_div(APB1_prescaler);
+    RCC_Clocks.APB1_TIM_CLOCK   = ((RCC_SYSCLK_TARGET / get_ahb_div(AHB_prescaler)) / get_apb_div(APB1_prescaler) * 2);
+    RCC_Clocks.APB2_CLOCK       = (RCC_SYSCLK_TARGET / get_ahb_div(AHB_prescaler)) / get_apb_div(APB2_prescaler);
+    RCC_Clocks.APB2_TIM_CLOCK   = ((RCC_SYSCLK_TARGET / get_ahb_div(AHB_prescaler)) / get_apb_div(APB2_prescaler) * 2);
 }
 
 /********************************************************************************************
  *  Function for testing if the calculated sysclk based on prescaler and crystal matches the
  *  target sysclk defined in header file.
  *******************************************************************************************/
-static ESL_StatusTypeDef Is_SYSCLK_OK(UInt16 PLLM_prescaler, UInt16 PLLN_prescaler, RCC_PLLP_DIV PLLP_prescaler)
+static ESL_StatusTypeDef is_sysclk_ok(UInt16 PLLM_prescaler, UInt16 PLLN_prescaler, RCC_PLLP_DIV PLLP_prescaler)
 {
-    UInt32 calculated_sysclk = ((RCC_HSE_CRYSTAL_FREQ / PLLM_prescaler) * PLLN_prescaler) / Get_PLLP_Div(PLLP_prescaler);
+    UInt32 calculated_sysclk = ((RCC_HSE_CRYSTAL_FREQ / PLLM_prescaler) * PLLN_prescaler) / get_pllp_div(PLLP_prescaler);
     if (calculated_sysclk != RCC_SYSCLK_TARGET)
         return ESL_ERROR;
     return ESL_OK;
@@ -195,7 +195,7 @@ ESL_StatusTypeDef ESL_RCC_Init
     Calculate_RCC_Clocks(APB1_prescaler, APB2_prescaler, AHB_prescaler);
 
     // Check if the current PLL settings matches the target SYSCLK, if not throw error
-    if (Is_SYSCLK_OK(PLLM_prescaler, PLLN_prescaler, PLLP_prescaler) != ESL_OK)
+    if (is_sysclk_ok(PLLM_prescaler, PLLN_prescaler, PLLP_prescaler) != ESL_OK)
         return ESL_ERROR;
     
     return ESL_OK;

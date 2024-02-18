@@ -20,4 +20,8 @@ void GPIO_Init(void)
 	GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
 	GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
 	ESL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+	// Set initial state
+	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
+	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);
 }

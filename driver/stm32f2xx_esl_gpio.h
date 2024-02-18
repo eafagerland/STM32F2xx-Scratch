@@ -95,11 +95,11 @@ typedef enum
 	PORT_GPIOC,
 	PORT_GPIOD,
 	PORT_GPIOE
-} GPIO_Port_Typedef;
+} GPIO_Port_TypeDef;
 
-void ESL_GPIO_Init(GPIO_Typedef* GPIOx, GPIO_InitTypeDef* GPIO_Init);
-void ESL_GPIO_WritePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinState);
-void ESL_GPIO_TogglePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin);
-GPIO_PinState ESL_GPIO_Read_Pinstate(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin);
+void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init);
+void ESL_GPIO_WritePin(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinState);
+void ESL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin);
+GPIO_PinState ESL_GPIO_Read_Pinstate(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin);
 
 #endif // __STM32F2xx_ESL_GPIO_H

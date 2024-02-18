@@ -1,7 +1,7 @@
 #include "uart.h"
 #include "stm32f2xx_esl_uart.h"
 
-UARTx_Handle_Typedef uart2;
+UARTx_Handle_TypeDef uart2;
 
 void UART2_Init()
 {

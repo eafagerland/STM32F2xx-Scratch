@@ -15,7 +15,7 @@
  *  Initializes given uart handle with given baud, length and stopbits. Enables both
  *  receiver and transmitter.
  *******************************************************************************************/
-void ESL_UARTx_Init(UARTx_Handle_Typedef* uart, UART_BAUDRATE baud, UART_WORD_LEN len, UART_STOPBITS stopbits)
+void ESL_UARTx_Init(UARTx_Handle_TypeDef* uart, UART_BAUDRATE baud, UART_WORD_LEN len, UART_STOPBITS stopbits)
 {
     // Enable USART
     uart->instance->CR1 &= ~UART_CR1_UE;
@@ -27,7 +27,7 @@ void ESL_UARTx_Init(UARTx_Handle_Typedef* uart, UART_BAUDRATE baud, UART_WORD_LE
         uart->instance->CR1 |= UART_CR1_M;
     
     // Set stop bits
-    uart->instance->CR2 &= ~(0b11UL << UART_CR2_STOP_BIT_POS);
+    uart->instance->CR2 &= ~(0x3UL << UART_CR2_STOP_BIT_POS);
     uart->instance->CR2 |= (stopbits << UART_CR2_STOP_BIT_POS);
 
     // Set the baudrate
@@ -50,7 +50,7 @@ void ESL_UARTx_Init(UARTx_Handle_Typedef* uart, UART_BAUDRATE baud, UART_WORD_LE
  *  the length of the array. A timeout is also set and if elapsed it will return a timeout
  *  error.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Write(UARTx_Handle_Typedef* uart, UInt8* buf, UInt32 length, UInt32 timeout)
+ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout)
 {
     UInt32 bytes_sent = 0;
     UInt32 millis_started = ESL_Millis();
@@ -94,7 +94,7 @@ ESL_StatusTypeDef ESL_UARTx_Write(UARTx_Handle_Typedef* uart, UInt8* buf, UInt32
  *  A timeout is also set and if elapsed it will return a timeout
  *  error. Returns when full length has been read.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Read(UARTx_Handle_Typedef* uart, UInt8* buf, UInt32 length, UInt32 timeout)
+ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout)
 {
     UInt32 bytes_read = 0;
     UInt32 millis_started = ESL_Millis();
@@ -123,7 +123,7 @@ ESL_StatusTypeDef ESL_UARTx_Read(UARTx_Handle_Typedef* uart, UInt8* buf, UInt32 
 /********************************************************************************************
  *  Flushes the uarts data register.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_Typedef* uart)
+ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_TypeDef* uart)
 {
     volatile UInt8 dummy_byte = 0;
     UInt32 millis_started = ESL_Millis();
@@ -141,6 +141,132 @@ ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_Typedef* uart)
         dummy_byte = uart->instance->DR;
         (void)dummy_byte; // Supress compiler warning
     }
-
     return ESL_OK;
+}
+
+/********************************************************************************************
+ *  Starts to receive in blocking mode until given length has been read from buffer or
+ *  an idle line was detected.
+ *******************************************************************************************/
+void ESL_UARTx_Receive_To_Idle(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout)
+{
+
+}
+
+/********************************************************************************************
+ *  Starts the IRQ receive to Idle on UART. Callback will be called when given length has
+ *  been read or an idle line was detected.
+ *******************************************************************************************/
+void ESL_UARTx_Receive_To_Idle_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length)
+{    
+    // Set the pointers to RX buf so it can be stored during IRQ reads
+    uart->rx_buf = buf;
+    uart->rx_buf_pos = 0;
+    uart->rx_buf_len = length;
+    uart->rx_state = UART_IRQ_STARTED;
+
+    // Enable IDLE interrupt
+    RESET_REG(uart->instance->CR1, UART_CR1_IDLEIE);
+    SET_REG(uart->instance->CR1, UART_CR1_IDLEIE);
+}
+
+/********************************************************************************************
+ *  Starts the IRQ receive on UART. Callback will be called when given length has been read.
+ *******************************************************************************************/
+void ESL_UARTx_Receive_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length)
+{
+    // Set the pointers to RX buf so it can be stored during IRQ reads
+    uart->rx_buf = buf;
+    uart->rx_buf_pos = 0;
+    uart->rx_buf_len = length;
+    uart->rx_state = UART_IRQ_STARTED;
+
+    // Enable RX interrupt
+    RESET_REG(uart->instance->CR1, UART_CR1_RXNEIE);
+    SET_REG(uart->instance->CR1, UART_CR1_RXNEIE);
+}
+
+/********************************************************************************************
+ *  Starts IRQ transmission on UART. Callback is called when given length of bytes have
+ *  been sent.
+ *******************************************************************************************/
+void ESL_UARTx_Transmit_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length)
+{
+    // Set the pointers to RX buf so it can be stored during IRQ reads
+    uart->tx_buf = buf;
+    uart->tx_buf_pos = 0;
+    uart->tx_buf_len = length;
+    uart->tx_state = UART_IRQ_STARTED;
+
+    // Enable TX interrupt
+    RESET_REG(uart->instance->CR1, UART_CR1_TCIE);
+    SET_REG(uart->instance->CR1, UART_CR1_TCIE);
+}
+
+/********************************************************************************************
+ *  Weak declared UART receive callback. If the RX IRQ was enabled on the UART this callback
+ *  will be called whenever the RX has completed or idle line detected if activated.
+ *  To be implemented in user files.
+ *******************************************************************************************/
+__weak void ESL_UARTx_Receive_Callback(UARTx_Handle_TypeDef* uart)
+{
+    UNUSED(uart);
+    /* NOTE: 
+     * This function should not be modified, when the callback is needed it can be implemented in user file
+    */
+}
+
+/********************************************************************************************
+ *  Weak declared UART transmit callback. If TX IRQ was enabled on the UART this callback
+ *  will be called whenever the TX has completed. 
+ *  To be implemented in user files.
+ *******************************************************************************************/
+__weak void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef* uart)
+{
+    UNUSED(uart);
+    /* NOTE: 
+     * This function should not be modified, when the callback is needed it can be implemented in user file
+    */
+}
+
+/********************************************************************************************
+ *  Global interrupt handler for UARTs.
+ *  Handles all the IRQ received from UARTs.
+ *******************************************************************************************/
+void ESL_UARTx_IRQ_Handler(UARTx_Handle_TypeDef* uart)
+{
+    UInt32 sr_reg = uart->instance->SR;
+    UInt32 cr1_reg = uart->instance->CR1;
+
+    Bool is_idle_detected       = IS_BIT_SET(sr_reg, UART_SR_IDLE) && IS_BIT_SET(cr1_reg, UART_CR1_IDLEIE);
+    Bool is_data_available      = IS_BIT_SET(sr_reg, UART_SR_RXNE);
+    Bool is_interrupt_enabled   = IS_BIT_SET(cr1_reg, UART_CR1_RXNEIE);
+
+    // Test if at max buffer size
+    if (uart->rx_buf_pos >= (uart->rx_buf_len - 1)) // Minus one since we are reading the last byte now
+    {
+        uart->rx_buf[uart->rx_buf_pos] = uart->instance->DR;
+        uart->rx_state = UART_IRQ_COMPLETE;
+        RESET_REG(uart->instance->CR1, UART_CR1_RXNEIE);
+        ESL_UARTx_Receive_Callback(uart);
+        return;
+    }
+
+    // Check if data available and cleared to read
+    if (is_data_available && is_interrupt_enabled)
+    {
+        uart->rx_buf[uart->rx_buf_pos] = uart->instance->DR;
+        uart->rx_buf_pos++;
+        return;
+    }
+
+    // Check for idle line
+    if (is_idle_detected)
+    {
+        uart->rx_buf[uart->rx_buf_pos] = uart->instance->DR;
+        uart->rx_state = UART_IRQ_IDLE_DETECTED;
+        RESET_REG(uart->instance->CR1, UART_CR1_IDLEIE);
+        ESL_UARTx_Receive_Callback(uart);
+        return;
+    }
 }

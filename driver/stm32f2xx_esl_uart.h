@@ -7,8 +7,8 @@
  *  Header file for uart.
  * 
  *******************************************************************************************/
-#ifndef __STM32F2xx_ESL_USART_H
-#define __STM32F2xx_ESL_USART_H
+#ifndef __STM32F2xx_ESL_UART_H
+#define __STM32F2xx_ESL_UART_H
 
 #include "stm32f207xx.h"
 #include "stm32f2xx_esl_gpio.h"
@@ -53,11 +53,26 @@
 #define UART_SR_LBD         (1U << 8U)    // LIN break detection flag
 #define UART_SR_CTS         (1U << 9U)    // CTS Flag
 
+typedef enum
+{
+    UART_IRQ_STARTED,
+    UART_IRQ_IDLE_DETECTED,
+    UART_IRQ_COMPLETE
+} UART_State_TypeDef;
+
 typedef struct
 {
-    UARTx_Typedef* instance;
-    GPIO_Port_Typedef port;
-} UARTx_Handle_Typedef;
+    UARTx_TypeDef* instance;
+    GPIO_Port_TypeDef port;
+    UInt8* rx_buf;
+    UInt32 rx_buf_pos;
+    UInt32 rx_buf_len;
+    UInt8* tx_buf;
+    UInt32 tx_buf_pos;
+    UInt32 tx_buf_len;
+    UART_State_TypeDef rx_state;
+    UART_State_TypeDef tx_state;
+} UARTx_Handle_TypeDef;
 
 // Enum for UART Word Length
 typedef enum
@@ -82,9 +97,17 @@ typedef enum
     BAUD_115200 = 115200U
 } UART_BAUDRATE;
 
-void ESL_UARTx_Init(UARTx_Handle_Typedef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN wordlen, UART_STOPBITS stopbits);
-ESL_StatusTypeDef ESL_UARTx_Write(UARTx_Handle_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
-ESL_StatusTypeDef ESL_UARTx_Read(UARTx_Handle_Typedef* UARTx, UInt8* buf, UInt32 length, UInt32 timeout);
-ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_Typedef* UARTx);
+void ESL_UARTx_Init(UARTx_Handle_TypeDef* UARTx, UART_BAUDRATE baud, UART_WORD_LEN wordlen, UART_STOPBITS stopbits);
+ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout);
+ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout);
+ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_TypeDef* uart);
 
-#endif // __STM32F2xx_ESL_USART_H
+void ESL_UARTx_Receive_To_Idle(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout);
+void ESL_UARTx_Receive_To_Idle_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length);
+void ESL_UARTx_Receive_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length);
+void ESL_UARTx_Transmit_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length);
+void ESL_UARTx_Receive_Callback(UARTx_Handle_TypeDef* uart);
+void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef* uart);
+void ESL_UARTx_IRQ_Handler(UARTx_Handle_TypeDef* uart);
+
+#endif // __STM32F2xx_ESL_UART_H

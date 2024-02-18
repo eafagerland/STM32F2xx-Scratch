@@ -28,7 +28,7 @@ void stringcopy(char* dst, const char* src)
     UInt32 dst_len = stringlen(dst);
     UInt32 src_len = stringlen(src);
 
-    stringset(dst, '\0', dst_len);
+    memset(dst, '\0', dst_len);
 
     for (UInt32 i = 0; i < src_len; i++)
     {
@@ -48,22 +48,27 @@ void stringcat(char* dst, const char* src)
     dst[dst_length + src_length] = '\0';
 }
 
-void stringset(char* string, char c, UInt32 len)
+void* memset(void* s, UInt32 c, UInt32 len)
 {
-    for (UInt32 i = 0; i < len; i++)
-        string[i] = c;
+    UInt8* p = s;
+    while (len-- > 0) 
+    {
+        *p++ = (UInt8)c;
+    }
+    return s;
 }
 
-void uint_to_string(UInt32 num, char* str)
+void uint_to_string(const UInt32 num, char* str)
 {
     UInt32 i = 0;
+    UInt32 num_buf = num;
 
     // Convert the number to its ASCII representation
     do 
     {
-        str[i++] = num % 10 + '0';
-        num /= 10;
-    } while (num > 0);
+        str[i++] = num_buf % 10 + '0';
+        num_buf /= 10;
+    } while (num_buf > 0);
 
     // Add the null terminator
     str[i] = '\0';
@@ -72,24 +77,25 @@ void uint_to_string(UInt32 num, char* str)
     reverse_string(str);
 }
 
-void int_to_string(Int32 num, char* str)
+void int_to_string(const Int32 num, char* str)
 {
     UInt32 i = 0;
     UInt8 is_negative = 0;
+    Int32 num_buf = num;
 
     // Handle negative numbers
-    if (num < 0) 
+    if (num_buf < 0) 
     {
         is_negative = 1;
-        num = -num;
+        num_buf = -num_buf;
     }
 
     // Convert the number to its ASCII representation
     do 
     {
-        str[i++] = num % 10 + '0';
-        num /= 10;
-    } while (num > 0);
+        str[i++] = num_buf % 10 + '0';
+        num_buf /= 10;
+    } while (num_buf > 0);
 
     // Add the negative sign if necessary
     if (is_negative) 
@@ -106,11 +112,11 @@ void int_to_string(Int32 num, char* str)
 
 void print(const char* string)
 {
-    ESL_UARTx_Write(&uart2, (UInt8*)string, stringlen(string), 5000);
+    ESL_UARTx_Transmit(&uart2, (UInt8*)string, stringlen(string), 5000);
 }
 
 void println(char* string)
 {
     stringcat(string, "\n\r");
-    ESL_UARTx_Write(&uart2, (UInt8*)string, stringlen(string), 5000);
+    ESL_UARTx_Transmit(&uart2, (UInt8*)string, stringlen(string), 5000);
 }

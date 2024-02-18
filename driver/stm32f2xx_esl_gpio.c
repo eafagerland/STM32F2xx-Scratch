@@ -13,7 +13,7 @@
 /********************************************************************************************
  *  Updates the GPIO registers with correct modes. 
  *******************************************************************************************/
-void ESL_GPIO_Init(GPIO_Typedef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
+void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
 {
     UInt32 position = 0x00U;
     UInt32 current_pin;
@@ -63,7 +63,7 @@ void ESL_GPIO_Init(GPIO_Typedef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
 
                 // Set PC[x] as source input for EXTI   // TODO: Needs to select register dynamically
                 SET_REG(SYSCFG->EXTICR4, (2U << 4U));
-                ESL_NVIC_Enable(40);                    // TODO: Needs to select position dynamically
+                ESL_NVIC_Enable_IRQ(EXTI15_10_IRQn);    // TODO: Needs to select position dynamically
             }
 
             // Set Pin as UART
@@ -92,7 +92,7 @@ void ESL_GPIO_Init(GPIO_Typedef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
 /********************************************************************************************
  *  Sets the output state of given pin/port with given state.
  *******************************************************************************************/
-void ESL_GPIO_WritePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinState)
+void ESL_GPIO_WritePin(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinState)
 {
     if (PinState == GPIO_PIN_SET) 
         GPIOx->ODR |= GPIO_Pin; // Set the pin
@@ -103,7 +103,7 @@ void ESL_GPIO_WritePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinSt
 /********************************************************************************************
  *  Toggles the output state of the given pin/port.
  *******************************************************************************************/
-void ESL_GPIO_TogglePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin)
+void ESL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin)
 {
     GPIO_PinState pinState = (GPIOx->ODR & GPIO_Pin) ? GPIO_PIN_SET : GPIO_PIN_RESET;
     ESL_GPIO_WritePin(GPIOx, GPIO_Pin, !pinState);
@@ -112,7 +112,7 @@ void ESL_GPIO_TogglePin(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin)
 /********************************************************************************************
  *  Reads a input pin/port and returns its state.
  *******************************************************************************************/
-GPIO_PinState ESL_GPIO_Read_Pinstate(GPIO_Typedef* GPIOx, UInt16 GPIO_Pin)
+GPIO_PinState ESL_GPIO_Read_Pinstate(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin)
 {
     return (GPIOx->IDR & GPIO_Pin) ? GPIO_PIN_SET : GPIO_PIN_RESET;
 }

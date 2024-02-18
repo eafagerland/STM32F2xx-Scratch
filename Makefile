@@ -15,7 +15,8 @@ C_SOURCES = \
 	./src/gpio.c \
 	./src/tim.c \
 	./src/nvic.c \
-	./src/uart.c
+	./src/uart.c \
+	./src/interrupts.c
 ASM_SOURCES = ./asm/boot.S
 
 PREFIX = arm-none-eabi

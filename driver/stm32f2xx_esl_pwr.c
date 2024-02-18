@@ -23,7 +23,7 @@
 #define PWR_CR_CWUF			(1U << 2U)	// Clear wakeup flag
 #define PWR_CR_CSBF			(1U << 3U)	// Clear standby flag
 
-#define PWR_CSR_EWUP		(1U << 8U) 	// Enable wake-up pin
+#define PWR_CSR_EWUP			(1U << 8U) 	// Enable wake-up pin
 #define PWR_CSR_WUF			(1U << 0U)	// Wakeup flag 
 #define PWR_CSR_SBF			(1U << 1U) 	// Standby flag
 
@@ -38,9 +38,9 @@ void __wfi(void)
 }
 
 /********************************************************************************************
- *  Enters stop mode, 1.2V domain off, HSI and HSE oscillators off. Wake-up with EXTI lines
+ *  Enters Deep Sleep based on given mode (stop or standby) and regulator on/off
  *******************************************************************************************/
-void ESL_PWR_Enter_Sleep(PWR_SLP_PDDS_Typedef sleep_mode, PWR_SLP_LPDS_Typedef regulator_state)
+void ESL_PWR_Enter_Sleep(PWR_SLP_PDDS_TypeDef sleep_mode, PWR_SLP_LPDS_TypeDef regulator_state)
 {
 	// Disable systick
 	ESL_SysTick_Suspend();
@@ -110,14 +110,14 @@ Bool ESL_PWR_Standby_Flagged(void)
  *******************************************************************************************/
 Bool ESL_PWR_WKUP_Flagged(void)
 {
-	Bool wakup_flagged = FALSE;
+	Bool wakeup_flagged = FALSE;
 
 	// Check if standby flag is set, indicating it woke up from standby
 	if (IS_BIT_SET(PWR->CSR, PWR_CSR_WUF)) 
-		wakup_flagged = TRUE;
+		wakeup_flagged = TRUE;
 
-	// Clear wakup flag
+	// Clear wakeup flag
 	SET_REG(PWR->CR, PWR_CR_CWUF);
 
-	return wakup_flagged;
+	return wakeup_flagged;
 }

@@ -27,10 +27,10 @@
 #define TIM13_BASE  (0x40001C00UL)
 #define TIM14_BASE  (0x40002000UL)
 
-void ESL_TIM_Init(TIMx_Typedef* TIMx, UInt32 PSC, UInt32 ARR);
-void ESL_TIM_Enable_IRQ(TIMx_Typedef* TIMx);
-void ESL_TIM_Reset_IRQ(TIMx_Typedef* TIMx);
+void ESL_TIM_Init(TIMx_TypeDef* tim, UInt32 psc, UInt32 arr);
+void ESL_TIM_Enable_IRQ(TIMx_TypeDef* tim);
+void ESL_TIM_Reset_IRQ(TIMx_TypeDef* tim);
 
-void ESL_TIM_IRQ_Handler(TIMx_Typedef* TIMx);
+void ESL_TIM_IRQ_Handler(TIMx_TypeDef* tim);
 
 #endif // __STM32F2xx_ESL_TIMER_H

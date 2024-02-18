@@ -13,6 +13,8 @@
 
 #define __weak   __attribute__((weak))
 
+#define UNUSED(x) ((void)x)
+
 #define SET_REG(reg, x)    ((reg) |= (x))
 #define RESET_REG(reg, x)  ((reg) &= ~(x))
 #define IS_BIT_SET(reg, x) ((reg) & (x))
@@ -45,6 +47,13 @@ typedef enum
 	ESL_TIMEOUT  = 0x03U
 } ESL_StatusTypeDef;
 
+typedef enum
+{
+	TIM10_IRQn = 25U,
+	EXTI15_10_IRQn = 40U,
+	UART2_IRQn = 38U
+} ESL_IRQ_Pos_TypeDef;
+
 typedef struct
 {
 	UInt32 MODER;
@@ -56,7 +65,7 @@ typedef struct
 	UInt32 BSRR;
 	UInt32 LCKR;
 	UInt32 AFR[2U];
-} GPIO_Typedef;
+} GPIO_TypeDef;
 
 typedef struct
 {
@@ -81,7 +90,7 @@ typedef struct
 	UInt32 DCR;
 	UInt32 DMAR;
 	UInt32 TIM2_5_OR;
-} TIMx_Typedef;
+} TIMx_TypeDef;
 
 typedef struct 
 {
@@ -90,7 +99,7 @@ typedef struct
     volatile UInt32 ISPR[3U]; // 0x18 to 0x24 - interrupt set-pending registers
     volatile UInt32 ICPR[3U]; // 0x24 to 0x30 - interrupt clear-pending registers
     volatile UInt32 IABR[3U]; // 0x30 to 0x3C - interrupt active bit registers
-} NVIC_Typedef;
+} NVIC_TypeDef;
 
 typedef struct
 {
@@ -128,7 +137,7 @@ typedef struct
 	UInt32 RESERVED10;
 	UInt32 SSCGR;
 	UInt32 PLLI2SCFGR;
-} RCC_Typedef;
+} RCC_TypeDef;
 
 typedef struct
 {
@@ -136,7 +145,7 @@ typedef struct
 	UInt32 STK_LOAD;
 	UInt32 STK_VAL;
 	UInt32 STK_CALIB;
-} SysTick_Typedef;
+} SysTick_TypeDef;
 
 typedef struct
 {
@@ -146,7 +155,7 @@ typedef struct
 	UInt32 FTSR;
 	UInt32 SWIER;
 	UInt32 PR;
-} EXTI_Typedef;
+} EXTI_TypeDef;
 
 typedef struct
 {
@@ -157,7 +166,7 @@ typedef struct
 	UInt32 EXTICR3;
 	UInt32 EXTICR4;
 	UInt32 CMPCR;
-} SYSCFG_Typedef;
+} SYSCFG_TypeDef;
 
 typedef struct
 {
@@ -168,7 +177,7 @@ typedef struct
 	UInt32 CR2;
 	UInt32 CR3;
 	UInt32 GTPR;
-} UARTx_Typedef;
+} UARTx_TypeDef;
 
 typedef struct
 {
@@ -178,7 +187,7 @@ typedef struct
 	UInt32 SR;
 	UInt32 CR;
 	UInt32 OPTCR;
-} FLASH_Intf_Typedef;
+} FLASH_Intf_TypeDef;
 
 // Debug MCU Typedef
 typedef struct
@@ -187,7 +196,7 @@ typedef struct
 	UInt32 CR;
 	UInt32 APB1FZ;
 	UInt32 APB2FZ;
-} DBGMCU_Typedef;
+} DBGMCU_TypeDef;
 
 // System Control Block Typedef
 typedef struct
@@ -213,58 +222,58 @@ typedef struct
 	UInt32 ISAR[5U];              
 	UInt32 RESERVED0[5U];
 	UInt32 CPACR;                 
-} SCB_Typedef;
+} SCB_TypeDef;
 
 // Power Register Typedef
 typedef struct
 {
 	UInt32 CR;
 	UInt32 CSR;
-} PWR_Typedef;
+} PWR_TypeDef;
 
-#define GPIOA 				((GPIO_Typedef *) GPIOA_BASE)
-#define GPIOB				((GPIO_Typedef *) GPIOB_BASE)
-#define GPIOC 				((GPIO_Typedef *) GPIOC_BASE)
-#define GPIOD 				((GPIO_Typedef *) GPIOD_BASE)
-#define GPIOE 				((GPIO_Typedef *) GPIOE_BASE)
+#define GPIOA 				((GPIO_TypeDef *) GPIOA_BASE)
+#define GPIOB				((GPIO_TypeDef *) GPIOB_BASE)
+#define GPIOC 				((GPIO_TypeDef *) GPIOC_BASE)
+#define GPIOD 				((GPIO_TypeDef *) GPIOD_BASE)
+#define GPIOE 				((GPIO_TypeDef *) GPIOE_BASE)
 
-#define TIM1				((TIMx_Typedef* ) TIM1_BASE)
-#define TIM2				((TIMx_Typedef* ) TIM2_BASE)
-#define TIM3				((TIMx_Typedef* ) TIM3_BASE)
-#define TIM4				((TIMx_Typedef* ) TIM4_BASE)
-#define TIM5				((TIMx_Typedef* ) TIM5_BASE)
-#define TIM6				((TIMx_Typedef* ) TIM6_BASE)
-#define TIM7				((TIMx_Typedef* ) TIM7_BASE)
-#define TIM8				((TIMx_Typedef* ) TIM8_BASE)
-#define TIM9				((TIMx_Typedef* ) TIM9_BASE)
-#define TIM10				((TIMx_Typedef* ) TIM10_BASE)
-#define TIM11				((TIMx_Typedef* ) TIM11_BASE)
-#define TIM12				((TIMx_Typedef* ) TIM12_BASE)
-#define TIM13				((TIMx_Typedef* ) TIM13_BASE)
-#define TIM14				((TIMx_Typedef* ) TIM14_BASE)
+#define TIM1				((TIMx_TypeDef* ) TIM1_BASE)
+#define TIM2				((TIMx_TypeDef* ) TIM2_BASE)
+#define TIM3				((TIMx_TypeDef* ) TIM3_BASE)
+#define TIM4				((TIMx_TypeDef* ) TIM4_BASE)
+#define TIM5				((TIMx_TypeDef* ) TIM5_BASE)
+#define TIM6				((TIMx_TypeDef* ) TIM6_BASE)
+#define TIM7				((TIMx_TypeDef* ) TIM7_BASE)
+#define TIM8				((TIMx_TypeDef* ) TIM8_BASE)
+#define TIM9				((TIMx_TypeDef* ) TIM9_BASE)
+#define TIM10				((TIMx_TypeDef* ) TIM10_BASE)
+#define TIM11				((TIMx_TypeDef* ) TIM11_BASE)
+#define TIM12				((TIMx_TypeDef* ) TIM12_BASE)
+#define TIM13				((TIMx_TypeDef* ) TIM13_BASE)
+#define TIM14				((TIMx_TypeDef* ) TIM14_BASE)
 
-#define NVIC				((NVIC_Typedef* ) NVIC_BASE)
+#define NVIC				((NVIC_TypeDef* ) NVIC_BASE)
 
-#define RCC				((RCC_Typedef* ) RCC_BASE)
+#define RCC				((RCC_TypeDef* ) RCC_BASE)
 
-#define SYSTICK				((SysTick_Typedef* ) SYSTICK_BASE)
+#define SYSTICK				((SysTick_TypeDef* ) SYSTICK_BASE)
 
-#define EXTI				((EXTI_Typedef* ) EXTI_BASE)
+#define EXTI				((EXTI_TypeDef* ) EXTI_BASE)
 
-#define SYSCFG				((SYSCFG_Typedef* ) SYSCFG_BASE)
+#define SYSCFG				((SYSCFG_TypeDef* ) SYSCFG_BASE)
 
-#define UART1				((UARTx_Typedef* ) UART1_BASE)
-#define UART2				((UARTx_Typedef* ) UART2_BASE)
-#define UART3				((UARTx_Typedef* ) UART3_BASE)
-#define UART4				((UARTx_Typedef* ) UART4_BASE)
-#define UART5				((UARTx_Typedef* ) UART5_BASE)
-#define UART6				((UARTx_Typedef* ) UART6_BASE)
+#define UART1				((UARTx_TypeDef* ) UART1_BASE)
+#define UART2				((UARTx_TypeDef* ) UART2_BASE)
+#define UART3				((UARTx_TypeDef* ) UART3_BASE)
+#define UART4				((UARTx_TypeDef* ) UART4_BASE)
+#define UART5				((UARTx_TypeDef* ) UART5_BASE)
+#define UART6				((UARTx_TypeDef* ) UART6_BASE)
 
-#define FLASH_INTF			((FLASH_Intf_Typedef* ) FLASH_BASE)
+#define FLASH_INTF			((FLASH_Intf_TypeDef* ) FLASH_BASE)
 
-#define DBGMCU				((DBGMCU_Typedef* ) DBGMCU_BASE)
+#define DBGMCU				((DBGMCU_TypeDef* ) DBGMCU_BASE)
 
-#define SCB				((SCB_Typedef* ) SCB_BASE)
-#define PWR				((PWR_Typedef* ) PWR_BASE)
+#define SCB				((SCB_TypeDef* ) SCB_BASE)
+#define PWR				((PWR_TypeDef* ) PWR_BASE)
 
 #endif // __STM32F207xx__H

@@ -13,26 +13,26 @@
  *  Initializes and starts the timer with given prescaler and auto reload register 
  *  value.
  *******************************************************************************************/
-void ESL_TIM_Init(TIMx_Typedef* TIMx, UInt32 PSC, UInt32 ARR)
+void ESL_TIM_Init(TIMx_TypeDef* tim, UInt32 psc, UInt32 arr)
 {
-    TIMx->PSC = (PSC - 1U); // Set the prescaler
-    TIMx->ARR = (ARR - 1U); // Set the auto reload register
-    TIMx->CR1 = 1U;         // enable counter
+    tim->PSC = (psc - 1U); // Set the prescaler
+    tim->ARR = (arr - 1U); // Set the auto reload register
+    tim->CR1 = 1U;         // enable counter
 }
 
 /********************************************************************************************
  *  Enables interrupt on the timer so a interrupt is triggered on each auto reload overflow.
  *******************************************************************************************/
-void ESL_TIM_Enable_IRQ(TIMx_Typedef* TIMx)
+void ESL_TIM_Enable_IRQ(TIMx_TypeDef* tim)
 {
-    TIMx->DIER = 1U; // Enable update interrupt
+    tim->DIER = 1U; // Enable update interrupt
 }
 
 /********************************************************************************************
  *  Resets interrupt on given timer, must be called in order for timers interrupt to be 
  *  called again.
  *******************************************************************************************/
-void ESL_TIM_Reset_IRQ(TIMx_Typedef* TIMx)
+void ESL_TIM_Reset_IRQ(TIMx_TypeDef* tim)
 {
     TIM10->SR = 0U;
 }
@@ -41,7 +41,7 @@ void ESL_TIM_Reset_IRQ(TIMx_Typedef* TIMx)
  *  Interrupt handler for Timer 10, passed into a IRQ handler for all timers for easier
  *  management from user.
  *******************************************************************************************/
-void TIM10_IRQHandler(void)
+void TIM10_IRQ_Handler(void)
 {
     ESL_TIM_IRQ_Handler(TIM10);
 }
@@ -49,8 +49,9 @@ void TIM10_IRQHandler(void)
 /********************************************************************************************
  *  weak declared function of the timer interrupt handler to be implmeneted by user.
  *******************************************************************************************/
-__weak void ESL_TIM_IRQ_Handler(TIMx_Typedef* TIMx)
+__weak void ESL_TIM_IRQ_Handler(TIMx_TypeDef* tim)
 {
+    UNUSED(tim);
     /* NOTE: 
      * This function should not be modified, when the callback is needed it can be implemented in user file
     */

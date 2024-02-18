@@ -13,7 +13,7 @@
 /********************************************************************************************
  *  Activates interrupt on the provided vector positon. See boot.S for entire vector table.
  *******************************************************************************************/
-void ESL_NVIC_Enable(UInt8 irq_pos)
+void ESL_NVIC_Enable_IRQ(UInt8 irq_pos)
 {
     // Get the index and position
     UInt8 index = irq_pos / 32;

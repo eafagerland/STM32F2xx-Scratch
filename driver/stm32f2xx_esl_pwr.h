@@ -20,7 +20,7 @@ typedef enum
 {
     PWR_SLP_LPDS_ON = 0U,
     PWR_SLP_LPDS_OFF
-} PWR_SLP_LPDS_Typedef;
+} PWR_SLP_LPDS_TypeDef;
 
 /********************************************************************************************
  *  When entering sleep mode user can select which sleep mode to enter.
@@ -30,12 +30,12 @@ typedef enum
 {
     PWR_SLP_PPDS_STOP = 0U,
     PWR_SLP_PPDS_STB
-} PWR_SLP_PDDS_Typedef;
+} PWR_SLP_PDDS_TypeDef;
 
 extern Bool g_pwr_stop_mode_active;
 
 void __wfi(void);
-void ESL_PWR_Enter_Sleep(PWR_SLP_PDDS_Typedef sleep_mode, PWR_SLP_LPDS_Typedef regulator_state);
+void ESL_PWR_Enter_Sleep(PWR_SLP_PDDS_TypeDef sleep_mode, PWR_SLP_LPDS_TypeDef regulator_state);
 void ESL_PWR_Enable_WKUP_Pin(void);
 Bool ESL_PWR_Standby_Flagged(void);
 Bool ESL_PWR_WKUP_Flagged(void);
