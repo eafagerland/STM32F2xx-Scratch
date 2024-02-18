@@ -156,13 +156,13 @@ ESL_StatusTypeDef ESL_RCC_Init
     RCC_AHB_DIV AHB_prescaler
 )
 {
-/***************************************************************************
-*  Set flash interface latency to 3 wait states 
-*  (Must be set on higher frequencies. ref table 3 flash programming manual)
-*/
+    /***************************************************************************
+    *  Set flash interface latency to 3 wait states 
+    *  (Must be set on higher frequencies. ref table 3 flash programming manual)
+    */
     SET_REG(FLASH_INTF->ACR, (FLASH_LATENCY_3WS << FLASH_ACR_LATENCY_POS));
 
-/**************************************************************************/
+    /**************************************************************************/
 
     SET_REG(RCC->CR, RCC_CR_HSE_ON);        // Enable HSE
     RESET_REG(RCC->CR, RCC_CR_HSI_ON);      // Disable HSI            

@@ -12,6 +12,9 @@
 #define UART_RX_BUFF_SIZE 10
 char rx_buf[UART_RX_BUFF_SIZE] = {'\0'};
 
+#define UART_TX_BUFF_SIZE 100
+char tx_buf[UART_TX_BUFF_SIZE] = {'\0'};
+
 /***********************************************
 *	Function Prototypes 
 ************************************************/
@@ -48,8 +51,9 @@ int main(void)
 	//UART IRQ Read test
 	ESL_UARTx_Receive_IT(&uart2, (UInt8*)rx_buf, UART_RX_BUFF_SIZE);
 
-	// Turn off red led before sleep
-	ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_RESET);
+	// Test UART IT TX
+	stringcopy(tx_buf, "Hello World! Sent on TX IRQ\n\r");
+	ESL_UARTx_Transmit_IT(&uart2, (UInt8*)tx_buf, stringlen(tx_buf));
 
 	// Enable wakeup pin
 	//ESL_PWR_Enable_WKUP_Pin();
@@ -89,8 +93,8 @@ void EXTI15_10_Handler(void)
 		}
 		else
 		{
-			print("Interrupt on user button was triggerd!\n\r");
-			ESL_GPIO_TogglePin(GPIOB, RED_LED);
+			if (ESL_UARTx_Transmit_IT(&uart2, (UInt8*)tx_buf, stringlen(tx_buf)) == ESL_OK)
+				ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
 		}
 		EXTI->PR |= GPIO_PIN_13;  // Reset interrupt
 	}	
@@ -130,12 +134,20 @@ void ESL_UARTx_Receive_Callback(UARTx_Handle_TypeDef* uart)
 		print("UART2 receive callback! Data in buffer: ");
 		char buf[100] = {'\0'};
 		stringcopy(buf, (const char*)uart->rx_buf);
-		print(buf);
-		print(", Pos: ");
-		memset(buf, '\0', 100);
-		uint_to_string(uart->rx_buf_pos, buf);
 		println(buf);
 		memset(rx_buf, '\0', UART_RX_BUFF_SIZE);
 		ESL_UARTx_Receive_IT(&uart2, (UInt8*)rx_buf, UART_RX_BUFF_SIZE);
+	}
+}
+
+/********************************************************************************************
+ *  Transmit Callback for Uarts
+ *******************************************************************************************/
+void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef* uart)
+{
+	if (uart->instance == UART2)
+	{
+		print("Transmission complete!\r\n");
+		ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_RESET);
 	}
 }

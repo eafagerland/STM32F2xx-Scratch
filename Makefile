@@ -34,6 +34,7 @@ MCU = $(CPU) -mthumb -g -std=c99
 
 C_INCLUDES = -Iinc -Idriver -Idriver/utilities
 CFLAGS = $(MCU) $(C_INCLUDES)
+CFLAGS += -Wall
 
 LDSCRIPT = flash.lds
 LDFLAGS = -T $(LDSCRIPT)

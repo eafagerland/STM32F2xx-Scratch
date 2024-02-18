@@ -1,7 +1,11 @@
 #include "uart.h"
 #include "stm32f2xx_esl_uart.h"
 
-UARTx_Handle_TypeDef uart2;
+UARTx_Handle_TypeDef uart2 =
+{
+    .rx_state = UART_STATE_RESET,
+    .tx_state = UART_STATE_RESET
+};
 
 void UART2_Init()
 {

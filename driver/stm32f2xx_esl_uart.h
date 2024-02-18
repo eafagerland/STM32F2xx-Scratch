@@ -29,7 +29,7 @@
 #define UART_CR1_IDLEIE     (1U << 4U)    // IDLE Interrupt Enable
 #define UART_CR1_RXNEIE     (1U << 5U)    // RXNE Interrupt Enable
 #define UART_CR1_TCIE       (1U << 6U)    // TX Complete Interrupt Enable
-#define UART_CR1_EXEIE      (1U << 7U)    // TXE Interrupt Enable
+#define UART_CR1_TXEIE      (1U << 7U)    // TXE Interrupt Enable
 #define UART_CR1_PEIE       (1U << 8U)    // PE Interrupt Enable
 #define UART_CR1_PS         (1U << 9U)    // Parity Selection
 #define UART_CR1_PCE        (1U << 10U)   // Parity Control Enable
@@ -55,9 +55,9 @@
 
 typedef enum
 {
-    UART_IRQ_STARTED,
-    UART_IRQ_IDLE_DETECTED,
-    UART_IRQ_COMPLETE
+    UART_STATE_RESET = 0U,
+    UART_STATE_READY,
+    UART_STATE_BUSY
 } UART_State_TypeDef;
 
 typedef struct
@@ -102,10 +102,10 @@ ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef* uart, UInt8* buf, UIn
 ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout);
 ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_TypeDef* uart);
 
-void ESL_UARTx_Receive_To_Idle(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout);
-void ESL_UARTx_Receive_To_Idle_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length);
-void ESL_UARTx_Receive_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length);
-void ESL_UARTx_Transmit_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length);
+ESL_StatusTypeDef ESL_UARTx_Receive_To_Idle(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout);
+ESL_StatusTypeDef ESL_UARTx_Receive_To_Idle_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length);
+ESL_StatusTypeDef ESL_UARTx_Receive_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length);
+ESL_StatusTypeDef ESL_UARTx_Transmit_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length);
 void ESL_UARTx_Receive_Callback(UARTx_Handle_TypeDef* uart);
 void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef* uart);
 void ESL_UARTx_IRQ_Handler(UARTx_Handle_TypeDef* uart);
