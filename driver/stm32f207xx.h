@@ -38,6 +38,7 @@ typedef enum
 #define DBGMCU_BASE		(0xE0042000UL)
 #define SCB_BASE		(0xE000ED00UL)
 #define PWR_BASE		(0x40007000UL)
+#define RTC_BASE		(0x40002800UL)
 
 typedef enum
 {
@@ -231,6 +232,25 @@ typedef struct
 	UInt32 CSR;
 } PWR_TypeDef;
 
+typedef struct
+{
+	UInt32 TR;
+	UInt32 DR;
+	UInt32 CR;
+	UInt32 ISR;
+	UInt32 PRER;
+	UInt32 WUTR;
+	UInt32 CALIBR;
+	UInt32 ALRMAR;
+	UInt32 ALRMBR;
+	UInt32 WPR;
+	UInt32 TSTR;
+	UInt32 TSDR;
+	UInt32 TAFCR;
+	UInt32 BKPxR[20];
+} RTC_TypeDef;
+
+
 #define GPIOA 				((GPIO_TypeDef *) GPIOA_BASE)
 #define GPIOB				((GPIO_TypeDef *) GPIOB_BASE)
 #define GPIOC 				((GPIO_TypeDef *) GPIOC_BASE)
@@ -275,5 +295,7 @@ typedef struct
 
 #define SCB				((SCB_TypeDef* ) SCB_BASE)
 #define PWR				((PWR_TypeDef* ) PWR_BASE)
+
+#define RTC				((RTC_TypeDef* ) RTC_BASE)
 
 #endif // __STM32F207xx__H

@@ -4,6 +4,7 @@
 #include "tim.h"
 #include "uart.h"
 #include "eslstring.h"
+#include "rtc.h"
 
 #define BLUE_LED GPIO_PIN_7
 #define RED_LED GPIO_PIN_14
@@ -24,10 +25,12 @@ static void init_system_clocks();
 int main(void)
 {
 	init_system_clocks();
+	ESL_Init();
 	GPIO_Init();
 	TIM_Init();
 	NVIC_Init();
 	UART2_Init();
+	RTC_Init();
 
 	// Init complete!
 	print("Init Complete!\n\r");
@@ -107,6 +110,16 @@ void ESL_TIM_IRQ_Handler(TIMx_TypeDef* TIMx)
 {
 	if (TIMx == TIM10)
 	{
+		// Print RTC Seconds Test
+		char buf[50] = {'\0'};
+		// Extract the high and low nibbles
+		UInt8 high_nibble = (UInt8)(RTC->TR >> 4) & 0x0F;
+		UInt8 low_nibble = (UInt8)(RTC->TR & 0x0F);
+		UInt8 seconds = (high_nibble * 10) + low_nibble;
+		uint_to_string(seconds, buf);
+		print("Seconds: ");
+		println(buf);
+
 		ESL_GPIO_TogglePin(GPIOB, BLUE_LED);
 
 		// Reset interrupt
@@ -131,7 +144,7 @@ void ESL_UARTx_Receive_Callback(UARTx_Handle_TypeDef* uart)
 {
 	if (uart->instance == UART2)
 	{
-		print("UART2 receive callback! Data in buffer: ");
+		print("UART CB! Data: ");
 		char buf[100] = {'\0'};
 		stringcopy(buf, (const char*)uart->rx_buf);
 		println(buf);
@@ -147,7 +160,7 @@ void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef* uart)
 {
 	if (uart->instance == UART2)
 	{
-		print("Transmission complete!\r\n");
+		print("TX DONE!\r\n");
 		ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_RESET);
 	}
 }

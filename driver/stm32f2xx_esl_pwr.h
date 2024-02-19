@@ -34,6 +34,7 @@ typedef enum
 
 extern Bool g_pwr_stop_mode_active;
 
+void ESL_PWR_Init();
 void __wfi(void);
 void ESL_PWR_Enter_Sleep(PWR_SLP_PDDS_TypeDef sleep_mode, PWR_SLP_LPDS_TypeDef regulator_state);
 void ESL_PWR_Enable_WKUP_Pin(void);

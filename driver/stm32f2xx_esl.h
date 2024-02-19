@@ -1,3 +1,12 @@
+/********************************************************************************************
+ *  Filename: stm32f2xx_esl.h
+ *  Author: Erik Fagerland
+ *  Created On: 13/02/2024
+ * 
+ *  Brief:
+ *  Header file for STM32f2xx.
+ * 
+ *******************************************************************************************/
 #ifndef __STM32F2xx_ESL_H
 #define __STM32F2xx_ESL_H
 
@@ -8,5 +17,8 @@
 #include "stm32f2xx_esl_systick.h"
 #include "stm32f2xx_esl_uart.h"
 #include "stm32f2xx_esl_pwr.h"
+#include "stm32f2xx_esl_rtc.h"
+
+void ESL_Init();
 
 #endif // __STM32F2xx_ESL_H

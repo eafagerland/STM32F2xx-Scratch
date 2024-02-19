@@ -3,6 +3,7 @@ TARGET = stm32f207-devboard
 BUILD_DIR = build
 
 C_SOURCES = \
+	./driver/stm32f2xx_esl.c \
 	./driver/stm32f2xx_esl_gpio.c \
 	./driver/stm32f2xx_esl_timer.c \
 	./driver/stm32f2xx_esl_nvic.c \
@@ -10,13 +11,15 @@ C_SOURCES = \
 	./driver/stm32f2xx_esl_systick.c \
 	./driver/stm32f2xx_esl_uart.c \
 	./driver/stm32f2xx_esl_pwr.c \
+	./driver/stm32f2xx_esl_rtc.c \
 	./driver/utilities/eslstring.c \
 	./src/main.c \
 	./src/gpio.c \
 	./src/tim.c \
 	./src/nvic.c \
 	./src/uart.c \
-	./src/interrupts.c
+	./src/interrupts.c \
+	./src/rtc.c
 ASM_SOURCES = ./asm/boot.S
 
 PREFIX = arm-none-eabi

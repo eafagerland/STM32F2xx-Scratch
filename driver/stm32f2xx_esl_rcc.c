@@ -82,6 +82,7 @@ static UInt16 get_ahb_div(RCC_AHB_DIV AHP)
         case RCC_AHB_CLOCK_DIV256:  return 256U;
         case RCC_AHB_CLOCK_DIV512:  return 512U;
     }
+    return 0U;
 }
 
 /********************************************************************************************
@@ -97,6 +98,7 @@ static UInt16 get_apb_div(RCC_APB_DIV APB)
         case RCC_APBx_CLOCK_DIV8:   return 8U;
         case RCC_APBx_CLOCK_DIV16:  return 16U;
     }
+    return 0U;
 }
 
 /********************************************************************************************
@@ -111,6 +113,7 @@ static UInt16 get_pllp_div(RCC_PLLP_DIV PLLP)
         case RCC_PLLP_CLOCK_DIV6: return 6U;
         case RCC_PLLP_CLOCK_DIV8: return 8U;
     }
+    return 0U;
 }
 
 /********************************************************************************************
@@ -199,4 +202,25 @@ ESL_StatusTypeDef ESL_RCC_Init
         return ESL_ERROR;
     
     return ESL_OK;
+}
+
+void ESL_RCC_RTC_Enable(RCC_RTC_Clk_Src_TypeDef clock_source)
+{
+    if (clock_source == RTC_CLK_LSE)
+    {
+        // Turn on LSE (Low Speed External)
+        RESET_REG(RCC->BDCR, RCC_BDCR_LSEON);
+        SET_REG(RCC->BDCR, RCC_BDCR_LSEON);
+
+        // Wait for ready flag
+        while(!IS_BIT_SET(RCC->BDCR, RCC_BDCR_LSERDY)){}
+    }
+
+    // Set RTC Clock Source
+    RESET_REG(RCC->BDCR, (0x3U << RCC_BDCR_RTCSEL_POS));
+    SET_REG(RCC->BDCR, (clock_source << RCC_BDCR_RTCSEL_POS));
+
+    // Enable RTC
+    RESET_REG(RCC->BDCR, RCC_BDCR_RTCEN);
+    SET_REG(RCC->BDCR, RCC_BDCR_RTCEN);
 }

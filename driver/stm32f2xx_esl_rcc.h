@@ -112,6 +112,14 @@
 #define RCC_APB2ENR_TIM10EN         (1U << 17U)
 #define RCC_APB2ENR_TIM11EN         (1U << 18U)
 
+// RCC Backup Domain Control Register
+#define RCC_BDCR_LSEON              (1U << 0U)
+#define RCC_BDCR_LSERDY             (1U << 1U)
+#define RCC_BDCR_LSEBYP             (1U << 2U)
+#define RCC_BDCR_RTCSEL_POS         (8U)
+#define RCC_BDCR_RTCEN              (1U << 15U)
+#define RCC_BDCR_BDRST              (1U << 16U)
+
 // Flash interface latency write states
 typedef enum
 {
@@ -177,6 +185,15 @@ typedef struct
     UInt32 APB2_TIM_CLOCK;
 } RCC_System_Clocks;
 
+// RTC Clock Source
+typedef enum
+{
+    RTC_CLK_NONE = 0U,
+    RTC_CLK_LSE,
+    RTC_CLK_LSI,
+    RTC_CLK_HSE
+} RCC_RTC_Clk_Src_TypeDef;
+
 extern RCC_System_Clocks RCC_Clocks;
 
 ESL_StatusTypeDef ESL_RCC_Init
@@ -189,5 +206,6 @@ ESL_StatusTypeDef ESL_RCC_Init
     RCC_APB_DIV APB2_prescaler, 
     RCC_AHB_DIV AHB_prescaler
 );
+void ESL_RCC_RTC_Enable(RCC_RTC_Clk_Src_TypeDef clock_source);
 
 #endif // __STM32F2xx_ESL_RCC_H

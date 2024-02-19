@@ -18,28 +18,28 @@
 void ESL_UARTx_Init(UARTx_Handle_TypeDef* uart, UART_BAUDRATE baud, UART_WORD_LEN len, UART_STOPBITS stopbits)
 {
     // Enable USART
-    uart->instance->CR1 &= ~UART_CR1_UE;
-    uart->instance->CR1 |= UART_CR1_UE;
+    RESET_REG(uart->instance->CR1, UART_CR1_UE);
+    SET_REG(uart->instance->CR1, UART_CR1_UE);
 
     // Set word length
-    uart->instance->CR1 &= ~UART_CR1_M;
+    RESET_REG(uart->instance->CR1, UART_CR1_M);
     if (len == UART_WORD_LEN_9)
-        uart->instance->CR1 |= UART_CR1_M;
+        SET_REG(uart->instance->CR1, UART_CR1_M);
     
     // Set stop bits
-    uart->instance->CR2 &= ~(0x3UL << UART_CR2_STOP_BIT_POS);
-    uart->instance->CR2 |= (stopbits << UART_CR2_STOP_BIT_POS);
+    RESET_REG(uart->instance->CR2, UART_CR2_STOP_BIT_POS);
+    SET_REG(uart->instance->CR2, UART_CR2_STOP_BIT_POS);
 
     // Set the baudrate
     uart->instance->BRR = RCC_Clocks.APB1_CLOCK / baud;
 
     // Enable transmitter
-    uart->instance->CR1 &= ~UART_CR1_TE;
-    uart->instance->CR1 |= UART_CR1_TE;
+    RESET_REG(uart->instance->CR1, UART_CR1_TE);
+    SET_REG(uart->instance->CR1, UART_CR1_TE);
 
     // Enable receiver
-    uart->instance->CR1 &= ~UART_CR1_RE;
-    uart->instance->CR1 |= UART_CR1_RE;
+    RESET_REG(uart->instance->CR1, UART_CR1_RE);
+    SET_REG(uart->instance->CR1, UART_CR1_RE);
 
     // Flush buffers
     ESL_UARTx_Flush(uart);
@@ -276,11 +276,6 @@ __weak void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef* uart)
     */
 }
 
-void handle_receive_irq()
-{
-
-}
-
 /********************************************************************************************
  *  Global interrupt handler for UARTs.
  *  Handles all the IRQ received from UARTs.
@@ -299,7 +294,7 @@ void ESL_UARTx_IRQ_Handler(UARTx_Handle_TypeDef* uart)
     Bool is_tx_complete         = IS_BIT_SET(sr_reg, UART_SR_TC);
 
     // Test if at last byte to send
-    if (uart->tx_buf_pos >= (uart->tx_buf_len - 1) && is_tx_interrupt_en)
+    if (uart->tx_buf_pos >= (uart->tx_buf_len - 1) && is_tx_interrupt_en && is_tx_ready)
     {
         uart->instance->DR = uart->tx_buf[uart->tx_buf_pos];
         RESET_REG(uart->instance->CR1, UART_CR1_TXEIE);

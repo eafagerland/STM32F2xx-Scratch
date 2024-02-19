@@ -22,6 +22,7 @@
 #define PWR_CR_PDDS			(1U << 1U) 	// Power down deepsleep
 #define PWR_CR_CWUF			(1U << 2U)	// Clear wakeup flag
 #define PWR_CR_CSBF			(1U << 3U)	// Clear standby flag
+#define PWR_CR_DBP			(1U << 8U)	// Domain Backup Register
 
 #define PWR_CSR_EWUP			(1U << 8U) 	// Enable wake-up pin
 #define PWR_CSR_WUF			(1U << 0U)	// Wakeup flag 
@@ -30,7 +31,16 @@
 Bool g_pwr_stop_mode_active = FALSE;
 
 /********************************************************************************************
- *  Calls the wait for interrupt instruction
+ *  Initializes low level hardware
+ *******************************************************************************************/
+void ESL_PWR_Init()
+{
+	// Set Backup Domain to Write
+	SET_REG(PWR->CR, PWR_CR_DBP);
+}
+
+/********************************************************************************************
+ *  Calls the wait for interrupt instruction in CPU core
  *******************************************************************************************/
 void __wfi(void)
 {
