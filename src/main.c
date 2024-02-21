@@ -110,14 +110,81 @@ void ESL_TIM_IRQ_Handler(TIMx_TypeDef* TIMx)
 {
 	if (TIMx == TIM10)
 	{
-		// Print RTC Seconds Test
-		char buf[50] = {'\0'};
-		// Extract the high and low nibbles
-		UInt8 high_nibble = (UInt8)(RTC->TR >> 4) & 0x0F;
-		UInt8 low_nibble = (UInt8)(RTC->TR & 0x0F);
-		UInt8 seconds = (high_nibble * 10) + low_nibble;
-		uint_to_string(seconds, buf);
-		print("Seconds: ");
+		// Print RTC Time Test
+		char buf[180] = {'\0'};
+
+		stringcopy(buf, "Time: ");
+		ESL_RTC_Time_TypeDef time = ESL_RTC_Get_Time();
+
+		// Hour
+		char hour_string[20] = {'\0'};
+		uint_to_string(time.hour, hour_string);
+		stringcat(buf, hour_string);
+
+		stringcat(buf, ":");
+
+		// Minute
+		char minute_string[20] = {'\0'};
+		uint_to_string(time.minute, minute_string);
+		stringcat(buf, minute_string);
+
+		stringcat(buf, ":");
+
+		// Seconds
+		char second_string[20] = {'\0'};
+		uint_to_string(time.second, second_string);
+		stringcat(buf, second_string);
+
+		// Date
+		ESL_ETC_Date_TypeDef date = ESL_RTC_Get_Date();
+
+		stringcat(buf, ", Date: ");
+		char date_string[20] = {'\0'};
+		uint_to_string(date.date, date_string);
+		stringcat(buf, date_string);
+
+		stringcat(buf, "/");
+
+		// Month
+		char month_string[20] = {'\0'};
+		uint_to_string(date.month, month_string);
+		stringcat(buf, month_string);
+
+		stringcat(buf, "/");
+
+		// Year
+		char year_string[20] = {'\0'};
+		uint_to_string(date.year, year_string);
+		stringcat(buf, year_string);
+
+		stringcat(buf, "  ");
+
+		// Weekday
+		switch (date.weekday)
+		{
+			case MONDAY:
+			stringcat(buf, "Monday");
+			break;
+			case THUESDAY:
+			stringcat(buf, "Thuesday");
+			break;
+			case WEDNESDAY:
+			stringcat(buf, "Wednesday");
+			break;
+			case THURSDAY:
+			stringcat(buf, "Thursday");
+			break;
+			case FRIDAY:
+			stringcat(buf, "Friday");
+			break;
+			case SATURDAY:
+			stringcat(buf, "Saturday");
+			break;
+			case SUNDAY:
+			stringcat(buf, "Sunday");
+			break;
+		}
+
 		println(buf);
 
 		ESL_GPIO_TogglePin(GPIOB, BLUE_LED);
