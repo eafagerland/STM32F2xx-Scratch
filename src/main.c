@@ -39,6 +39,7 @@ int main(void)
 	if (ESL_PWR_Standby_Flagged())
 	{
 		print("Awww.. I was just sleeping!\n\r");
+		ESL_RTC_Wakeup_IRQ_Disable();
 	}
 
 	// Delay test
@@ -58,6 +59,7 @@ int main(void)
 	stringcopy(tx_buf, "Hello World! Sent on TX IRQ\n\r");
 	ESL_UARTx_Transmit_IT(&uart2, (UInt8*)tx_buf, stringlen(tx_buf));
 
+	// Set date and time if it has been reset
 	if (!ESL_RTC_Is_Calender_Init())
 	{
 		// Set time
@@ -66,22 +68,27 @@ int main(void)
 		time.minute = 29U;
 		time.second = 0U;
 		time.format = 0U;
-		ESL_ETC_Set_Time(time);	
+		ESL_RTC_Set_Time(time);	
 
 		// Set date
-		ESL_ETC_Date_TypeDef date;
+		ESL_RTC_Date_TypeDef date;
 		date.month = 2U;
 		date.date = 22U;
 		date.year = 24U;
 		date.weekday = THURSDAY;
-		ESL_ETC_Set_Date(date);
+		ESL_RTC_Set_Date(date);
 	}
 
+	// Set wakeup to 30sec and enable irq
+	ESL_RTC_Set_Wakeup(30);
+	ESL_RTC_Wakeup_IRQ_Enable();
 
+	ESL_Delay(5000);
+	print("Going to sleep!\n\r");
 	// Enable wakeup pin
-	//ESL_PWR_Enable_WKUP_Pin();
+	ESL_PWR_Enable_WKUP_Pin();
 	// Enter Stop mode deepsleep (wakeup with user button)
-	//ESL_PWR_Enter_Sleep(PWR_SLP_PPDS_STB, PWR_SLP_LPDS_OFF); 
+	ESL_PWR_Enter_Sleep(PWR_SLP_PPDS_STB, PWR_SLP_LPDS_OFF); 
 
 	while (1)
 	{
@@ -156,7 +163,7 @@ void ESL_TIM_IRQ_Handler(TIMx_TypeDef* TIMx)
 		stringcat(buf, second_string);
 
 		// Date
-		ESL_ETC_Date_TypeDef date = ESL_RTC_Get_Date();
+		ESL_RTC_Date_TypeDef date = ESL_RTC_Get_Date();
 
 		stringcat(buf, ", Date: ");
 		char date_string[20] = {'\0'};
@@ -250,4 +257,15 @@ void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef* uart)
 		print("TX DONE!\r\n");
 		ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_RESET);
 	}
+}
+
+/********************************************************************************************
+ *  Callback for RTC wakeup interrupt
+ *******************************************************************************************/
+void ESL_Wakeup_IRQ_Handler(void)
+{
+	// Clear the RTC wakeup interrupt flag
+    RTC->ISR &= ~RTC_ISR_WUTF;
+
+	EXTI->PR |= (1U << 22U);
 }

@@ -8,6 +8,7 @@
  * 
  *******************************************************************************************/
 #include "stm32f2xx_esl_rtc.h"
+#include "stm32f2xx_esl_nvic.h"
 
 #define RTC_WRITE_KEY_1         (0xCAU)
 #define RTC_WRITE_KEY_2         (0x53U)
@@ -20,7 +21,9 @@
 
 #define RTC_ISR_INITF           (1U << 6U)
 #define RTC_ISR_INIT            (1U << 7U)
-#define RTC_IST_INITS           (1U << 4U)
+#define RTC_ISR_INITS           (1U << 4U)
+#define RTC_ISR_WUTWF           (1U << 2U)
+#define RTC_ISR_WUTIE           (1U << 14U)
 
 #define RTC_TR_SEC_LN           (0U)
 #define RTC_TR_SEC_HN           (4U)
@@ -41,7 +44,10 @@
 #define RTC_DR_YEAR_HN          (20U)
 #define RTC_DR_WEEKDAY          (13U)
 
-static Bool is_rtc_running = FALSE;
+#define RTC_CR_WUTE             (1U << 10U)
+#define RTC_CR_WUCKSEL_POS      (0U)
+
+static ESL_RTC_State_TypeDef rtc_state = RTC_INIT;
 
 /********************************************************************************************
  *  Sets the RTC into or out of init mode
@@ -50,8 +56,6 @@ static void set_init_mode_enabled(Bool is_enabled)
 {
     if (is_enabled)
     {
-        is_rtc_running = FALSE;
-
         // Unlock RTC
         RTC->WPR = RTC_WRITE_KEY_1;
         RTC->WPR = RTC_WRITE_KEY_2;
@@ -71,8 +75,6 @@ static void set_init_mode_enabled(Bool is_enabled)
         // Enable write protection again
         RTC->WPR = 0xFFU;
         (void)RTC->WPR;
-
-        is_rtc_running = TRUE;
     }
 }
 
@@ -95,6 +97,7 @@ void ESL_RTC_Init(RCC_RTC_Clk_Src_TypeDef clock_source)
     SET_REG(RTC->TR, (RTC_24H_FORMAT << RTC_TR_FORMAT));
 
     set_init_mode_enabled(FALSE);
+    rtc_state = RTC_READY;
 }
 
 /********************************************************************************************
@@ -103,7 +106,7 @@ void ESL_RTC_Init(RCC_RTC_Clk_Src_TypeDef clock_source)
  *******************************************************************************************/
 Bool ESL_RTC_Is_Calender_Init(void)
 {
-    return IS_BIT_SET(RTC->ISR, RTC_IST_INITS);
+    return IS_BIT_SET(RTC->ISR, RTC_ISR_INITS);
 }
 
 /********************************************************************************************
@@ -112,7 +115,7 @@ Bool ESL_RTC_Is_Calender_Init(void)
 ESL_RTC_Time_TypeDef ESL_RTC_Get_Time(void)
 {
     ESL_RTC_Time_TypeDef time = {0};
-    if (!is_rtc_running) return time;
+    if (rtc_state != RTC_READY) return time;
 
     UInt32 reg_tr = RTC->TR;
 
@@ -138,10 +141,10 @@ ESL_RTC_Time_TypeDef ESL_RTC_Get_Time(void)
 /********************************************************************************************
  *  Extracts the date values and returns a struct containing all time data
  *******************************************************************************************/
-ESL_ETC_Date_TypeDef ESL_RTC_Get_Date(void)
+ESL_RTC_Date_TypeDef ESL_RTC_Get_Date(void)
 {
-    ESL_ETC_Date_TypeDef date = {0};
-    if (!is_rtc_running) return date;
+    ESL_RTC_Date_TypeDef date = {0};
+    if (rtc_state != RTC_READY) return date;
 
     UInt32 reg_dr = RTC->DR;
 
@@ -169,8 +172,9 @@ ESL_ETC_Date_TypeDef ESL_RTC_Get_Date(void)
 /********************************************************************************************
  *  Sets the time with given struct, stores in backup domain
  *******************************************************************************************/
-void ESL_ETC_Set_Time(ESL_RTC_Time_TypeDef time)
+void ESL_RTC_Set_Time(ESL_RTC_Time_TypeDef time)
 {
+    rtc_state = RTC_BUSY;
     UInt32 temp = RTC->TR;
 
     set_init_mode_enabled(TRUE);
@@ -210,13 +214,15 @@ void ESL_ETC_Set_Time(ESL_RTC_Time_TypeDef time)
     (void)RTC->TR;
 
     set_init_mode_enabled(FALSE);
+    rtc_state = RTC_READY;
 }
 
 /********************************************************************************************
  *  Sets the date with given struct, stores in backup domain
  *******************************************************************************************/
-void ESL_ETC_Set_Date(ESL_ETC_Date_TypeDef date)
+void ESL_RTC_Set_Date(ESL_RTC_Date_TypeDef date)
 {
+    rtc_state = RTC_BUSY;
     UInt32 temp = RTC->DR;
 
     set_init_mode_enabled(TRUE);
@@ -256,4 +262,116 @@ void ESL_ETC_Set_Date(ESL_ETC_Date_TypeDef date)
     (void)RTC->DR;
 
     set_init_mode_enabled(FALSE);
+    rtc_state = RTC_READY;
+}
+
+/********************************************************************************************
+ *  Sets the wakeup time for sleep
+ *******************************************************************************************/
+void ESL_RTC_Set_Wakeup(UInt32 time)
+{      
+    rtc_state = RTC_BUSY;
+    set_init_mode_enabled(TRUE);
+    
+    // Disable wakeup timer
+    RESET_REG(RTC->CR, RTC_CR_WUTE);
+
+    // Wait for wakeup write flag
+    while(!IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+
+    // Set clock source
+    RESET_REG(RTC->CR, (0x7U << RTC_CR_WUCKSEL_POS)); // Reset to 000 for RTC/16DIV
+    SET_REG(RTC->CR, (0x4U << RTC_CR_WUCKSEL_POS));
+
+    // Set wakeup auto-reload value
+    RTC->WUTR = (UInt32)time;
+
+    // Start wakeup
+    SET_REG(RTC->CR, RTC_CR_WUTE);
+
+    // Wait for wakeup write flag
+    while(IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+
+    set_init_mode_enabled(FALSE);
+    rtc_state = RTC_READY;
+}
+
+/********************************************************************************************
+ *  Enables the IRQ on wakeup timer
+ *******************************************************************************************/
+void ESL_RTC_Wakeup_IRQ_Enable(void)
+{
+    rtc_state = RTC_BUSY;
+    set_init_mode_enabled(TRUE);
+
+    // Disable wakeup timer
+    RESET_REG(RTC->CR, RTC_CR_WUTE);
+
+    // Wait for wakeup write flag
+    while(!IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+
+    // Enable EXTI line 22
+    EXTI->IMR &= ~(1U << 22U);
+    EXTI->IMR |= (1U << 22U);
+
+    // Set rising edge
+    EXTI->RTSR &= ~(1U << 22U);
+    EXTI->RTSR |= (1U << 22U);
+
+    ESL_NVIC_Enable_IRQ(RTC_WKUP_IRQn);
+
+    // Enable wakeup interrupt
+    RESET_REG(RTC->CR, RTC_ISR_WUTIE);
+    SET_REG(RTC->CR, RTC_ISR_WUTIE);
+
+    // Start wakeup
+    SET_REG(RTC->CR, RTC_CR_WUTE);
+
+    // Wait for wakeup write flag
+    while(IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+
+    set_init_mode_enabled(FALSE);
+    rtc_state = RTC_READY;
+}
+
+/********************************************************************************************
+ *  Disables the IRQ on wakeup timer
+ *******************************************************************************************/
+void ESL_RTC_Wakeup_IRQ_Disable(void)
+{
+    rtc_state = RTC_BUSY;
+    set_init_mode_enabled(TRUE);
+
+    // Disable wakeup timer
+    RESET_REG(RTC->CR, RTC_CR_WUTE);
+
+    // Wait for wakeup write flag
+    while(!IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+
+    // Disable exti line
+    EXTI->IMR &= ~(1U << 22U);
+
+    ESL_NVIC_Disable(RTC_WKUP_IRQn);
+
+    // Disable wakeup interrupt
+    RESET_REG(RTC->CR, RTC_ISR_WUTIE);
+
+    // Start wakeup
+    SET_REG(RTC->CR, RTC_CR_WUTE);
+
+    // Wait for wakeup write flag
+    while(IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+
+    set_init_mode_enabled(FALSE);
+    rtc_state = RTC_READY;
+}
+
+/********************************************************************************************
+ *  IRQ handler for RTC wakeup
+ *******************************************************************************************/
+__weak void ESL_Wakeup_IRQ_Handler(void)
+{
+    /* NOTE: 
+     * This function should not be modified, when the callback is needed it can be implemented in user file
+    */
 }

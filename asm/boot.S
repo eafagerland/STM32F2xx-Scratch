@@ -22,7 +22,7 @@
 .word   none                //  0 WWDG
 .word   none                //  1 PVD
 .word   none                //  2 TAMP_STAMP
-.word   none                //  3 RTC_WKUP
+.word   ESL_Wakeup_IRQ_Handler  //  3 RTC_WKUP
 .word   none                //  4 FLASH
 .word   none                //  5 RCC
 .word   none                //  6 EXTI0

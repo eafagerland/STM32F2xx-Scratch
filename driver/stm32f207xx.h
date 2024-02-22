@@ -50,6 +50,7 @@ typedef enum
 
 typedef enum
 {
+	RTC_WKUP_IRQn = 3U,
 	TIM10_IRQn = 25U,
 	EXTI15_10_IRQn = 40U,
 	UART2_IRQn = 38U
