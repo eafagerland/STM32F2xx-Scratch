@@ -40,9 +40,11 @@ typedef struct
     RTC_Week_Day_TypeDef weekday;
 } ESL_ETC_Date_TypeDef;
 
-
 void ESL_RTC_Init(RCC_RTC_Clk_Src_TypeDef clock_source);
+Bool ESL_RTC_Is_Calender_Init(void);
 ESL_RTC_Time_TypeDef ESL_RTC_Get_Time(void);
 ESL_ETC_Date_TypeDef ESL_RTC_Get_Date(void);
+void ESL_ETC_Set_Time(ESL_RTC_Time_TypeDef time);
+void ESL_ETC_Set_Date(ESL_ETC_Date_TypeDef date);
 
 #endif // __STM32F2xx_ESL_RTC_H

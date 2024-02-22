@@ -58,6 +58,26 @@ int main(void)
 	stringcopy(tx_buf, "Hello World! Sent on TX IRQ\n\r");
 	ESL_UARTx_Transmit_IT(&uart2, (UInt8*)tx_buf, stringlen(tx_buf));
 
+	if (!ESL_RTC_Is_Calender_Init())
+	{
+		// Set time
+		ESL_RTC_Time_TypeDef time;
+		time.hour = 1U;
+		time.minute = 29U;
+		time.second = 0U;
+		time.format = 0U;
+		ESL_ETC_Set_Time(time);	
+
+		// Set date
+		ESL_ETC_Date_TypeDef date;
+		date.month = 2U;
+		date.date = 22U;
+		date.year = 24U;
+		date.weekday = THURSDAY;
+		ESL_ETC_Set_Date(date);
+	}
+
+
 	// Enable wakeup pin
 	//ESL_PWR_Enable_WKUP_Pin();
 	// Enter Stop mode deepsleep (wakeup with user button)
