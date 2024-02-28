@@ -2,10 +2,10 @@
  *  Filename: stm32f2xx_esl_rtc.c
  *  Author: Erik Fagerland
  *  Created On: 18/02/2024
- * 
+ *
  *  Brief:
  *  Implmenentation file for RTC.
- * 
+ *
  *******************************************************************************************/
 #include "stm32f2xx_esl_rtc.h"
 #include "stm32f2xx_esl_nvic.h"
@@ -63,9 +63,11 @@ static void set_init_mode_enabled(Bool is_enabled)
 
         // Set RTC in init mode
         SET_REG(RTC->ISR, RTC_ISR_INIT);
-    
+
         // Wait for init to be active
-        while(!IS_BIT_SET(RTC->ISR, RTC_ISR_INITF)){}
+        while (!IS_BIT_SET(RTC->ISR, RTC_ISR_INITF))
+        {
+        }
     }
     else
     {
@@ -115,7 +117,8 @@ Bool ESL_RTC_Is_Calender_Init(void)
 ESL_RTC_Time_TypeDef ESL_RTC_Get_Time(void)
 {
     ESL_RTC_Time_TypeDef time = {0};
-    if (rtc_state != RTC_READY) return time;
+    if (rtc_state != RTC_READY)
+        return time;
 
     UInt32 reg_tr = RTC->TR;
 
@@ -144,7 +147,8 @@ ESL_RTC_Time_TypeDef ESL_RTC_Get_Time(void)
 ESL_RTC_Date_TypeDef ESL_RTC_Get_Date(void)
 {
     ESL_RTC_Date_TypeDef date = {0};
-    if (rtc_state != RTC_READY) return date;
+    if (rtc_state != RTC_READY)
+        return date;
 
     UInt32 reg_dr = RTC->DR;
 
@@ -269,15 +273,17 @@ void ESL_RTC_Set_Date(ESL_RTC_Date_TypeDef date)
  *  Sets the wakeup time for sleep
  *******************************************************************************************/
 void ESL_RTC_Set_Wakeup(UInt32 time)
-{      
+{
     rtc_state = RTC_BUSY;
     set_init_mode_enabled(TRUE);
-    
+
     // Disable wakeup timer
     RESET_REG(RTC->CR, RTC_CR_WUTE);
 
     // Wait for wakeup write flag
-    while(!IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+    while (!IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF))
+    {
+    }
 
     // Set clock source
     RESET_REG(RTC->CR, (0x7U << RTC_CR_WUCKSEL_POS)); // Reset to 000 for RTC/16DIV
@@ -290,7 +296,9 @@ void ESL_RTC_Set_Wakeup(UInt32 time)
     SET_REG(RTC->CR, RTC_CR_WUTE);
 
     // Wait for wakeup write flag
-    while(IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+    while (IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF))
+    {
+    }
 
     set_init_mode_enabled(FALSE);
     rtc_state = RTC_READY;
@@ -308,7 +316,9 @@ void ESL_RTC_Wakeup_IRQ_Enable(void)
     RESET_REG(RTC->CR, RTC_CR_WUTE);
 
     // Wait for wakeup write flag
-    while(!IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+    while (!IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF))
+    {
+    }
 
     // Enable EXTI line 22
     EXTI->IMR &= ~(1U << 22U);
@@ -328,7 +338,9 @@ void ESL_RTC_Wakeup_IRQ_Enable(void)
     SET_REG(RTC->CR, RTC_CR_WUTE);
 
     // Wait for wakeup write flag
-    while(IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+    while (IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF))
+    {
+    }
 
     set_init_mode_enabled(FALSE);
     rtc_state = RTC_READY;
@@ -346,7 +358,9 @@ void ESL_RTC_Wakeup_IRQ_Disable(void)
     RESET_REG(RTC->CR, RTC_CR_WUTE);
 
     // Wait for wakeup write flag
-    while(!IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+    while (!IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF))
+    {
+    }
 
     // Disable exti line
     EXTI->IMR &= ~(1U << 22U);
@@ -360,7 +374,9 @@ void ESL_RTC_Wakeup_IRQ_Disable(void)
     SET_REG(RTC->CR, RTC_CR_WUTE);
 
     // Wait for wakeup write flag
-    while(IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF)){}
+    while (IS_BIT_SET(RTC->ISR, RTC_ISR_WUTWF))
+    {
+    }
 
     set_init_mode_enabled(FALSE);
     rtc_state = RTC_READY;
@@ -371,7 +387,7 @@ void ESL_RTC_Wakeup_IRQ_Disable(void)
  *******************************************************************************************/
 __weak void ESL_Wakeup_IRQ_Handler(void)
 {
-    /* NOTE: 
+    /* NOTE:
      * This function should not be modified, when the callback is needed it can be implemented in user file
-    */
+     */
 }

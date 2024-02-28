@@ -2,10 +2,10 @@
  *  Filename: stm32f2xx_esl_rtc.h
  *  Author: Erik Fagerland
  *  Created On: 18/02/2024
- * 
+ *
  *  Brief:
  *  Header file for RTC.
- * 
+ *
  *******************************************************************************************/
 #ifndef __STM32F2xx_ESL_RTC_H
 #define __STM32F2xx_ESL_RTC_H
@@ -13,7 +13,7 @@
 #include "stm32f207xx.h"
 #include "stm32f2xx_esl_rcc.h"
 
-#define RTC_ISR_WUTF            (1U << 10U)
+#define RTC_ISR_WUTF (1U << 10U)
 
 typedef enum
 {
@@ -34,7 +34,7 @@ typedef struct
     UInt8 format;
 } ESL_RTC_Time_TypeDef;
 
-typedef struct 
+typedef struct
 {
     UInt8 date;
     UInt8 month;

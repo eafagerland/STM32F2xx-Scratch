@@ -2,10 +2,10 @@
  *  Filename: stm32f2xx_esl_i2c.c
  *  Author: Erik Fagerland
  *  Created On: 24/02/2024
- * 
+ *
  *  Brief:
  *  Implementation of I2C
- * 
+ *
  *******************************************************************************************/
 #include "stm32f2xx_esl_i2c.h"
 
@@ -33,9 +33,9 @@
 #define I2C_SR2_BUSY        (1U << 1U)
 
 /********************************************************************************************
- *  
+ *
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_I2C_Init(I2C_TypeDef* i2c)
+ESL_StatusTypeDef ESL_I2C_Init(I2C_TypeDef *i2c)
 {
     // Disable
     RESET_REG(i2c->CR1, I2C_CR1_PERIPHERAL_ENABLE);
@@ -70,24 +70,30 @@ ESL_StatusTypeDef ESL_I2C_Init(I2C_TypeDef* i2c)
 }
 
 /********************************************************************************************
- *  
+ *
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_I2C_Master_Transmit(I2C_TypeDef* i2c, UInt8 address, UInt8* buf, UInt32 len)
+ESL_StatusTypeDef ESL_I2C_Master_Transmit(I2C_TypeDef *i2c, UInt8 address, UInt8 *buf, UInt32 len)
 {
     // Wait while busy
-    while(IS_BIT_SET(i2c->SR2, I2C_SR2_BUSY)){};
+    while (IS_BIT_SET(i2c->SR2, I2C_SR2_BUSY))
+    {
+    };
 
     // Set start condition
     SET_REG(i2c->CR1, I2C_CR1_START);
 
     // Wait for start bit generated
-    while(!IS_BIT_SET(i2c->SR1, I2C_SR1_SB)){};
+    while (!IS_BIT_SET(i2c->SR1, I2C_SR1_SB))
+    {
+    };
 
     // Send address with write bit
     i2c->DR = (address << 1U);
 
     // Wait for ACK
-    while (!IS_BIT_SET(i2c->SR1, I2C_SR1_ADDR)){};
+    while (!IS_BIT_SET(i2c->SR1, I2C_SR1_ADDR))
+    {
+    };
 
     // Reset ADDR
     volatile UInt32 sr1_reg = i2c->SR1;
@@ -100,13 +106,17 @@ ESL_StatusTypeDef ESL_I2C_Master_Transmit(I2C_TypeDef* i2c, UInt8 address, UInt8
     // Transmit data
     while (bytes_sent < len)
     {
-        while ((!IS_BIT_SET(i2c->SR1, I2C_SR1_TXE)) && (!IS_BIT_SET(i2c->SR1, I2C_SR1_BTF))){};
+        while ((!IS_BIT_SET(i2c->SR1, I2C_SR1_TXE)) && (!IS_BIT_SET(i2c->SR1, I2C_SR1_BTF)))
+        {
+        };
         i2c->DR = buf[bytes_sent];
         bytes_sent++;
     }
 
     // Wait for transfer complete
-    while (!IS_BIT_SET(i2c->SR1, I2C_SR1_BTF)){};
+    while (!IS_BIT_SET(i2c->SR1, I2C_SR1_BTF))
+    {
+    };
 
     // Set stop condition
     SET_REG(i2c->CR1, I2C_CR1_STOP);
@@ -115,12 +125,14 @@ ESL_StatusTypeDef ESL_I2C_Master_Transmit(I2C_TypeDef* i2c, UInt8 address, UInt8
 }
 
 /********************************************************************************************
- *  
+ *
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_I2C_Master_Receive(I2C_TypeDef* i2c, UInt8 address, UInt8* buf, UInt32 len)
+ESL_StatusTypeDef ESL_I2C_Master_Receive(I2C_TypeDef *i2c, UInt8 address, UInt8 *buf, UInt32 len)
 {
     // Wait while busy
-    while(IS_BIT_SET(i2c->SR2, I2C_SR2_BUSY)){};
+    while (IS_BIT_SET(i2c->SR2, I2C_SR2_BUSY))
+    {
+    };
 
     // Enable ACK
     SET_REG(i2c->CR1, I2C_CR1_ACK);
@@ -130,7 +142,9 @@ ESL_StatusTypeDef ESL_I2C_Master_Receive(I2C_TypeDef* i2c, UInt8 address, UInt8*
     SET_REG(i2c->CR1, I2C_CR1_START);
 
     // Wait for start bit generated
-    while(!IS_BIT_SET(i2c->SR1, I2C_SR1_SB)){};
+    while (!IS_BIT_SET(i2c->SR1, I2C_SR1_SB))
+    {
+    };
 
     // Send address with read bit
     address = (address << 1U);
@@ -138,7 +152,9 @@ ESL_StatusTypeDef ESL_I2C_Master_Receive(I2C_TypeDef* i2c, UInt8 address, UInt8*
     i2c->DR = address;
 
     // Wait for ACK
-    while (!IS_BIT_SET(i2c->SR1, I2C_SR1_ADDR)){};
+    while (!IS_BIT_SET(i2c->SR1, I2C_SR1_ADDR))
+    {
+    };
 
     // Reset ACK now if only reading 1 byte
     if (is_ack_enabled && (len == 1))
@@ -164,7 +180,9 @@ ESL_StatusTypeDef ESL_I2C_Master_Receive(I2C_TypeDef* i2c, UInt8 address, UInt8*
     // Read data
     while (bytes_read < len)
     {
-        while (!IS_BIT_SET(i2c->SR1, I2C_SR1_RXNE)){};
+        while (!IS_BIT_SET(i2c->SR1, I2C_SR1_RXNE))
+        {
+        };
         buf[bytes_read] = i2c->DR;
         bytes_read++;
 

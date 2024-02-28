@@ -2,10 +2,10 @@
  *  Filename: stm32f2xx_esl_uart.h
  *  Author: Erik Fagerland
  *  Created On: 15/02/2024
- * 
+ *
  *  Brief:
  *  Implementation of UARTs on the MCU
- * 
+ *
  *******************************************************************************************/
 #include "stm32f2xx_esl_uart.h"
 #include "stm32f2xx_esl_rcc.h"
@@ -15,7 +15,7 @@
  *  Initializes given uart handle with given baud, length and stopbits. Enables both
  *  receiver and transmitter.
  *******************************************************************************************/
-void ESL_UARTx_Init(UARTx_Handle_TypeDef* uart, UART_BAUDRATE baud, UART_WORD_LEN len, UART_STOPBITS stopbits)
+void ESL_UARTx_Init(UARTx_Handle_TypeDef *uart, UART_BAUDRATE baud, UART_WORD_LEN len, UART_STOPBITS stopbits)
 {
     // Enable USART
     RESET_REG(uart->instance->CR1, UART_CR1_UE);
@@ -25,7 +25,7 @@ void ESL_UARTx_Init(UARTx_Handle_TypeDef* uart, UART_BAUDRATE baud, UART_WORD_LE
     RESET_REG(uart->instance->CR1, UART_CR1_M);
     if (len == UART_WORD_LEN_9)
         SET_REG(uart->instance->CR1, UART_CR1_M);
-    
+
     // Set stop bits
     RESET_REG(uart->instance->CR2, UART_CR2_STOP_BIT_POS);
     SET_REG(uart->instance->CR2, UART_CR2_STOP_BIT_POS);
@@ -53,7 +53,7 @@ void ESL_UARTx_Init(UARTx_Handle_TypeDef* uart, UART_BAUDRATE baud, UART_WORD_LE
  *  the length of the array. A timeout is also set and if elapsed it will return a timeout
  *  error.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout)
+ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt32 length, UInt32 timeout)
 {
     // Return error if not ready
     if (uart->tx_state != UART_STATE_READY)
@@ -75,8 +75,7 @@ ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef* uart, UInt8* buf, UIn
             return ESL_TIMEOUT;
         }
 
-
-        // Wait for TXE to set, indicating TX buffer is empty       
+        // Wait for TXE to set, indicating TX buffer is empty
         if (IS_BIT_SET(uart->instance->SR, UART_SR_TXE))
         {
             // Set data in register
@@ -109,7 +108,7 @@ ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef* uart, UInt8* buf, UIn
  *  A timeout is also set and if elapsed it will return a timeout
  *  error. Returns when full length has been read.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout)
+ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt32 length, UInt32 timeout)
 {
     // Return error if not ready
     if (uart->rx_state != UART_STATE_READY)
@@ -131,7 +130,7 @@ ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt
             return ESL_TIMEOUT;
         }
 
-        // Wait for RXNE to set, indicating data in buffer     
+        // Wait for RXNE to set, indicating data in buffer
         if (IS_BIT_SET(uart->instance->SR, UART_SR_RXNE))
         {
             // Read data register
@@ -147,12 +146,12 @@ ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt
 /********************************************************************************************
  *  Flushes the uarts data register.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_TypeDef* uart)
+ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_TypeDef *uart)
 {
     volatile UInt8 dummy_byte = 0;
     UInt32 millis_started = ESL_Millis();
 
-    // Read from register until empty  
+    // Read from register until empty
     while (IS_BIT_SET(uart->instance->SR, UART_SR_RXNE))
     {
         // Calculate time spent waiting for TXE to be set
@@ -172,7 +171,7 @@ ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_TypeDef* uart)
  *  Starts to receive in blocking mode until given length has been read from buffer or
  *  an idle line was detected.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Receive_To_Idle(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length, UInt32 timeout)
+ESL_StatusTypeDef ESL_UARTx_Receive_To_Idle(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt32 length, UInt32 timeout)
 {
     // TODO: Implement
     return ESL_ERROR;
@@ -182,8 +181,8 @@ ESL_StatusTypeDef ESL_UARTx_Receive_To_Idle(UARTx_Handle_TypeDef* uart, UInt8* b
  *  Starts the IRQ receive to Idle on UART. Callback will be called when given length has
  *  been read or an idle line was detected.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Receive_To_Idle_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length)
-{    
+ESL_StatusTypeDef ESL_UARTx_Receive_To_Idle_IT(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt32 length)
+{
     // Return error if not ready
     if (uart->rx_state != UART_STATE_READY)
         return ESL_BUSY;
@@ -204,7 +203,7 @@ ESL_StatusTypeDef ESL_UARTx_Receive_To_Idle_IT(UARTx_Handle_TypeDef* uart, UInt8
 /********************************************************************************************
  *  Starts the IRQ receive on UART. Callback will be called when given length has been read.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Receive_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length)
+ESL_StatusTypeDef ESL_UARTx_Receive_IT(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt32 length)
 {
     // Return error if not ready
     if (uart->rx_state != UART_STATE_READY)
@@ -227,7 +226,7 @@ ESL_StatusTypeDef ESL_UARTx_Receive_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, U
  *  Starts IRQ transmission on UART. Callback is called when given length of bytes have
  *  been sent.
  *******************************************************************************************/
-ESL_StatusTypeDef ESL_UARTx_Transmit_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, UInt32 length)
+ESL_StatusTypeDef ESL_UARTx_Transmit_IT(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt32 length)
 {
     // Return error if not ready
     if (uart->tx_state != UART_STATE_READY)
@@ -255,43 +254,43 @@ ESL_StatusTypeDef ESL_UARTx_Transmit_IT(UARTx_Handle_TypeDef* uart, UInt8* buf, 
  *  will be called whenever the RX has completed or idle line detected if activated.
  *  To be implemented in user files.
  *******************************************************************************************/
-__weak void ESL_UARTx_Receive_Callback(UARTx_Handle_TypeDef* uart)
+__weak void ESL_UARTx_Receive_Callback(UARTx_Handle_TypeDef *uart)
 {
     UNUSED(uart);
-    /* NOTE: 
+    /* NOTE:
      * This function should not be modified, when the callback is needed it can be implemented in user file
-    */
+     */
 }
 
 /********************************************************************************************
  *  Weak declared UART transmit callback. If TX IRQ was enabled on the UART this callback
- *  will be called whenever the TX has completed. 
+ *  will be called whenever the TX has completed.
  *  To be implemented in user files.
  *******************************************************************************************/
-__weak void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef* uart)
+__weak void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef *uart)
 {
     UNUSED(uart);
-    /* NOTE: 
+    /* NOTE:
      * This function should not be modified, when the callback is needed it can be implemented in user file
-    */
+     */
 }
 
 /********************************************************************************************
  *  Global interrupt handler for UARTs.
  *  Handles all the IRQ received from UARTs.
  *******************************************************************************************/
-void ESL_UARTx_IRQ_Handler(UARTx_Handle_TypeDef* uart)
+void ESL_UARTx_IRQ_Handler(UARTx_Handle_TypeDef *uart)
 {
     UInt32 sr_reg = uart->instance->SR;
     UInt32 cr1_reg = uart->instance->CR1;
 
     /***************************************************************************************
-    *  Transmit Handling
-    */
-    Bool is_tx_interrupt_en     = IS_BIT_SET(cr1_reg, UART_CR1_TXEIE);
-    Bool is_tx_complete_en      = IS_BIT_SET(cr1_reg, UART_CR1_TCIE);
-    Bool is_tx_ready            = IS_BIT_SET(sr_reg, UART_SR_TXE);
-    Bool is_tx_complete         = IS_BIT_SET(sr_reg, UART_SR_TC);
+     *  Transmit Handling
+     */
+    Bool is_tx_interrupt_en = IS_BIT_SET(cr1_reg, UART_CR1_TXEIE);
+    Bool is_tx_complete_en = IS_BIT_SET(cr1_reg, UART_CR1_TCIE);
+    Bool is_tx_ready = IS_BIT_SET(sr_reg, UART_SR_TXE);
+    Bool is_tx_complete = IS_BIT_SET(sr_reg, UART_SR_TC);
 
     // Test if at last byte to send
     if (uart->tx_buf_pos >= (uart->tx_buf_len - 1) && is_tx_interrupt_en && is_tx_ready)
@@ -319,11 +318,11 @@ void ESL_UARTx_IRQ_Handler(UARTx_Handle_TypeDef* uart)
     }
 
     /***************************************************************************************
-    *  Receive Handling
-    */
-    Bool is_idle_detected       = IS_BIT_SET(sr_reg, UART_SR_IDLE) && IS_BIT_SET(cr1_reg, UART_CR1_IDLEIE);
-    Bool is_data_available      = IS_BIT_SET(sr_reg, UART_SR_RXNE);
-    Bool is_rx_interrupt_en     = IS_BIT_SET(cr1_reg, UART_CR1_RXNEIE);
+     *  Receive Handling
+     */
+    Bool is_idle_detected = IS_BIT_SET(sr_reg, UART_SR_IDLE) && IS_BIT_SET(cr1_reg, UART_CR1_IDLEIE);
+    Bool is_data_available = IS_BIT_SET(sr_reg, UART_SR_RXNE);
+    Bool is_rx_interrupt_en = IS_BIT_SET(cr1_reg, UART_CR1_RXNEIE);
 
     // Test if at max buffer size
     if (uart->rx_buf_pos >= (uart->rx_buf_len - 1) && is_rx_interrupt_en) // Minus one since we are reading the last byte now
