@@ -15,18 +15,18 @@
 #include "stm32f207xx.h"
 
 // SCB Register
-#define SCB_SCR_SLEEPDEEP		(1U << 2U)
+#define SCB_SCR_SLEEPDEEP   (1U << 2U)
 
 // Power Register
-#define PWR_CR_LPDS			(1U << 0U) 	// Low-power deep sleep
-#define PWR_CR_PDDS			(1U << 1U) 	// Power down deepsleep
-#define PWR_CR_CWUF			(1U << 2U)	// Clear wakeup flag
-#define PWR_CR_CSBF			(1U << 3U)	// Clear standby flag
-#define PWR_CR_DBP			(1U << 8U)	// Domain Backup Register
+#define PWR_CR_LPDS         (1U << 0U) 	// Low-power deep sleep
+#define PWR_CR_PDDS         (1U << 1U) 	// Power down deepsleep
+#define PWR_CR_CWUF         (1U << 2U)	// Clear wakeup flag
+#define PWR_CR_CSBF         (1U << 3U)	// Clear standby flag
+#define PWR_CR_DBP          (1U << 8U)	// Domain Backup Register
 
-#define PWR_CSR_EWUP			(1U << 8U) 	// Enable wake-up pin
-#define PWR_CSR_WUF			(1U << 0U)	// Wakeup flag 
-#define PWR_CSR_SBF			(1U << 1U) 	// Standby flag
+#define PWR_CSR_EWUP        (1U << 8U) 	// Enable wake-up pin
+#define PWR_CSR_WUF         (1U << 0U)	// Wakeup flag 
+#define PWR_CSR_SBF         (1U << 1U) 	// Standby flag
 
 Bool g_pwr_stop_mode_active = FALSE;
 
@@ -62,7 +62,7 @@ void ESL_PWR_Enter_Sleep(PWR_SLP_PDDS_TypeDef sleep_mode, PWR_SLP_LPDS_TypeDef r
 	RESET_REG(PWR->CR, PWR_CR_PDDS);
 
 	// Set to standby if enabled
-	if (sleep_mode == PWR_SLP_PPDS_STB)
+    if (sleep_mode == PWR_SLP_PPDS_STB)
 		SET_REG(PWR->CR, PWR_CR_PDDS);
 
 	// Reset voltage regulators to ON

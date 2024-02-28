@@ -192,7 +192,7 @@ ESL_StatusTypeDef ESL_RCC_Init
     SET_REG(RCC->APB2ENR, (RCC_APB2ENR_TIM10EN | RCC_APB2ENR_TIM11EN | RCC_APB2ENR_SYSCFGEN));
 
     // Enable used perfs on APB1
-    SET_REG(RCC->APB1ENR, (RCC_APB1ENR_USART2EN | RCC_APB1ENR_PWREN));
+    SET_REG(RCC->APB1ENR, (RCC_APB1ENR_USART2EN | RCC_APB1ENR_PWREN | RCC_APB1ENR_I2C1EN));
 
     // Calculate the current clock values
     Calculate_RCC_Clocks(APB1_prescaler, APB2_prescaler, AHB_prescaler);

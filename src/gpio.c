@@ -21,6 +21,13 @@ void GPIO_Init(void)
 	GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
 	ESL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+    // Set PB8 and PB9 to I2C
+    GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    ESL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
 	// Set initial state
 	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_14, GPIO_PIN_RESET);
 	ESL_GPIO_WritePin(GPIOB, GPIO_PIN_7, GPIO_PIN_RESET);

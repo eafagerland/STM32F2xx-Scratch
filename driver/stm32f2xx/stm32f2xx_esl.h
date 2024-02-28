@@ -18,6 +18,7 @@
 #include "stm32f2xx_esl_uart.h"
 #include "stm32f2xx_esl_pwr.h"
 #include "stm32f2xx_esl_rtc.h"
+#include "stm32f2xx_esl_i2c.h"
 
 void ESL_Init();
 

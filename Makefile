@@ -3,15 +3,17 @@ TARGET = stm32f207-devboard
 BUILD_DIR = build
 
 C_SOURCES = \
-	./driver/stm32f2xx_esl.c \
-	./driver/stm32f2xx_esl_gpio.c \
-	./driver/stm32f2xx_esl_timer.c \
-	./driver/stm32f2xx_esl_nvic.c \
-	./driver/stm32f2xx_esl_rcc.c \
-	./driver/stm32f2xx_esl_systick.c \
-	./driver/stm32f2xx_esl_uart.c \
-	./driver/stm32f2xx_esl_pwr.c \
-	./driver/stm32f2xx_esl_rtc.c \
+	./driver/stm32f2xx/stm32f2xx_esl.c \
+	./driver/stm32f2xx/stm32f2xx_esl_gpio.c \
+	./driver/stm32f2xx/stm32f2xx_esl_timer.c \
+	./driver/stm32f2xx/stm32f2xx_esl_nvic.c \
+	./driver/stm32f2xx/stm32f2xx_esl_rcc.c \
+	./driver/stm32f2xx/stm32f2xx_esl_systick.c \
+	./driver/stm32f2xx/stm32f2xx_esl_uart.c \
+	./driver/stm32f2xx/stm32f2xx_esl_pwr.c \
+	./driver/stm32f2xx/stm32f2xx_esl_rtc.c \
+	./driver/stm32f2xx/stm32f2xx_esl_i2c.c \
+	./driver/sht21-humidity-sensor/sht21_core.c \
 	./driver/utilities/eslstring.c \
 	./src/main.c \
 	./src/gpio.c \
@@ -19,14 +21,15 @@ C_SOURCES = \
 	./src/nvic.c \
 	./src/uart.c \
 	./src/interrupts.c \
-	./src/rtc.c
+	./src/rtc.c \
+	./src/i2c.c
 ASM_SOURCES = ./asm/boot.S
 
 PREFIX = arm-none-eabi
 CC = $(PREFIX)-gcc
 AS = $(PREFIX)-as
 CP = $(PREFIX)-objcopy
-LD = $(PREFIX)-ld.bfd
+LD = $(PREFIX)-ld
 SZ = $(PREFIX)-size
 GDB = $(PREFIX)-gdb
 
@@ -35,12 +38,15 @@ BIN = $(CP) -O binary
 CPU = -mcpu=cortex-m3
 MCU = $(CPU) -mthumb -g -std=c99
 
-C_INCLUDES = -Iinc -Idriver -Idriver/utilities
+C_INCLUDES = -Iinc -Idriver -Idriver/utilities -Idriver/stm32f2xx -Idriver/sht21-humidity-sensor
 CFLAGS = $(MCU) $(C_INCLUDES)
 CFLAGS += -Wall
 
 LDSCRIPT = flash.lds
 LDFLAGS = -T $(LDSCRIPT)
+
+LIBS = -L"C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\13.2 Rel1\lib\gcc\arm-none-eabi\13.2.1\thumb\v7-m\nofp" -lm
+LIBS += -L"C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\13.2 Rel1\lib\gcc\arm-none-eabi\13.2.1\thumb\v7-m\nofp" -lgcc
 
 all: $(BUILD_DIR)/$(TARGET).bin
 
@@ -57,7 +63,7 @@ $(BUILD_DIR)/%.o: %.S | $(BUILD_DIR)
 	$(AS) $< -o $@
 
 $(BUILD_DIR)/$(TARGET).elf: $(OBJECTS) | $(BUILD_DIR)
-	$(LD) $(LDFLAGS) $(OBJECTS) -o $@
+	$(LD) $(LDFLAGS) $(OBJECTS) $(LIBS) -o $@
 	$(SZ) $@
 
 $(BUILD_DIR)/%.bin: $(BUILD_DIR)/%.elf | $(BUILD_DIR)

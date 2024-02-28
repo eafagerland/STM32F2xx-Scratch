@@ -5,6 +5,8 @@
 #include "uart.h"
 #include "eslstring.h"
 #include "rtc.h"
+#include "i2c.h"
+#include "sht21_core.h"
 
 #define BLUE_LED GPIO_PIN_7
 #define RED_LED GPIO_PIN_14
@@ -31,6 +33,7 @@ int main(void)
 	NVIC_Init();
 	UART2_Init();
 	RTC_Init();
+    I2C_Init();
 
 	// Init complete!
 	print("Init Complete!\n\r");
@@ -48,6 +51,18 @@ int main(void)
 		ESL_GPIO_TogglePin(GPIOB, RED_LED);
 		ESL_Delay(100);
 	}
+
+    // I2c test
+    UInt8 tx_buf = 0xE3U;
+    ESL_I2C_Master_Transmit(I2C1, 0x40, &tx_buf, 1);
+
+    ESL_Delay(100);
+
+    UInt8 rx_buf[3];
+    ESL_I2C_Master_Receive(I2C1, 0x40, rx_buf, 3);
+
+    volatile float temo = SHT21_Parse_Temp(rx_buf);
+    (void)temo;
 
 	// Print something fancy in terminal
 	print("Enter something!\n\r");

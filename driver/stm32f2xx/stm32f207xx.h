@@ -32,13 +32,16 @@ typedef enum
 	TRUE
 } Bool;
 
-#define EXTI_BASE		(0x40013C00UL)
-#define SYSCFG_BASE 		(0x40013800UL)
-#define FLASH_BASE		(0x40023C00UL)
-#define DBGMCU_BASE		(0xE0042000UL)
-#define SCB_BASE		(0xE000ED00UL)
-#define PWR_BASE		(0x40007000UL)
-#define RTC_BASE		(0x40002800UL)
+#define EXTI_BASE       (0x40013C00UL)
+#define SYSCFG_BASE     (0x40013800UL)
+#define FLASH_BASE      (0x40023C00UL)
+#define DBGMCU_BASE     (0xE0042000UL)
+#define SCB_BASE        (0xE000ED00UL)
+#define PWR_BASE        (0x40007000UL)
+#define RTC_BASE        (0x40002800UL)
+#define I2C1_BASE       (0x40005400UL)
+#define I2C2_BASE       (0x40005800UL)
+#define I2C3_BASE       (0x40005C00UL)
 
 typedef enum
 {
@@ -251,6 +254,19 @@ typedef struct
 	UInt32 BKPxR[20];
 } RTC_TypeDef;
 
+typedef struct
+{
+    UInt32 CR1;
+    UInt32 CR2;
+    UInt32 OAR1;
+    UInt32 OAR2;
+    UInt32 DR;
+    UInt32 SR1;
+    UInt32 SR2;
+    UInt32 CCR;
+    UInt32 TRISE;
+} I2C_TypeDef;
+
 
 #define GPIOA 				((GPIO_TypeDef *) GPIOA_BASE)
 #define GPIOB				((GPIO_TypeDef *) GPIOB_BASE)
@@ -298,5 +314,7 @@ typedef struct
 #define PWR				((PWR_TypeDef* ) PWR_BASE)
 
 #define RTC				((RTC_TypeDef* ) RTC_BASE)
+
+#define I2C1            ((I2C_TypeDef* ) I2C1_BASE)
 
 #endif // __STM32F207xx__H

@@ -66,9 +66,14 @@ void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
                 ESL_NVIC_Enable_IRQ(EXTI15_10_IRQn);    // TODO: Needs to select position dynamically
             }
 
-            // Set Pin as UART
+            // Set Pin as Alternate
             if ((GPIO_Init->Mode & GPIO_MODE) == MODE_AF)
             {
+                temp = GPIOx->OTYPER;
+                temp &= ~(1U << position) ;
+                temp |= (((GPIO_Init->Mode & OUTPUT_TYPE) >> OUTPUT_TYPE_Pos) << position);
+                GPIOx->OTYPER = temp;
+
                 if (position < 8U)
                 {
                     RESET_REG(GPIOx->AFR[0], (0xFUL << (position * 4U)));
@@ -76,10 +81,15 @@ void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
                 }
                 else
                 {
-                    RESET_REG(GPIOx->AFR[1], (0xFUL << (position * 4U)));
-                    SET_REG(GPIOx->AFR[1], (GPIO_Init->Alternate << (position * 4U)));
+                    RESET_REG(GPIOx->AFR[1], (0xFUL << ((position - 8U) * 4U)));
+                    SET_REG(GPIOx->AFR[1], (GPIO_Init->Alternate << ((position - 8U) * 4U)));
+
+                    temp = GPIOx->OSPEEDR;
+                    temp &= ~(0x3U << (position * 2u));
+                    temp |= (GPIO_Init->Speed << (position * 2u));
+                    GPIOx->OSPEEDR = temp;
                 }
-                SET_REG(GPIOx->MODER, (GPIO_Init->Mode << (position * 2U)));
+                SET_REG(GPIOx->MODER, ((GPIO_Init->Mode & GPIO_MODE) << (position * 2U)));
             }
             // Set Pin as output
             else

@@ -52,6 +52,13 @@
 #define GPIO_AF7_USART2				(0x07UL)
 #define GPIO_AF7_USART3				(0x07UL)
 
+#define GPIO_AF4_I2C1               (0x04UL)
+
+#define  GPIO_SPEED_FREQ_LOW         0x00000000U  /*!< IO works at 2 MHz, please refer to the product datasheet */
+#define  GPIO_SPEED_FREQ_MEDIUM      0x00000001U  /*!< range 12,5 MHz to 50 MHz, please refer to the product datasheet */
+#define  GPIO_SPEED_FREQ_HIGH        0x00000002U  /*!< range 25 MHz to 100 MHz, please refer to the product datasheet  */
+#define  GPIO_SPEED_FREQ_VERY_HIGH   0x00000003U  /*!< range 50 MHz to 200 MHz, please refer to the product datasheet  */
+
 #define GPIO_PIN_0				((UInt16)0x0001) 
 #define GPIO_PIN_1				((UInt16)0x0002) 
 #define GPIO_PIN_2				((UInt16)0x0004) 
