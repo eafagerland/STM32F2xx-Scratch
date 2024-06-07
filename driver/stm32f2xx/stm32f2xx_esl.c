@@ -2,10 +2,10 @@
  *  Filename: stm32f2xx_esl.h
  *  Author: Erik Fagerland
  *  Created On: 19/02/2024
- * 
+ *
  *  Brief:
  *  Implementation of STM32f2xx.
- * 
+ *
  *******************************************************************************************/
 #include "stm32f2xx_esl.h"
 

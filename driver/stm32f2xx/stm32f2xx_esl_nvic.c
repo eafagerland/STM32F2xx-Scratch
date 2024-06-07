@@ -2,11 +2,11 @@
  *  Filename: stm32f2xx_esl_nvic.c
  *  Author: Erik Fagerland
  *  Created On: 13/02/2024
- * 
+ *
  *  Brief:
  *  Implmentation of NVIC. Provides a function for enabling interrupts and a
  *  weak function on EXTI line 15-10 to be implemented by user.
- * 
+ *
  *******************************************************************************************/
 #include "stm32f2xx_esl_nvic.h"
 
@@ -41,7 +41,7 @@ void ESL_NVIC_Disable(UInt8 irq_pos)
  *******************************************************************************************/
 __weak void EXTI15_10_Handler(void)
 {
-    /* NOTE: 
+    /* NOTE:
      * This function should not be modified, when the callback is needed it can be implemented in user file
-    */
+     */
 }

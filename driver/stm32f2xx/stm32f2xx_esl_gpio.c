@@ -2,18 +2,18 @@
  *  Filename: stm32f2xx_esl_gpio.c
  *  Author: Erik Fagerland
  *  Created On: 13/02/2024
- * 
+ *
  *  Brief:
  *  Implementation of the GPIO functions on the MCU
- * 
+ *
  *******************************************************************************************/
 #include "stm32f2xx_esl_gpio.h"
 #include "stm32f2xx_esl_nvic.h"
 
 /********************************************************************************************
- *  Updates the GPIO registers with correct modes. 
+ *  Updates the GPIO registers with correct modes.
  *******************************************************************************************/
-void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
+void ESL_GPIO_Init(GPIO_TypeDef *GPIOx, GPIO_InitTypeDef *GPIO_Init)
 {
     UInt32 position = 0x00U;
     UInt32 current_pin;
@@ -28,7 +28,7 @@ void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
         if (current_pin != 0x00u)
         {
             // Set Pin as Interrupt (EXTI)
-            if((GPIO_Init->Mode & EXTI_MODE) != 0x00u)
+            if ((GPIO_Init->Mode & EXTI_MODE) != 0x00u)
             {
                 // Set mode to input
                 SET_REG(GPIOx->MODER, (GPIO_Init->Mode << (position * 2U)));
@@ -36,7 +36,7 @@ void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
                 // Clear rising edge setting and set new one
                 temp = EXTI->RTSR;
                 RESET_REG(temp, current_pin);
-                if((GPIO_Init->Mode & TRIGGER_RISING) != 0x00U)
+                if ((GPIO_Init->Mode & TRIGGER_RISING) != 0x00U)
                 {
                     temp |= current_pin;
                 }
@@ -45,7 +45,7 @@ void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
                 // Clear falling edge setting and set new one
                 temp = EXTI->FTSR;
                 RESET_REG(temp, current_pin);
-                if((GPIO_Init->Mode & TRIGGER_FALLING) != 0x00U)
+                if ((GPIO_Init->Mode & TRIGGER_FALLING) != 0x00U)
                 {
                     temp |= current_pin;
                 }
@@ -54,7 +54,7 @@ void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
                 // Clear enable interrupt bit and set
                 RESET_REG(EXTI->IMR, (1U << position));
                 SET_REG(EXTI->IMR, (1U << position));
-                
+
                 // Clear event interrupt
                 RESET_REG(EXTI->EMR, (1U << position));
 
@@ -63,12 +63,17 @@ void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
 
                 // Set PC[x] as source input for EXTI   // TODO: Needs to select register dynamically
                 SET_REG(SYSCFG->EXTICR4, (2U << 4U));
-                ESL_NVIC_Enable_IRQ(EXTI15_10_IRQn);    // TODO: Needs to select position dynamically
+                ESL_NVIC_Enable_IRQ(EXTI15_10_IRQn); // TODO: Needs to select position dynamically
             }
 
-            // Set Pin as UART
+            // Set Pin as Alternate
             if ((GPIO_Init->Mode & GPIO_MODE) == MODE_AF)
             {
+                temp = GPIOx->OTYPER;
+                temp &= ~(1U << position);
+                temp |= (((GPIO_Init->Mode & OUTPUT_TYPE) >> OUTPUT_TYPE_Pos) << position);
+                GPIOx->OTYPER = temp;
+
                 if (position < 8U)
                 {
                     RESET_REG(GPIOx->AFR[0], (0xFUL << (position * 4U)));
@@ -76,10 +81,15 @@ void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
                 }
                 else
                 {
-                    RESET_REG(GPIOx->AFR[1], (0xFUL << (position * 4U)));
-                    SET_REG(GPIOx->AFR[1], (GPIO_Init->Alternate << (position * 4U)));
+                    RESET_REG(GPIOx->AFR[1], (0xFUL << ((position - 8U) * 4U)));
+                    SET_REG(GPIOx->AFR[1], (GPIO_Init->Alternate << ((position - 8U) * 4U)));
+
+                    temp = GPIOx->OSPEEDR;
+                    temp &= ~(0x3U << (position * 2u));
+                    temp |= (GPIO_Init->Speed << (position * 2u));
+                    GPIOx->OSPEEDR = temp;
                 }
-                SET_REG(GPIOx->MODER, (GPIO_Init->Mode << (position * 2U)));
+                SET_REG(GPIOx->MODER, ((GPIO_Init->Mode & GPIO_MODE) << (position * 2U)));
             }
             // Set Pin as output
             else
@@ -92,9 +102,9 @@ void ESL_GPIO_Init(GPIO_TypeDef* GPIOx, GPIO_InitTypeDef* GPIO_Init)
 /********************************************************************************************
  *  Sets the output state of given pin/port with given state.
  *******************************************************************************************/
-void ESL_GPIO_WritePin(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinState)
+void ESL_GPIO_WritePin(GPIO_TypeDef *GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinState)
 {
-    if (PinState == GPIO_PIN_SET) 
+    if (PinState == GPIO_PIN_SET)
         GPIOx->ODR |= GPIO_Pin; // Set the pin
     else
         GPIOx->ODR &= ~GPIO_Pin; // Clear the pin
@@ -103,7 +113,7 @@ void ESL_GPIO_WritePin(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin, GPIO_PinState PinSt
 /********************************************************************************************
  *  Toggles the output state of the given pin/port.
  *******************************************************************************************/
-void ESL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin)
+void ESL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, UInt16 GPIO_Pin)
 {
     GPIO_PinState pinState = (GPIOx->ODR & GPIO_Pin) ? GPIO_PIN_SET : GPIO_PIN_RESET;
     ESL_GPIO_WritePin(GPIOx, GPIO_Pin, !pinState);
@@ -112,7 +122,7 @@ void ESL_GPIO_TogglePin(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin)
 /********************************************************************************************
  *  Reads a input pin/port and returns its state.
  *******************************************************************************************/
-GPIO_PinState ESL_GPIO_Read_Pinstate(GPIO_TypeDef* GPIOx, UInt16 GPIO_Pin)
+GPIO_PinState ESL_GPIO_Read_Pinstate(GPIO_TypeDef *GPIOx, UInt16 GPIO_Pin)
 {
     return (GPIOx->IDR & GPIO_Pin) ? GPIO_PIN_SET : GPIO_PIN_RESET;
 }

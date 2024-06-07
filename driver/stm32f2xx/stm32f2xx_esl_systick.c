@@ -2,12 +2,12 @@
  *  Filename: stm32f2xx_esl_systick.c
  *  Author: Erik Fagerland
  *  Created On: 14/02/2024
- * 
+ *
  *  Brief:
  *  Implementation of systick function.
  *  Handles the systick interrupt with counter, provides a blocking delay function
  *  and a millis function for elapsed uptime.
- * 
+ *
  *******************************************************************************************/
 #include "stm32f2xx_esl_systick.h"
 #include "stm32f2xx_esl_pwr.h"
