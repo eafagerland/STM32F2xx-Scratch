@@ -60,13 +60,13 @@ ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef *uart, UInt8 *buf, UIn
         return ESL_BUSY;
 
     UInt32 bytes_sent = 0;
-    UInt32 millis_started = ESL_Millis();
+    UInt32 millis_started = ESL_Tick();
     uart->tx_state = UART_STATE_BUSY;
 
     while (bytes_sent < length)
     {
         // Calculate time spent waiting for TXE to be set
-        UInt32 time_waiting = ESL_Millis() - millis_started;
+        UInt32 time_waiting = ESL_Tick() - millis_started;
 
         // Check for timeout
         if (time_waiting >= timeout)
@@ -89,7 +89,7 @@ ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef *uart, UInt8 *buf, UIn
     while (!(IS_BIT_SET(uart->instance->SR, UART_SR_TC)))
     {
         // Calculate time spent waiting for TC to be set
-        UInt32 time_waiting = ESL_Millis() - millis_started;
+        UInt32 time_waiting = ESL_Tick() - millis_started;
 
         // Check for timeout
         if (time_waiting >= timeout)
@@ -115,13 +115,13 @@ ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt
         return ESL_BUSY;
 
     UInt32 bytes_read = 0;
-    UInt32 millis_started = ESL_Millis();
+    UInt32 millis_started = ESL_Tick();
     uart->rx_state = UART_STATE_BUSY;
 
     while (bytes_read < length)
     {
         // Calculate time spent waiting for TXE to be set
-        UInt32 time_waiting = ESL_Millis() - millis_started;
+        UInt32 time_waiting = ESL_Tick() - millis_started;
 
         // Check for timeout
         if (time_waiting >= timeout)
@@ -149,13 +149,13 @@ ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt
 ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_TypeDef *uart)
 {
     volatile UInt8 dummy_byte = 0;
-    UInt32 millis_started = ESL_Millis();
+    UInt32 millis_started = ESL_Tick();
 
     // Read from register until empty
     while (IS_BIT_SET(uart->instance->SR, UART_SR_RXNE))
     {
         // Calculate time spent waiting for TXE to be set
-        UInt32 time_waiting = ESL_Millis() - millis_started;
+        UInt32 time_waiting = ESL_Tick() - millis_started;
 
         // Check for timeout
         if (time_waiting >= 5000)

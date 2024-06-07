@@ -1,0 +1,28 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "COMPILE",
+            "type": "shell",
+            "command": "make",
+            "options": {
+                "cwd": "${workspaceFolder}/"
+            },
+            "group": "build",
+            "problemMatcher": [],
+            "detail": "Run the make command in the project directory to build the project."
+        },
+        {
+            "label": "UPLOAD",
+            "type": "shell",
+            "command": "Copy-Item '${workspaceFolder}\\build\\stm32f207-devboard.bin' -Destination 'e:\\'",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOn": "COMPILE",
+            "problemMatcher": [],
+            "detail": "Copy the .bin file to drive E:(debugger) after building."
+        }
+    ]
+}

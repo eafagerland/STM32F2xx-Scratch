@@ -24,7 +24,7 @@ void ESL_SysTick_Handler(void);
 void ESL_SysTick_Suspend(void);
 void ESL_SysTick_Resume(void);
 
-UInt32 ESL_Millis(void);
+UInt32 ESL_Tick(void);
 void ESL_Delay(UInt32 millis);
 
 #endif // __STM32F2xx_ESL_SYSTICK_H

@@ -6,7 +6,6 @@
 #include "eslstring.h"
 #include "rtc.h"
 #include "i2c.h"
-#include "sht21_core.h"
 
 #define BLUE_LED GPIO_PIN_7
 #define RED_LED GPIO_PIN_14
@@ -54,15 +53,21 @@ int main(void)
 
     // I2c test
     UInt8 tx_i2c_buf = 0xE3U;
-    ESL_I2C_Master_Transmit(I2C1, 0x40, &tx_i2c_buf, 1);
+    ESL_StatusTypeDef status = ESL_OK;
+    status = ESL_I2C_Master_Transmit(I2C1, 0x40, &tx_i2c_buf, 1, 2000);
+    if (status == ESL_TIMEOUT)
+        print("I2C timeout!\r\n");
+    else if (status == ESL_OK)
+        print("I2C Write OK!\r\n");
 
     ESL_Delay(100);
 
     UInt8 rx_buf[3];
-    ESL_I2C_Master_Receive(I2C1, 0x40, rx_buf, 3);
-
-    volatile float temo = SHT21_Parse_Temp(rx_buf);
-    (void)temo;
+    status = ESL_I2C_Master_Receive(I2C1, 0x40, rx_buf, 3, 2000);
+    if (status == ESL_TIMEOUT)
+        print("I2C timeout!\r\n");
+    else if (status == ESL_OK)
+        print("I2C Read OK!\r\n");
 
     // Print something fancy in terminal
     print("Enter something!\n\r");

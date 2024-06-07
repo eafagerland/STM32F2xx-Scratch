@@ -13,7 +13,6 @@ C_SOURCES = \
 	./driver/stm32f2xx/stm32f2xx_esl_pwr.c \
 	./driver/stm32f2xx/stm32f2xx_esl_rtc.c \
 	./driver/stm32f2xx/stm32f2xx_esl_i2c.c \
-	./driver/sht21-humidity-sensor/sht21_core.c \
 	./driver/utilities/eslstring.c \
 	./src/main.c \
 	./src/gpio.c \
@@ -38,7 +37,7 @@ BIN = $(CP) -O binary
 CPU = -mcpu=cortex-m3
 MCU = $(CPU) -mthumb -g -std=c99
 
-C_INCLUDES = -Iinc -Idriver -Idriver/utilities -Idriver/stm32f2xx -Idriver/sht21-humidity-sensor
+C_INCLUDES = -Iinc -Idriver -Idriver/utilities -Idriver/stm32f2xx
 CFLAGS = $(MCU) $(C_INCLUDES)
 CFLAGS += -Wall
 

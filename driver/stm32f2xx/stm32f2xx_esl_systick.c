@@ -59,7 +59,7 @@ void ESL_SysTick_Resume(void)
 /********************************************************************************************
  *  Returns the current systick counter value.
  *******************************************************************************************/
-UInt32 ESL_Millis(void)
+UInt32 ESL_Tick(void)
 {
     return systick_count;
 }
