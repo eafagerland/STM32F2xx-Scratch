@@ -94,7 +94,8 @@ typedef enum
 typedef enum
 {
     BAUD_9600 = 9600U,
-    BAUD_115200 = 115200U
+    BAUD_115200 = 115200U,
+    BAUD_230400 = 230400U
 } UART_BAUDRATE;
 
 void ESL_UARTx_Init(UARTx_Handle_TypeDef *UARTx, UART_BAUDRATE baud, UART_WORD_LEN wordlen, UART_STOPBITS stopbits);

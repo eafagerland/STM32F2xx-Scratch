@@ -20,14 +20,18 @@ OS_Semaphore_Handle semaphore;
 
 void thread_0(void)
 {
-    os_semaphore_set(&semaphore);
+    os_semaphore_give(&semaphore);
     while(1)
     {
         task0_profiler++;
-        os_semaphore_wait(&semaphore);
+        if (os_semaphore_take(&semaphore, 500) != OS_OK)
+        {
+            print("Timeout in thread 0!\r\n");
+            continue;
+        }
         print("Semaphore optained in thread 0!\r\n");
         ESL_GPIO_TogglePin(LED_PORT, GREEN_LED);
-        os_semaphore_set(&semaphore);
+        os_semaphore_give(&semaphore);
         os_task_delay(1);
     }
 }
@@ -37,10 +41,11 @@ void thread_1(void)
     while(1)
     {
         task1_profiler++;
-        os_semaphore_wait(&semaphore);
+        os_semaphore_take(&semaphore, OS_MAX_TIMEOUT);
+        os_task_delay(1000);
         ESL_GPIO_TogglePin(LED_PORT, BLUE_LED);
         print("Giving semaphore in thread 1!\r\n");
-        os_semaphore_set(&semaphore);
+        os_semaphore_give(&semaphore);
         os_task_delay(1);
     }
 }
@@ -75,18 +80,14 @@ int main(void)
     os_kernel_init();
     os_semaphore_init(&semaphore, 0);
     os_kernel_add_threads(&thread_0, &thread_1, &thread_2);
-    os_kernel_launch(QUANTA);
+    os_kernel_launch();
 
-    // Init complete!
-    print("Init Complete!\n\r");
-    ESL_GPIO_WritePin(LED_PORT, GREEN_LED, GPIO_PIN_SET);
+    // Will never get here!
 
     while (1)
     {
         __wfi();
     }
-
-    return -1;
 }
 
 /********************************************************************************************

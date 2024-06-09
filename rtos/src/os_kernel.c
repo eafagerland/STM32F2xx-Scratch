@@ -1,3 +1,12 @@
+/********************************************************************************************
+ *  @file   : os_kernel.c
+ *  @author : Erik Fagerland
+ *  @date   : 07/06/2024
+ *
+ *  @brief
+ *  Implementation of RTOS Kernel with Thread shceduler
+ *
+ *******************************************************************************************/
 #include "os_kernel.h"
 #include "stm32f2xx_esl_systick.h"
 #include "stm32f2xx_esl_nvic.h"
@@ -10,10 +19,10 @@
 #define INTCTRL             (*((volatile UInt32 *)0xE000ED04))
 #define PENDSTSET           (1U << 26U)
 
-UInt32 systick_count;
-UInt32 os_quanta;
+#define RTOS_TICKRATE_HZ    (1000UL)
 
-UInt32 MILLIS_PRESCALER;
+static UInt32 systick_count;
+static UInt32 MILLIS_PRESCALER;
 
 struct tcb
 {
@@ -40,24 +49,6 @@ void os_kernel_stack_init(int i)
     tcbs[i].stack_pt = &TCB_STACK[i][STACK_SIZE - 16]; // Stack pointer
 
     TCB_STACK[i][STACK_SIZE - 1] = (1U << 24U); // Set bit21 (T-bit) in PSR to 1, to operate in Thumb mode
-
-    // @note : Block below is for debugging.
-
-    // Dummy stack content
-    TCB_STACK[i][STACK_SIZE - 3]    = 0xAAAAAAAA; // R14 i.e LR
-    TCB_STACK[i][STACK_SIZE - 4]    = 0xAAAAAAAA; // R12
-    TCB_STACK[i][STACK_SIZE - 5]    = 0xAAAAAAAA; // R3
-    TCB_STACK[i][STACK_SIZE - 6]    = 0xAAAAAAAA; // R2
-    TCB_STACK[i][STACK_SIZE - 7]    = 0xAAAAAAAA; // R1
-    TCB_STACK[i][STACK_SIZE - 8]    = 0xAAAAAAAA; // R0
-    TCB_STACK[i][STACK_SIZE - 9]    = 0xAAAAAAAA; // R11
-    TCB_STACK[i][STACK_SIZE - 10]   = 0xAAAAAAAA; // R10
-    TCB_STACK[i][STACK_SIZE - 11]   = 0xAAAAAAAA; // R9
-    TCB_STACK[i][STACK_SIZE - 12]   = 0xAAAAAAAA; // R8
-    TCB_STACK[i][STACK_SIZE - 13]   = 0xAAAAAAAA; // R7
-    TCB_STACK[i][STACK_SIZE - 14]   = 0xAAAAAAAA; // R6
-    TCB_STACK[i][STACK_SIZE - 15]   = 0xAAAAAAAA; // R5
-    TCB_STACK[i][STACK_SIZE - 16]   = 0xAAAAAAAA; // R4
 }
 
 /********************************************************************************************
@@ -99,16 +90,15 @@ UInt8 os_kernel_add_threads(void(*task0)(void), void(*task1)(void), void(*task2)
  *******************************************************************************************/
 void os_kernel_init(void)
 {
-    MILLIS_PRESCALER = (BUS_FREQ / 1000);
+    MILLIS_PRESCALER = (BUS_FREQ / RTOS_TICKRATE_HZ);
     systick_count = 0;
 }
 
 /********************************************************************************************
- *  Laucnhes the kernel
+ *  Launches the kernel
  *******************************************************************************************/
-void os_kernel_launch(UInt32 quanta)
+void os_kernel_launch(void)
 {
-    os_quanta = quanta;
     // Reset systick
     SYSTICK->STK_CTRL = 0;
 
@@ -137,24 +127,15 @@ __attribute__((naked)) void ESL_SysTick_Handler(void)
 {
     __asm volatile
     (
-        // Check if systick has quanta elapsed
         "CPSID      I                   \n" // Disable interrupts
 
+        // Increment SysTick Counter
         "LDR        R0,=systick_count   \n" // Load address of systick count into R0
         "LDR        R0,[R0]             \n" // Load value of systick_count into R0
         "ADD        R0,R0,#1            \n" // Increment systick_count
 
-        "LDR        R3,=systick_count   \n" // Load address of systick_count into R3
-        "STR        R0,[R3]             \n" // Store incremented value back to systick_count
-
-        "LDR        R1,=os_quanta       \n" // Load address of os_quanta into R1
-        "LDR        R1,[R1]             \n" // Load value of os_quanta into R1
-
-        "UDIV       R2,R0,R1            \n" // Divide i.e r2 = r0 / r1
-        "MLS        R2,R2,R1,R0         \n" // Multipli i.e r2 = r0-(r2*r1)
-
-        "CMP        R2,#0               \n" // Compare R2 with 0
-        "BNE        return              \n" // Branch if the remainder is not zero
+        "LDR        R1,=systick_count   \n" // Load address of systick_count into R3
+        "STR        R0,[R1]             \n" // Store incremented value back to systick_count
 
         // SUSPEND CURRENT THREAD
         "PUSH       {R4-R11}            \n" // Save r4,r5,r6,r7,r8,r9,r10,11
@@ -171,10 +152,6 @@ __attribute__((naked)) void ESL_SysTick_Handler(void)
         
         "CPSIE      I                   \n" // Enable global interrupts
         "BX         LR                  \n" // Return from excepction and restore r0,r1,r2,r3,r12,lr,pc,psr
-
-        "return:                        \n"
-            "CPSIE      I               \n" // Enable global interrupts 
-            "BX LR                      \n"
     );
 }
 
@@ -223,4 +200,12 @@ void os_task_delay(UInt32 delay_ms)
     while (systick_count - tick_start <= delay_ms)
     {
     }
+}
+
+/********************************************************************************************
+ *  Returns the systick count
+ *******************************************************************************************/
+UInt32 os_get_tick(void)
+{
+    return systick_count;
 }
