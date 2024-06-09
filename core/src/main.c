@@ -78,7 +78,7 @@ int main(void)
     //NVIC_Init();
     UART2_Init();
     os_kernel_init();
-    os_semaphore_init(&semaphore, 0);
+    os_semaphore_create_binary(&semaphore);
     os_kernel_add_threads(&thread_0, &thread_1, &thread_2);
     os_kernel_launch();
 

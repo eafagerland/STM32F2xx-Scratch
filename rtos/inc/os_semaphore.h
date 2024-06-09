@@ -15,7 +15,8 @@
 
 typedef Int32 OS_Semaphore_Handle;
 
-void os_semaphore_init(OS_Semaphore_Handle *semaphore, Int32 value);
+void os_semaphore_create_binary(OS_Semaphore_Handle *semaphore);
+void os_semaphore_create_counting(OS_Semaphore_Handle *semaphore);
 void os_semaphore_give(OS_Semaphore_Handle *semaphore);
 OS_Status os_semaphore_take(OS_Semaphore_Handle *semaphore, UInt32 timeout);
 
