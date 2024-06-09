@@ -72,24 +72,15 @@ static UInt16 get_ahb_div(RCC_AHB_DIV AHP)
 {
     switch (AHP)
     {
-    case RCC_AHB_CLOCK_DIV1:
-        return 1U;
-    case RCC_AHB_CLOCK_DIV2:
-        return 2U;
-    case RCC_AHB_CLOCK_DIV4:
-        return 4U;
-    case RCC_AHB_CLOCK_DIV8:
-        return 8U;
-    case RCC_AHB_CLOCK_DIV16:
-        return 16U;
-    case RCC_AHB_CLOCK_DIV64:
-        return 64U;
-    case RCC_AHB_CLOCK_DIV128:
-        return 128U;
-    case RCC_AHB_CLOCK_DIV256:
-        return 256U;
-    case RCC_AHB_CLOCK_DIV512:
-        return 512U;
+        case RCC_AHB_CLOCK_DIV1:    return 1U;
+        case RCC_AHB_CLOCK_DIV2:    return 2U;
+        case RCC_AHB_CLOCK_DIV4:    return 4U;
+        case RCC_AHB_CLOCK_DIV8:    return 8U;
+        case RCC_AHB_CLOCK_DIV16:   return 16U;
+        case RCC_AHB_CLOCK_DIV64:   return 64U;
+        case RCC_AHB_CLOCK_DIV128:  return 128U;
+        case RCC_AHB_CLOCK_DIV256:  return 256U;
+        case RCC_AHB_CLOCK_DIV512:  return 512U;
     }
     return 0U;
 }
@@ -101,16 +92,11 @@ static UInt16 get_apb_div(RCC_APB_DIV APB)
 {
     switch (APB)
     {
-    case RCC_APBx_CLOCK_DIV1:
-        return 1U;
-    case RCC_APBx_CLOCK_DIV2:
-        return 2U;
-    case RCC_APBx_CLOCK_DIV4:
-        return 4U;
-    case RCC_APBx_CLOCK_DIV8:
-        return 8U;
-    case RCC_APBx_CLOCK_DIV16:
-        return 16U;
+        case RCC_APBx_CLOCK_DIV1:   return 1U;
+        case RCC_APBx_CLOCK_DIV2:   return 2U;
+        case RCC_APBx_CLOCK_DIV4:   return 4U;
+        case RCC_APBx_CLOCK_DIV8:   return 8U;
+        case RCC_APBx_CLOCK_DIV16:  return 16U;
     }
     return 0U;
 }
@@ -122,14 +108,10 @@ static UInt16 get_pllp_div(RCC_PLLP_DIV PLLP)
 {
     switch (PLLP)
     {
-    case RCC_PLLP_CLOCK_DIV2:
-        return 2U;
-    case RCC_PLLP_CLOCK_DIV4:
-        return 4U;
-    case RCC_PLLP_CLOCK_DIV6:
-        return 6U;
-    case RCC_PLLP_CLOCK_DIV8:
-        return 8U;
+        case RCC_PLLP_CLOCK_DIV2:   return 2U;
+        case RCC_PLLP_CLOCK_DIV4:   return 4U;
+        case RCC_PLLP_CLOCK_DIV6:   return 6U;
+        case RCC_PLLP_CLOCK_DIV8:   return 8U;
     }
     return 0U;
 }

@@ -47,7 +47,7 @@ static ESL_StatusTypeDef timeout_state(UInt32 tick_start, UInt32 timeout)
 #define CHECK_I2C_TIMEOUT(tick_start, timeout)  if (timeout_state(tick_start, timeout) != ESL_OK) return ESL_TIMEOUT; 
 
 /********************************************************************************************
- *
+ *  Initializes the I2C Port
  *******************************************************************************************/
 ESL_StatusTypeDef ESL_I2C_Init(I2C_TypeDef *i2c)
 {
@@ -84,34 +84,28 @@ ESL_StatusTypeDef ESL_I2C_Init(I2C_TypeDef *i2c)
 }
 
 /********************************************************************************************
- *
+ *  Transmits in blocking mode
  *******************************************************************************************/
 ESL_StatusTypeDef ESL_I2C_Master_Transmit(I2C_TypeDef *i2c, UInt8 address, UInt8 *buf, UInt32 len, UInt32 timeout)
 {
     UInt32 tick_start = ESL_Tick();
     // Wait while busy
     while (IS_BIT_SET(i2c->SR2, I2C_SR2_BUSY))
-    {
         CHECK_I2C_TIMEOUT(tick_start, timeout)
-    };
 
     // Set start condition
     SET_REG(i2c->CR1, I2C_CR1_START);
 
     // Wait for start bit generated
     while (!IS_BIT_SET(i2c->SR1, I2C_SR1_SB))
-    {
         CHECK_I2C_TIMEOUT(tick_start, timeout)
-    };
 
     // Send address with write bit
     i2c->DR = (address << 1U);
 
     // Wait for ACK
     while (!IS_BIT_SET(i2c->SR1, I2C_SR1_ADDR))
-    {
         CHECK_I2C_TIMEOUT(tick_start, timeout)
-    };
 
     // Reset ADDR
     volatile UInt32 sr1_reg = i2c->SR1;
@@ -125,18 +119,16 @@ ESL_StatusTypeDef ESL_I2C_Master_Transmit(I2C_TypeDef *i2c, UInt8 address, UInt8
     while (bytes_sent < len)
     {
         while ((!IS_BIT_SET(i2c->SR1, I2C_SR1_TXE)) && (!IS_BIT_SET(i2c->SR1, I2C_SR1_BTF)))
-        {
             CHECK_I2C_TIMEOUT(tick_start, timeout)
-        };
+
         i2c->DR = buf[bytes_sent];
         bytes_sent++;
+        CHECK_I2C_TIMEOUT(tick_start, timeout)
     }
 
     // Wait for transfer complete
     while (!IS_BIT_SET(i2c->SR1, I2C_SR1_BTF))
-    {
         CHECK_I2C_TIMEOUT(tick_start, timeout)
-    };
 
     // Set stop condition
     SET_REG(i2c->CR1, I2C_CR1_STOP);
@@ -145,16 +137,14 @@ ESL_StatusTypeDef ESL_I2C_Master_Transmit(I2C_TypeDef *i2c, UInt8 address, UInt8
 }
 
 /********************************************************************************************
- *
+ *  Receives in blocking mode
  *******************************************************************************************/
 ESL_StatusTypeDef ESL_I2C_Master_Receive(I2C_TypeDef *i2c, UInt8 address, UInt8 *buf, UInt32 len, UInt32 timeout)
 {
     UInt32 tick_start = ESL_Tick();
     // Wait while busy
     while (IS_BIT_SET(i2c->SR2, I2C_SR2_BUSY))
-    {
         CHECK_I2C_TIMEOUT(tick_start, timeout)
-    };
 
     // Enable ACK
     SET_REG(i2c->CR1, I2C_CR1_ACK);
@@ -165,9 +155,7 @@ ESL_StatusTypeDef ESL_I2C_Master_Receive(I2C_TypeDef *i2c, UInt8 address, UInt8 
 
     // Wait for start bit generated
     while (!IS_BIT_SET(i2c->SR1, I2C_SR1_SB))
-    {
         CHECK_I2C_TIMEOUT(tick_start, timeout)
-    };
 
     // Send address with read bit
     address = (address << 1U);
@@ -176,9 +164,7 @@ ESL_StatusTypeDef ESL_I2C_Master_Receive(I2C_TypeDef *i2c, UInt8 address, UInt8 
 
     // Wait for ACK
     while (!IS_BIT_SET(i2c->SR1, I2C_SR1_ADDR))
-    {
         CHECK_I2C_TIMEOUT(tick_start, timeout)
-    };
 
     // Reset ACK now if only reading 1 byte
     if (is_ack_enabled && (len == 1))
@@ -205,9 +191,8 @@ ESL_StatusTypeDef ESL_I2C_Master_Receive(I2C_TypeDef *i2c, UInt8 address, UInt8 
     while (bytes_read < len)
     {
         while (!IS_BIT_SET(i2c->SR1, I2C_SR1_RXNE))
-        {
             CHECK_I2C_TIMEOUT(tick_start, timeout)
-        };
+
         buf[bytes_read] = i2c->DR;
         bytes_read++;
 

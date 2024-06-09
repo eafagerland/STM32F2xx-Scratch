@@ -14,8 +14,9 @@
 
 #define NVIC_BASE (0xE000E100UL)
 
-void ESL_NVIC_Enable_IRQ(UInt8 irq_pos);
-void ESL_NVIC_Disable(UInt8 irq_pos);
+void ESL_NVIC_Enable_IRQ(IRQn_Type irq_pos);
+void ESL_NVIC_Disable_IRQ(IRQn_Type irq_pos);
+void ESL_NVIC_Set_Priority(IRQn_Type irq_pos, UInt8 priority);
 
 void EXTI15_10_Handler(void);
 

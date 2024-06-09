@@ -13,7 +13,7 @@
 /********************************************************************************************
  *  Activates interrupt on the provided vector positon. See boot.S for entire vector table.
  *******************************************************************************************/
-void ESL_NVIC_Enable_IRQ(UInt8 irq_pos)
+void ESL_NVIC_Enable_IRQ(IRQn_Type irq_pos)
 {
     // Get the index and position
     UInt8 index = irq_pos / 32;
@@ -26,7 +26,7 @@ void ESL_NVIC_Enable_IRQ(UInt8 irq_pos)
 /********************************************************************************************
  *  Disables interrupt on the provided vector positon. See boot.S for entire vector table.
  *******************************************************************************************/
-void ESL_NVIC_Disable(UInt8 irq_pos)
+void ESL_NVIC_Disable_IRQ(IRQn_Type irq_pos)
 {
     // Get the index and position
     UInt8 index = irq_pos / 32;
@@ -34,6 +34,23 @@ void ESL_NVIC_Disable(UInt8 irq_pos)
 
     // Update NVIC register table to disable the interrupt
     SET_REG(NVIC->ICER[index], (1U << bitPos));
+}
+
+/********************************************************************************************
+ *  Sets the priority of the interrupt on the provided vector position.
+ *******************************************************************************************/
+void ESL_NVIC_Set_Priority(IRQn_Type irq_pos, UInt8 priority)
+{
+    // Ensure priority is within valid range
+    if (priority > 255)
+        priority = 255;
+
+    // Get the index and shift amount
+    UInt8 index = irq_pos / 4;          // Each priority register holds 4 IRQ priorities (8 bits each)
+    UInt8 shift = (irq_pos % 4) * 8;    // Calculate the shift amount within the priority register
+
+    // Update NVIC priority register to set the priority
+    SET_REG(NVIC->IP[index], ((priority & 0xFF) << shift));
 }
 
 /********************************************************************************************

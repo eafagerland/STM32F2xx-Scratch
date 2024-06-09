@@ -18,6 +18,7 @@
 #define SYSTICK_TICKINT_ENABLE  (1U << 1U)
 #define SYSTICK_CLK_SRC_AHB     (1U << 2U)
 #define SYSTICK_CLK_SRC_AHB8    (1U << 2U)
+#define SYSTICK_COUNTFLAG       (1U << 16U)
 
 void ESL_SysTick_Init(UInt32 reload_value);
 void ESL_SysTick_Handler(void);

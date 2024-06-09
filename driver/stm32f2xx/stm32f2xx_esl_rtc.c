@@ -365,7 +365,7 @@ void ESL_RTC_Wakeup_IRQ_Disable(void)
     // Disable exti line
     EXTI->IMR &= ~(1U << 22U);
 
-    ESL_NVIC_Disable(RTC_WKUP_IRQn);
+    ESL_NVIC_Disable_IRQ(RTC_WKUP_IRQn);
 
     // Disable wakeup interrupt
     RESET_REG(RTC->CR, RTC_ISR_WUTIE);

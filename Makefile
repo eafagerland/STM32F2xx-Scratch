@@ -3,6 +3,8 @@ TARGET = stm32f207-devboard
 BUILD_DIR = build
 
 C_SOURCES = \
+	./rtos/src/os_kernel.c \
+	./rtos/src/os_semaphore.c \
 	./driver/stm32f2xx/stm32f2xx_esl.c \
 	./driver/stm32f2xx/stm32f2xx_esl_gpio.c \
 	./driver/stm32f2xx/stm32f2xx_esl_timer.c \
@@ -14,14 +16,14 @@ C_SOURCES = \
 	./driver/stm32f2xx/stm32f2xx_esl_rtc.c \
 	./driver/stm32f2xx/stm32f2xx_esl_i2c.c \
 	./driver/utilities/eslstring.c \
-	./src/main.c \
-	./src/gpio.c \
-	./src/tim.c \
-	./src/nvic.c \
-	./src/uart.c \
-	./src/interrupts.c \
-	./src/rtc.c \
-	./src/i2c.c
+	./core/src/main.c \
+	./core/src/gpio.c \
+	./core/src/tim.c \
+	./core/src/nvic.c \
+	./core/src/uart.c \
+	./core/src/interrupts.c \
+	./core/src/rtc.c \
+	./core/src/i2c.c
 ASM_SOURCES = ./asm/boot.S
 
 PREFIX = arm-none-eabi
@@ -37,7 +39,7 @@ BIN = $(CP) -O binary
 CPU = -mcpu=cortex-m3
 MCU = $(CPU) -mthumb -g -std=c99
 
-C_INCLUDES = -Iinc -Idriver -Idriver/utilities -Idriver/stm32f2xx
+C_INCLUDES = -Icore/inc -Idriver -Idriver/utilities -Idriver/stm32f2xx -Irtos/inc
 CFLAGS = $(MCU) $(C_INCLUDES)
 CFLAGS += -Wall
 

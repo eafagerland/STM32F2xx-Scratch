@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "stm32f2xx_esl.h": "c",
+        "stm32f2xx_esl_timer.h": "c",
+        "stm32f207xx.h": "c"
+    }
+}

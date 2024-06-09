@@ -11,6 +11,21 @@
 #include "stm32f2xx_esl_rcc.h"
 #include "stm32f2xx_esl_systick.h"
 
+#define UART_FLUSH_TIMEOUT (5000UL)
+
+static ESL_StatusTypeDef timeout_state(UInt32 tick_start, UInt32 timeout)
+{
+    // Calculate time spent waiting for TXE to be set
+    UInt32 time_waiting = ESL_Tick() - tick_start;
+
+    // Check for timeout
+    if (time_waiting >= timeout)
+        return ESL_TIMEOUT;
+
+    return ESL_OK;
+}
+#define CHECK_UART_TIMEOUT(tick_start, timeout)  if (timeout_state(tick_start, timeout) != ESL_OK) return ESL_TIMEOUT; 
+
 /********************************************************************************************
  *  Initializes given uart handle with given baud, length and stopbits. Enables both
  *  receiver and transmitter.
@@ -60,20 +75,12 @@ ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef *uart, UInt8 *buf, UIn
         return ESL_BUSY;
 
     UInt32 bytes_sent = 0;
-    UInt32 millis_started = ESL_Tick();
+    UInt32 tick_start = ESL_Tick();
     uart->tx_state = UART_STATE_BUSY;
 
     while (bytes_sent < length)
     {
-        // Calculate time spent waiting for TXE to be set
-        UInt32 time_waiting = ESL_Tick() - millis_started;
-
-        // Check for timeout
-        if (time_waiting >= timeout)
-        {
-            uart->tx_state = UART_STATE_READY;
-            return ESL_TIMEOUT;
-        }
+        CHECK_UART_TIMEOUT(tick_start, timeout)
 
         // Wait for TXE to set, indicating TX buffer is empty
         if (IS_BIT_SET(uart->instance->SR, UART_SR_TXE))
@@ -87,17 +94,7 @@ ESL_StatusTypeDef ESL_UARTx_Transmit(UARTx_Handle_TypeDef *uart, UInt8 *buf, UIn
 
     // Wait for transmission complete
     while (!(IS_BIT_SET(uart->instance->SR, UART_SR_TC)))
-    {
-        // Calculate time spent waiting for TC to be set
-        UInt32 time_waiting = ESL_Tick() - millis_started;
-
-        // Check for timeout
-        if (time_waiting >= timeout)
-        {
-            uart->tx_state = UART_STATE_READY;
-            return ESL_TIMEOUT;
-        }
-    }
+        CHECK_UART_TIMEOUT(tick_start, timeout)
 
     uart->tx_state = UART_STATE_READY;
     return ESL_OK;
@@ -115,20 +112,12 @@ ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt
         return ESL_BUSY;
 
     UInt32 bytes_read = 0;
-    UInt32 millis_started = ESL_Tick();
+    UInt32 tick_start = ESL_Tick();
     uart->rx_state = UART_STATE_BUSY;
 
     while (bytes_read < length)
     {
-        // Calculate time spent waiting for TXE to be set
-        UInt32 time_waiting = ESL_Tick() - millis_started;
-
-        // Check for timeout
-        if (time_waiting >= timeout)
-        {
-            uart->rx_state = UART_STATE_READY;
-            return ESL_TIMEOUT;
-        }
+        CHECK_UART_TIMEOUT(tick_start, timeout)
 
         // Wait for RXNE to set, indicating data in buffer
         if (IS_BIT_SET(uart->instance->SR, UART_SR_RXNE))
@@ -149,17 +138,12 @@ ESL_StatusTypeDef ESL_UARTx_Receive(UARTx_Handle_TypeDef *uart, UInt8 *buf, UInt
 ESL_StatusTypeDef ESL_UARTx_Flush(UARTx_Handle_TypeDef *uart)
 {
     volatile UInt8 dummy_byte = 0;
-    UInt32 millis_started = ESL_Tick();
+    UInt32 tick_start = ESL_Tick();
 
     // Read from register until empty
     while (IS_BIT_SET(uart->instance->SR, UART_SR_RXNE))
     {
-        // Calculate time spent waiting for TXE to be set
-        UInt32 time_waiting = ESL_Tick() - millis_started;
-
-        // Check for timeout
-        if (time_waiting >= 5000)
-            return ESL_TIMEOUT;
+        CHECK_UART_TIMEOUT(tick_start, UART_FLUSH_TIMEOUT)
 
         dummy_byte = uart->instance->DR;
         (void)dummy_byte; // Supress compiler warning

@@ -5,17 +5,8 @@
 #include "uart.h"
 #include "eslstring.h"
 #include "rtc.h"
-#include "i2c.h"
 
-#define BLUE_LED GPIO_PIN_7
-#define RED_LED GPIO_PIN_14
 #define USER_BUTTON GPIO_PIN_13
-
-#define UART_RX_BUFF_SIZE 10
-char rx_buf[UART_RX_BUFF_SIZE] = {'\0'};
-
-#define UART_TX_BUFF_SIZE 100
-char tx_buf[UART_TX_BUFF_SIZE] = {'\0'};
 
 /***********************************************
  *	Function Prototypes
@@ -32,52 +23,6 @@ int main(void)
     NVIC_Init();
     UART2_Init();
     RTC_Init();
-    I2C_Init();
-
-    // Init complete!
-    print("Init Complete!\n\r");
-
-    // Check if it started from a deepsleep standby
-    if (ESL_PWR_Standby_Flagged())
-    {
-        print("Awww.. I was just sleeping!\n\r");
-        ESL_RTC_Wakeup_IRQ_Disable();
-    }
-
-    // Delay test
-    for (int i = 0; i < 10; i++)
-    {
-        ESL_GPIO_TogglePin(GPIOB, RED_LED);
-        ESL_Delay(100);
-    }
-
-    // I2c test
-    UInt8 tx_i2c_buf = 0xE3U;
-    ESL_StatusTypeDef status = ESL_OK;
-    status = ESL_I2C_Master_Transmit(I2C1, 0x40, &tx_i2c_buf, 1, 2000);
-    if (status == ESL_TIMEOUT)
-        print("I2C timeout!\r\n");
-    else if (status == ESL_OK)
-        print("I2C Write OK!\r\n");
-
-    ESL_Delay(100);
-
-    UInt8 rx_buf[3];
-    status = ESL_I2C_Master_Receive(I2C1, 0x40, rx_buf, 3, 2000);
-    if (status == ESL_TIMEOUT)
-        print("I2C timeout!\r\n");
-    else if (status == ESL_OK)
-        print("I2C Read OK!\r\n");
-
-    // Print something fancy in terminal
-    print("Enter something!\n\r");
-
-    // UART IRQ Read test
-    ESL_UARTx_Receive_IT(&uart2, (UInt8 *)rx_buf, UART_RX_BUFF_SIZE);
-
-    // Test UART IT TX
-    stringcopy(tx_buf, "Hello World! Sent on TX IRQ\n\r");
-    ESL_UARTx_Transmit_IT(&uart2, (UInt8 *)tx_buf, stringlen(tx_buf));
 
     // Set date and time if it has been reset
     if (!ESL_RTC_Is_Calender_Init())
@@ -98,18 +43,6 @@ int main(void)
         date.weekday = THURSDAY;
         ESL_RTC_Set_Date(date);
     }
-
-    // Set wakeup to 30sec and enable irq
-    ESL_RTC_Set_Wakeup(30);
-    ESL_RTC_Wakeup_IRQ_Enable();
-
-    ESL_Delay(5000);
-    print("Going to sleep!\n\r");
-    // Enable wakeup pin
-    ESL_PWR_Enable_WKUP_Pin();
-    // Enter Stop mode deepsleep (wakeup with user button)
-    ESL_PWR_Enter_Sleep(PWR_SLP_PPDS_STB, PWR_SLP_LPDS_OFF);
-
     while (1)
     {
         __wfi();
@@ -119,35 +52,11 @@ int main(void)
 /********************************************************************************************
  *  Initializes the system clocks.
  *******************************************************************************************/
-static void init_system_clocks()
+static void init_system_clocks(void)
 {
     // Init system clocks, go to hardfault handler if there was errors in settings (use STM32MXCube to get these values)
     if (ESL_RCC_Init(RCC_PLLP_CLOCK_DIV2, 240, 8, 4, RCC_APBx_CLOCK_DIV4, RCC_APBx_CLOCK_DIV2, RCC_AHB_CLOCK_DIV1) != ESL_OK)
         HardFault_Handler();
-}
-
-/********************************************************************************************
- *  Callback for GPIO external interrupt line 15-10
- *******************************************************************************************/
-void EXTI15_10_Handler(void)
-{
-    // Check if PIN13 was the source of the interrupt
-    if (GPIO_EXTI_SOURCE(GPIO_PIN_13))
-    {
-        if (g_pwr_stop_mode_active)
-        {
-            g_pwr_stop_mode_active = FALSE;
-            init_system_clocks(); // Need to re-init clocks since they were disabled at sleep
-            ESL_SysTick_Resume(); // Resume the systick
-            print("Woke up from sleep mode!\n\r");
-        }
-        else
-        {
-            if (ESL_UARTx_Transmit_IT(&uart2, (UInt8 *)tx_buf, stringlen(tx_buf)) == ESL_OK)
-                ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
-        }
-        EXTI->PR |= GPIO_PIN_13; // Reset interrupt
-    }
 }
 
 /********************************************************************************************
@@ -234,7 +143,7 @@ void ESL_TIM_IRQ_Handler(TIMx_TypeDef *TIMx)
 
         println(buf);
 
-        ESL_GPIO_TogglePin(GPIOB, BLUE_LED);
+        ESL_GPIO_TogglePin(LED_PORT, BLUE_LED);
 
         // Reset interrupt
         ESL_TIM_Reset_IRQ(TIM10);
@@ -246,38 +155,10 @@ void ESL_TIM_IRQ_Handler(TIMx_TypeDef *TIMx)
  *******************************************************************************************/
 void HardFault_Handler(void)
 {
-    ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_SET);
-    ESL_GPIO_WritePin(GPIOB, BLUE_LED, GPIO_PIN_SET);
+    ESL_GPIO_WritePin(LED_PORT, RED_LED, GPIO_PIN_SET);
+    ESL_GPIO_WritePin(LED_PORT, BLUE_LED, GPIO_PIN_SET);
     while (1)
     {
-    }
-}
-
-/********************************************************************************************
- *  Receive Callback for Uarts
- *******************************************************************************************/
-void ESL_UARTx_Receive_Callback(UARTx_Handle_TypeDef *uart)
-{
-    if (uart->instance == UART2)
-    {
-        print("UART CB! Data: ");
-        char buf[100] = {'\0'};
-        stringcopy(buf, (const char *)uart->rx_buf);
-        println(buf);
-        memset(rx_buf, '\0', UART_RX_BUFF_SIZE);
-        ESL_UARTx_Receive_IT(&uart2, (UInt8 *)rx_buf, UART_RX_BUFF_SIZE);
-    }
-}
-
-/********************************************************************************************
- *  Transmit Callback for Uarts
- *******************************************************************************************/
-void ESL_UARTx_Transmit_Callback(UARTx_Handle_TypeDef *uart)
-{
-    if (uart->instance == UART2)
-    {
-        print("TX DONE!\r\n");
-        ESL_GPIO_WritePin(GPIOB, RED_LED, GPIO_PIN_RESET);
     }
 }
 
