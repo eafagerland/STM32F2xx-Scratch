@@ -5,6 +5,7 @@
 #include "eslstring.h"
 #include "os_kernel.h"
 #include "os_semaphore.h"
+#include "os_memory.h"
 
 #define USER_BUTTON GPIO_PIN_13
 
@@ -16,23 +17,63 @@ TaskProfiler task0_profiler = 0;
 TaskProfiler task1_profiler = 0;
 TaskProfiler task2_profiler = 0;
 
+typedef struct
+{
+    UInt32 test1;
+    UInt32 test2;
+} TestStruct;
+
 OS_Semaphore_Handle semaphore;
 
 void thread_0(void)
 {
+    print("\r\nStarting2!\r\n\n");
+
+    // Heap memory test
+    UInt32 num = 64;
+
+    UInt32 *array[num];
+    for (int i = 0; i < num; i++)
+    {
+        array[i] = allocate(sizeof(UInt32));
+        if (array[i] == NULL)
+        {
+            print("Allocation in loop failed!\r\n");
+        }
+        else
+            *array[i] = i + 100;
+    }
+    print("Allocation Done!\r\n");
+
+    // Print all values
+    for (int i = 0; i < num; i++)
+    {
+        char buf[20];
+        if (array[i] != NULL)
+            uint_to_string(*array[i], buf);
+        print("Value: ");
+        print(buf);
+        print("\r\n");
+
+        // Free memory
+        free_mem(array[i]);
+    }
+
     os_semaphore_give(&semaphore);
+
     while(1)
     {
         task0_profiler++;
-        if (os_semaphore_take(&semaphore, 500) != OS_OK)
+        if (os_semaphore_take(&semaphore, 5000) != OS_OK)
         {
             print("Timeout in thread 0!\r\n");
-            continue;
+           continue;
         }
+
         print("Semaphore optained in thread 0!\r\n");
         ESL_GPIO_TogglePin(LED_PORT, GREEN_LED);
         os_semaphore_give(&semaphore);
-        os_task_delay(1);
+        os_task_delay(1000);
     }
 }
 
@@ -42,7 +83,7 @@ void thread_1(void)
     {
         task1_profiler++;
         os_semaphore_take(&semaphore, OS_MAX_TIMEOUT);
-        os_task_delay(1000);
+        os_task_delay(2000);
         ESL_GPIO_TogglePin(LED_PORT, BLUE_LED);
         print("Giving semaphore in thread 1!\r\n");
         os_semaphore_give(&semaphore);
@@ -78,6 +119,7 @@ int main(void)
     //NVIC_Init();
     UART2_Init();
     os_kernel_init();
+    os_mem_init();
     os_semaphore_create_binary(&semaphore);
     os_kernel_add_threads(&thread_0, &thread_1, &thread_2);
     os_kernel_launch();

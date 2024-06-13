@@ -10,16 +10,14 @@
 #include "os_kernel.h"
 #include "stm32f2xx_esl_systick.h"
 #include "stm32f2xx_esl_nvic.h"
+#include "stm32f2xx_esl_rcc.h"
 
+#define RTOS_TICKRATE_HZ    (1000UL)
 #define NUM_OF_THREADS      (3U)
-#define STACK_SIZE          (100UL) // 100 * 32bits
-
-#define BUS_FREQ            (120000000UL)
+#define STACK_SIZE          (300UL) // 100 * 32bits
 
 #define INTCTRL             (*((volatile UInt32 *)0xE000ED04))
 #define PENDSTSET           (1U << 26U)
-
-#define RTOS_TICKRATE_HZ    (1000UL)
 
 static UInt32 systick_count;
 static UInt32 MILLIS_PRESCALER;
@@ -38,6 +36,7 @@ tcb_type *current_pt;
 // Each thread will have stacksize of 100 i.e. 400bytes
 Int32 TCB_STACK[NUM_OF_THREADS][STACK_SIZE];
 
+// Function Prototypes
 void os_scheduler_launch(void);
 void os_scheduler_round_robin(void);
 
@@ -90,7 +89,7 @@ UInt8 os_kernel_add_threads(void(*task0)(void), void(*task1)(void), void(*task2)
  *******************************************************************************************/
 void os_kernel_init(void)
 {
-    MILLIS_PRESCALER = (BUS_FREQ / RTOS_TICKRATE_HZ);
+    MILLIS_PRESCALER = (RCC_Clocks.SYSCLK / RTOS_TICKRATE_HZ);
     systick_count = 0;
 }
 

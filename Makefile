@@ -3,6 +3,7 @@ TARGET = stm32f207-devboard
 BUILD_DIR = build
 
 C_SOURCES = \
+	./rtos/src/os_memory.c \
 	./rtos/src/os_kernel.c \
 	./rtos/src/os_semaphore.c \
 	./driver/stm32f2xx/stm32f2xx_esl.c \

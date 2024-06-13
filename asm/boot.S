@@ -3,7 +3,7 @@
 .thumb
 
 // Vector Table
-.word   0x20020000          //  - Stack top address
+.word   0x20010000          //  - Stack top address
 .word   _reset              //  - Reset
 .word   none                //  - NMI
 .word   HardFault_Handler   //  - HardFault

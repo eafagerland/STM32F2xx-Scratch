@@ -63,7 +63,7 @@ void os_semaphore_give(OS_Semaphore_Handle *semaphore)
         break;
 
         case SEMAPHORE_COUNTING_TYPE:
-            if (temp_semaphore_value < SEMAPHORE_COUNTER_MAX)
+            if (temp_semaphore_value <= SEMAPHORE_COUNTER_MAX)
                 temp_semaphore_value += 1;
         break;
 
