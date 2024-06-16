@@ -9,9 +9,9 @@
  *******************************************************************************************/
 #include "os_memory.h"
 
-#define HEAP_SIZE               (0x1000) // 4096 bytes
-#define HEAP_TOP_ADDRESS        (0x2001BF10UL - HEAP_SIZE)
-#define MAX_ALLOCATION_ENTRIES  (44U)
+#define HEAP_SIZE               (0x8000UL) // 32kB
+#define HEAP_TOP_ADDRESS        (0x2001BFF0UL - HEAP_SIZE)
+#define MAX_ALLOCATION_ENTRIES  (64U)
 
 static volatile UInt32 heap_index = 0;
 static volatile UInt32 *new_adr_ptr = NULL;

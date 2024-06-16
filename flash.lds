@@ -86,7 +86,7 @@
 MEMORY
 {
    flash(rx)  : ORIGIN = 0x08000000, LENGTH = 1024K
-   sram(xrw) : ORIGIN = 0x20000000, LENGTH = 120K
+   sram(xrw) : ORIGIN = 0x20000000, LENGTH = 65K
 }
 
 SECTIONS

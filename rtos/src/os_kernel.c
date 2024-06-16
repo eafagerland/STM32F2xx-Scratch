@@ -82,16 +82,16 @@ UInt8 os_kernel_new_thread(void(*task)(void), UInt16 stack_size)
 
     thread->stack_pt = &TCB_STACK[thread_count][stack_size - 16];
 
-    if (thread_count == 0)
-    {
-        thread->next_pt = thread;
-        current_pt = thread;
-    }
-    else
-    {
-        thread->next_pt = &thread_array[thread_count - 1];
-        thread_array[thread_count - 1].next_pt = thread;
-        current_pt = &thread_array[0]; // Set the current thread pointer to first thread
+    current_pt = &thread_array[0]; // Set the current thread pointer to first thread
+
+    // Iterate all the threads to set the schedule
+    for (UInt32 i = 0; i < thread_count + 1; i++)
+    {   
+        if (i == thread_count)
+            thread_array[i].next_pt = &thread_array[0]; // If last thread, set next_pt to first thread
+
+        if (i != 0)
+            thread_array[i - 1].next_pt = &thread_array[i]; // Set the previous thread's next_pt to this
     }
 
     TCB_STACK[thread_count][stack_size - 1] = (1U << 24U);      // Set bit21 (T-bit) in PSR to 1, to operate in Thumb mode
@@ -115,6 +115,8 @@ void os_kernel_init(void)
     systick_count = 0;
     thread_count = 0;
     current_pt = NULL;
+
+    os_mem_init();
 }
 
 /********************************************************************************************
