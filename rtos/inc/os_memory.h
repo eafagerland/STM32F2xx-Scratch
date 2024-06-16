@@ -16,6 +16,8 @@
 
 void os_mem_init(void);
 void *allocate(UInt16 size);
+void *relocate(void *ptr, UInt16 size);
+UInt16 os_mem_size(void *ptr);
 void free_mem(void *ptr);
 
 #endif // __OS_MEMORY_H__

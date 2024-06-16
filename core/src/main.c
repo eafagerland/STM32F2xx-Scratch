@@ -30,7 +30,7 @@ void thread_0(void)
     print("\r\nStarting2!\r\n\n");
 
     // Heap memory test
-    UInt32 num = 64;
+    UInt32 num = 4;
 
     UInt32 *array[num];
     for (int i = 0; i < num; i++)
@@ -44,6 +44,11 @@ void thread_0(void)
             *array[i] = i + 100;
     }
     print("Allocation Done!\r\n");
+
+    free_mem(array[3]);
+    UInt32 *test_val = allocate(sizeof(UInt32));
+    if (test_val != NULL)
+        *test_val = 3000;
 
     // Print all values
     for (int i = 0; i < num; i++)
@@ -59,12 +64,12 @@ void thread_0(void)
         free_mem(array[i]);
     }
 
-    os_semaphore_give(&semaphore);
+    //os_semaphore_give(&semaphore);
 
     while(1)
     {
         task0_profiler++;
-        if (os_semaphore_take(&semaphore, 5000) != OS_OK)
+        if (os_semaphore_take(&semaphore, 50000) != OS_OK)
         {
             print("Timeout in thread 0!\r\n");
            continue;
@@ -73,7 +78,7 @@ void thread_0(void)
         print("Semaphore optained in thread 0!\r\n");
         ESL_GPIO_TogglePin(LED_PORT, GREEN_LED);
         os_semaphore_give(&semaphore);
-        os_task_delay(1000);
+        os_task_delay(1);
     }
 }
 
@@ -83,10 +88,10 @@ void thread_1(void)
     {
         task1_profiler++;
         os_semaphore_take(&semaphore, OS_MAX_TIMEOUT);
-        os_task_delay(2000);
+        os_task_delay(500);
         ESL_GPIO_TogglePin(LED_PORT, BLUE_LED);
-        print("Giving semaphore in thread 1!\r\n");
-        os_semaphore_give(&semaphore);
+        //print("Giving semaphore in thread 1!\r\n");
+        //os_semaphore_give(&semaphore);
         os_task_delay(1);
     }
 }
@@ -97,6 +102,16 @@ void thread_2(void)
     {
         task2_profiler++;
         ESL_GPIO_TogglePin(LED_PORT, RED_LED);
+        os_task_delay(5000);
+    }
+}
+
+void thread_3(void)
+{
+    while(1)
+    {
+        //task2_profiler++;
+        ESL_GPIO_TogglePin(LED_PORT, BLUE_LED);
         os_task_delay(1000);
     }
 }
@@ -121,7 +136,9 @@ int main(void)
     os_kernel_init();
     os_mem_init();
     os_semaphore_create_binary(&semaphore);
-    os_kernel_add_threads(&thread_0, &thread_1, &thread_2);
+    os_kernel_new_thread(&thread_2, 100);
+    os_kernel_new_thread(&thread_3, 100);
+    //if (status == 0)
     os_kernel_launch();
 
     // Will never get here!

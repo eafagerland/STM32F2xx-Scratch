@@ -10,8 +10,8 @@
 #include "os_memory.h"
 
 #define HEAP_SIZE               (0x1000) // 4096 bytes
-#define HEAP_TOP_ADDRESS        (0x2001BFFFUL)
-#define MAX_ALLOCATION_ENTRIES  (64U)
+#define HEAP_TOP_ADDRESS        (0x2001BF10UL - HEAP_SIZE)
+#define MAX_ALLOCATION_ENTRIES  (44U)
 
 static volatile UInt32 heap_index = 0;
 static volatile UInt32 *new_adr_ptr = NULL;
@@ -46,7 +46,7 @@ void os_mem_init(void)
 void set_heap_position(UInt16 position)
 {
     heap_index = position;
-    new_adr_ptr = (UInt32*)(HEAP_TOP_ADDRESS - heap_index);
+    new_adr_ptr = (UInt32*)(HEAP_TOP_ADDRESS + heap_index);
 }
 
 /********************************************************************************************
@@ -59,10 +59,10 @@ void *allocate(UInt16 size)
     size = (size + 3) & (~3); // Round up to the nearest multiple of 4
 
     // Calculate the new address
-    new_adr_ptr = (UInt32*)(HEAP_TOP_ADDRESS - heap_index);
+    new_adr_ptr = (UInt32*)(HEAP_TOP_ADDRESS + heap_index);
 
     // Check if there's enough space left in the heap and reset back to top of heap
-    if ((UInt32)new_adr_ptr - size < (UInt32)(HEAP_TOP_ADDRESS - (UInt32)HEAP_SIZE))
+    if ((UInt32)new_adr_ptr + size > (UInt32)(HEAP_TOP_ADDRESS + HEAP_SIZE))
         set_heap_position(0);
 
     // Check if heap is full
@@ -76,7 +76,7 @@ void *allocate(UInt16 size)
             continue;
 
         // Check if current address is conflicting with allocation entries
-        Int32 diff = (Int32)((UInt32)allocation_table[i].ptr - (UInt32)new_adr_ptr);
+        Int32 diff = (Int32)((UInt32)new_adr_ptr) - (UInt32)allocation_table[i].ptr;
         if (diff < allocation_table[i].size && diff >= 0)
         {
             set_heap_position(heap_index + allocation_table[i].size);
@@ -111,6 +111,50 @@ void *allocate(UInt16 size)
     heap_bytes_used += size;
 
     return (void*)new_adr_ptr;
+}
+
+/********************************************************************************************
+ *  Relocates existing pointer for new size to be allocated, returns pointer to address,
+ *  returns NULL if failed
+ *******************************************************************************************/
+void *relocate(void *ptr, UInt16 size)
+{
+    // Get size of current ptr?
+    UInt16 old_size = os_mem_size(ptr);
+
+    // Store old ptr temp data
+    UInt32 old_data[old_size];
+    UInt32 *int_ptr = (UInt32 *)ptr;
+    for (UInt32 i = 0; i < old_size; i++)
+        old_data[i] = int_ptr[i];
+
+    // Free current ptr
+    free_mem(ptr);
+
+    // Allocate new ptr with new size
+    UInt32 *new_ptr = (UInt32*)allocate(size);
+
+    if (new_ptr == NULL)
+        return NULL;
+
+    // Copy from temp to new ptr
+    for (UInt32 i = 0; i < old_size; i++)
+        new_ptr[i] = old_data[i];
+
+    return (void*)new_ptr;
+}
+
+/********************************************************************************************
+ *  Checks the allocation table to find and return the size allocated for that pointer.
+ *******************************************************************************************/
+UInt16 os_mem_size(void *ptr)
+{
+    for (UInt32 i = 0; i < MAX_ALLOCATION_ENTRIES; i++)
+    {
+        if (allocation_table[i].ptr == ptr)
+            return allocation_table[i].size;
+    }
+    return 0;
 }
 
 /********************************************************************************************

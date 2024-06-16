@@ -8,13 +8,12 @@
  *
  *******************************************************************************************/
 #include "os_kernel.h"
+#include "os_memory.h"
 #include "stm32f2xx_esl_systick.h"
 #include "stm32f2xx_esl_nvic.h"
 #include "stm32f2xx_esl_rcc.h"
 
 #define RTOS_TICKRATE_HZ    (1000UL)
-#define NUM_OF_THREADS      (3U)
-#define STACK_SIZE          (300UL) // 100 * 32bits
 
 #define INTCTRL             (*((volatile UInt32 *)0xE000ED04))
 #define PENDSTSET           (1U << 26U)
@@ -30,58 +29,79 @@ struct tcb
 
 typedef struct tcb tcb_type;
 
-tcb_type tcbs[NUM_OF_THREADS];
-tcb_type *current_pt;
+static tcb_type *thread_array = NULL;
+static tcb_type *current_pt = NULL;
 
-// Each thread will have stacksize of 100 i.e. 400bytes
-Int32 TCB_STACK[NUM_OF_THREADS][STACK_SIZE];
+static UInt16 thread_count = 0;
+
+Int32 **TCB_STACK = NULL;
 
 // Function Prototypes
 void os_scheduler_launch(void);
 void os_scheduler_round_robin(void);
 
 /********************************************************************************************
- *  Initializes the thread stacks
+ *  Creates a new thread in HEAP memory
  *******************************************************************************************/
-void os_kernel_stack_init(int i)
-{
-    tcbs[i].stack_pt = &TCB_STACK[i][STACK_SIZE - 16]; // Stack pointer
-
-    TCB_STACK[i][STACK_SIZE - 1] = (1U << 24U); // Set bit21 (T-bit) in PSR to 1, to operate in Thumb mode
-}
-
-/********************************************************************************************
- *  Adds the thread to the kernel
- *******************************************************************************************/
-UInt8 os_kernel_add_threads(void(*task0)(void), void(*task1)(void), void(*task2)(void))
+UInt8 os_kernel_new_thread(void(*task)(void), UInt16 stack_size)
 {
     __disable_irq();
 
-    tcbs[0].next_pt = &tcbs[1];
-    tcbs[1].next_pt = &tcbs[2];
-    tcbs[2].next_pt = &tcbs[0];
+    if (thread_array == NULL)
+        thread_array = (tcb_type *)allocate((thread_count + 1) * sizeof(tcb_type));
+    else
+        thread_array = (tcb_type *)relocate(thread_array, (thread_count + 1) * sizeof(tcb_type));
 
-    // Initialize stack for thread0
-    os_kernel_stack_init(0);
-    // Initialize program counter (PC)
-    TCB_STACK[0][STACK_SIZE - 2] = (Int32)(task0);
+    if (thread_array == NULL)
+    {
+        __enable_irq();
+        return 1;
+    }
 
-    // Initialize stack for thread1
-    os_kernel_stack_init(1);
-    // Initialize program counter (PC)
-    TCB_STACK[1][STACK_SIZE - 2] = (Int32)(task1);
+    // Allocate memory for number of threads pointers to Int32
+    if (TCB_STACK == NULL) 
+        TCB_STACK = (Int32 **)allocate((thread_count + 1) * sizeof(Int32 *));
+    else
+        TCB_STACK = (Int32 **)relocate(TCB_STACK, (thread_count + 1) * sizeof(Int32 *));
 
-    // Initialize stack for thread2
-    os_kernel_stack_init(2);
-    // Initialize program counter (PC)
-    TCB_STACK[2][STACK_SIZE - 2] = (Int32)(task2);
+    if (TCB_STACK == NULL)
+    {
+        __enable_irq();
+        return 1;
+    }
 
-    // Start from thread0
-    current_pt = &tcbs[0];
+    // Allocate memory for thread stack
+    TCB_STACK[thread_count] = (Int32 *)allocate(stack_size * sizeof(Int32));
+    if (TCB_STACK[thread_count] == NULL)
+    {
+        __enable_irq();
+        return 1;
+    }
+
+    tcb_type *thread = &thread_array[thread_count];
+
+    thread->stack_pt = &TCB_STACK[thread_count][stack_size - 16];
+
+    if (thread_count == 0)
+    {
+        thread->next_pt = thread;
+        current_pt = thread;
+    }
+    else
+    {
+        thread->next_pt = &thread_array[thread_count - 1];
+        thread_array[thread_count - 1].next_pt = thread;
+        current_pt = &thread_array[0]; // Set the current thread pointer to first thread
+    }
+
+    TCB_STACK[thread_count][stack_size - 1] = (1U << 24U);      // Set bit21 (T-bit) in PSR to 1, to operate in Thumb mode
+    TCB_STACK[thread_count][stack_size - 2] = (Int32)(task);    // Initialize program counter (PC)
+
+    thread_count++;
 
     __enable_irq();
 
-    return 1;
+    return 0;
 }
 
 /********************************************************************************************
@@ -89,8 +109,12 @@ UInt8 os_kernel_add_threads(void(*task0)(void), void(*task1)(void), void(*task2)
  *******************************************************************************************/
 void os_kernel_init(void)
 {
+    thread_array = NULL;
+    TCB_STACK = NULL;
     MILLIS_PRESCALER = (RCC_Clocks.SYSCLK / RTOS_TICKRATE_HZ);
     systick_count = 0;
+    thread_count = 0;
+    current_pt = NULL;
 }
 
 /********************************************************************************************
@@ -98,6 +122,7 @@ void os_kernel_init(void)
  *******************************************************************************************/
 void os_kernel_launch(void)
 {
+	__disable_irq();
     // Reset systick
     SYSTICK->STK_CTRL = 0;
 
