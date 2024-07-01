@@ -6,6 +6,7 @@ C_SOURCES = \
 	./rtos/src/os_memory.c \
 	./rtos/src/os_kernel.c \
 	./rtos/src/os_semaphore.c \
+	./rtos/src/os_idle_thread.c \
 	./driver/stm32f2xx/stm32f2xx_esl.c \
 	./driver/stm32f2xx/stm32f2xx_esl_gpio.c \
 	./driver/stm32f2xx/stm32f2xx_esl_timer.c \
@@ -25,7 +26,9 @@ C_SOURCES = \
 	./core/src/interrupts.c \
 	./core/src/rtc.c \
 	./core/src/i2c.c
-ASM_SOURCES = ./asm/boot.S
+ASM_SOURCES = \
+	./asm/boot.S \
+	./rtos/asm/os_kernel_scheduler.S
 
 PREFIX = arm-none-eabi
 CC = $(PREFIX)-gcc
@@ -38,13 +41,14 @@ GDB = $(PREFIX)-gdb
 BIN = $(CP) -O binary
 
 CPU = -mcpu=cortex-m3
-MCU = $(CPU) -mthumb -g -std=c99
+MCU = $(CPU) -mthumb -g -std=c99 -O2
 
 C_INCLUDES = -Icore/inc -Idriver -Idriver/utilities -Idriver/stm32f2xx -Irtos/inc
 CFLAGS = $(MCU) $(C_INCLUDES)
 CFLAGS += -Wall
 
 LDSCRIPT = flash.lds
+ASFLAGS = $(MCU)
 LDFLAGS = -T $(LDSCRIPT)
 
 LIBS = -L"C:\Program Files (x86)\Arm GNU Toolchain arm-none-eabi\13.2 Rel1\lib\gcc\arm-none-eabi\13.2.1\thumb\v7-m\nofp" -lm

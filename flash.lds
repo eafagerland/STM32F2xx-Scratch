@@ -92,5 +92,6 @@ MEMORY
 SECTIONS
 {
    .text : { *(.text*) } > flash
+   .data : { *(.text*) } > flash
    .bss  : { *(.bss*) } > sram
 }

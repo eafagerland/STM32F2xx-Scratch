@@ -11,6 +11,8 @@
 #define __OS_MEMORY_H__
 
 #define NULL (void*)0
+#define delete(ptr) free_mem(ptr)
+#define new(type) allocate(sizeof(type))
 
 #include "stm32f207xx.h"
 

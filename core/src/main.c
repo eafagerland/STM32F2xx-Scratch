@@ -5,10 +5,9 @@
 #include "eslstring.h"
 #include "os_kernel.h"
 #include "os_semaphore.h"
+#include "os_idle_thread.h"
 
 #define USER_BUTTON GPIO_PIN_13
-
-#define QUANTA (1UL)
 
 typedef UInt32 TaskProfiler;
 
@@ -24,6 +23,14 @@ typedef struct
 
 OS_Semaphore_Handle semaphore;
 
+UInt32 idle_counter = 0;
+
+void os_idle_hook_callback(void)
+{
+    idle_counter++;
+    __wfi();
+}
+
 void thread_0(void)
 {
     os_semaphore_give(&semaphore);
@@ -33,14 +40,14 @@ void thread_0(void)
         task0_profiler++;
         if (os_semaphore_take(&semaphore, 50000) != OS_OK)
         {
-            print("Timeout in thread 0!\r\n");
-           continue;
+            //print("Timeout in thread 0!\r\n");
+            continue;
         }
 
-        print("Semaphore optained in thread 0!\r\n");
+        //print("Semaphore optained in thread 0!\r\n");
         ESL_GPIO_TogglePin(LED_PORT, GREEN_LED);
         os_semaphore_give(&semaphore);
-        os_task_delay(1);
+        os_task_delay(10);
     }
 }
 
@@ -52,7 +59,7 @@ void thread_1(void)
         os_semaphore_take(&semaphore, OS_MAX_TIMEOUT);
         os_task_delay(500);
         //ESL_GPIO_TogglePin(LED_PORT, BLUE_LED);
-        print("Giving semaphore in thread 1!\r\n");
+        //print("Giving semaphore in thread 1!\r\n");
         os_semaphore_give(&semaphore);
         os_task_delay(1);
     }
@@ -64,7 +71,17 @@ void thread_2(void)
     {
         task2_profiler++;
         ESL_GPIO_TogglePin(LED_PORT, RED_LED);
-        os_task_delay(1000);
+        os_task_delay(100);
+
+        // Print test counter
+        print("Counter Values: ");
+        char buf[20];
+        uint_to_string((UInt32)task2_profiler, buf);
+        print(buf);
+        print(", Idle Counter: ");
+        uint_to_string((UInt32)idle_counter, buf);
+        print(buf);
+        print("\r\n");
     }
 }
 
@@ -73,7 +90,7 @@ void thread_3(void)
     while (1)
     {
         ESL_GPIO_TogglePin(LED_PORT, BLUE_LED);
-        os_task_delay(100);
+        os_task_delay(1000);
     }
 }
 
@@ -85,6 +102,7 @@ static void init_system_clocks();
 
 int main(void)
 {
+    idle_counter = 0;
     task0_profiler = 0;
     task1_profiler = 0;
     task2_profiler = 0;
@@ -96,10 +114,10 @@ int main(void)
     UART2_Init();
     os_kernel_init();
     os_semaphore_create_binary(&semaphore);
-    os_kernel_new_thread(&thread_0, 100);
-    os_kernel_new_thread(&thread_1, 100);
-    os_kernel_new_thread(&thread_2, 100);
-    os_kernel_new_thread(&thread_3, 100);
+    os_kernel_new_thread(&thread_2, 100, Thread_Priority_Low);
+    os_kernel_new_thread(&thread_1, 100, Thread_Priority_Low);
+    os_kernel_new_thread(&thread_0, 100, Thread_Priority_Low);
+    os_kernel_new_thread(&thread_3, 100, Thread_Priority_Low);
     os_kernel_launch();
 
     // Will never get here!

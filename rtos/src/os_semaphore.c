@@ -87,6 +87,8 @@ OS_Status os_semaphore_take(OS_Semaphore_Handle *semaphore, UInt32 timeout)
     Semaphore_Type semaphore_type = GET_SEMAPHORE_TYPE(semaphore);
     OS_Semaphore_Handle temp_semaphore_value = GET_SEMAPHORE_VALUE(semaphore);
 
+    current_pt->tick_wakeup = timeout; // Set the tick_wakeup so thread can be suspended by scheduler
+
     UInt32 tick_start = os_get_tick();
     while(temp_semaphore_value <= 0)
     {
